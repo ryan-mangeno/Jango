@@ -22,6 +22,7 @@
 [submodule "Crimson/vendor/yaml_cpp"]
 	path = Crimson/vendor/yaml_cpp
 	url = https://github.com/ryan-mangeno/yaml-cpp
+	branch = master
 [submodule "Crimson/vendor/assimp"]
 	path = Crimson/vendor/assimp
 	url = https://github.com/assimp/assimp
