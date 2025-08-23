@@ -21,7 +21,7 @@
 	url = https://github.com/CedricGuillemet/ImGuizmo
 	branch = master
 [submodule "Crimson/vendor/yaml-cpp"]
-  path = Crimson/vendor/yaml-cpp
+	path = Crimson/vendor/yaml-cpp
 	url = https://github.com/ryan-mangeno/yaml-cpp
 	branch = master
 [submodule "Crimson/vendor/assimp"]
