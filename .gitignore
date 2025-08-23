@@ -8,6 +8,9 @@ Crimson/vendor/physx_x64-windows/lib/
 *.user
 
 
+**/Makefile
+
+
 # Ignore Visual Studio project files
 *.vcxproj
 *.vcxproj.filters
