@@ -26,9 +26,8 @@ update_module() {
             echo "✅ Changes committed."
         else
             echo "⚡ No changes to commit in this module."
-        git push origin head
         fi
-
+        git push origin head
         # Return to root
         cd - > /dev/null
     else
