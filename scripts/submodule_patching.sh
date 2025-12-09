@@ -18,25 +18,21 @@ update_module() {
             echo "✅ Auto-switched remote to SSH: $NEW_URL"
         fi
         
-        # 1. Ensure we are on a branch
-        git checkout main 2>/dev/null || git checkout master 2>/dev/null || git checkout -b cmake-migration
+        git checkout main 2>/dev/null || git checkout master 2>/dev/null || 
 
-        # 2. Add and Commit (only if there are changes)
         if [[ -n $(git status --porcelain) ]]; then
             git add .
             git commit -m "Add CMake build support"
             echo "✅ Changes committed."
-            
-            # 3. Push
-            git push origin HEAD
         else
             echo "⚡ No changes to commit in this module."
+        git push origin head
         fi
 
         # Return to root
         cd - > /dev/null
     else
-        echo "⚠️  Skipping $DIR (Directory not found)"
+        echo "Skipping $DIR (Directory not found)"
     fi
 }
 
