@@ -9,7 +9,7 @@
 
 // temp
 #include <GLFW/glfw3.h>
-#include <Glad/glad.h>
+#include <glad/glad.h>
 
 namespace Crimson {
 

@@ -15,20 +15,21 @@ update_module() {
             # Convert https://github.com/ryan-mangeno/XYZ.git -> git@github.com:ryan-mangeno/XYZ.git
             NEW_URL=${CURRENT_URL/https:\/\/github.com\/ryan-mangeno\//git@github.com:ryan-mangeno/}
             git remote set-url origin "$NEW_URL"
-            echo "✅ Auto-switched remote to SSH: $NEW_URL"
+            echo "Auto-switched remote to SSH: $NEW_URL"
         fi
         
-        git checkout main 2>/dev/null || git checkout master 2>/dev/null || 
+        # docking for imgui
+        git checkout docking 2>/dev/null || checkout main 2>/dev/null || git checkout master 2>/dev/null || 
 
         if [[ -n $(git status --porcelain) ]]; then
             git add .
             git commit -m "Add CMake build support"
-            echo "✅ Changes committed."
+            echo "Changes committed."
         else
             echo "⚡ No changes to commit in this module."
         fi
         git push origin head
-        # Return to root
+        # return to root
         cd - > /dev/null
     else
         echo "Skipping $DIR (Directory not found)"

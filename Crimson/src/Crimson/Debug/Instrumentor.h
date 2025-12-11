@@ -142,7 +142,14 @@ namespace Crimson{
 
 #define CN_PROFILE_BEGIN_SESSION(name, filepath)  ::Crimson::Instrumentor::Get().BeginSession(name, filepath);
 #define CN_PROFILE_END_SESSION()  ::Crimson::Instrumentor::Get().EndSession();
-#define CN_PROFILE_FUNCTION()	CN_PROFILE_SCOPE(__FUNCSIG__)
+
+#if defined(_MSC_VER) 
+    #define CN_FUNC_SIG __FUNCSIG__
+#else
+    #define CN_FUNC_SIG __func__
+#endif
+
+#define CN_PROFILE_FUNCTION()	CN_PROFILE_SCOPE(CN_FUNC_SIG)
 #define CN_PROFILE_SCOPE(name) :: Crimson::InstrumentationTimer timer##__LINE__(name);
 
 #else

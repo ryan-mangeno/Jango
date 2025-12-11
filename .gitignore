@@ -17,3 +17,4 @@ Crimson/vendor/physx_x64-windows/lib/
 *.vcxproj.user
 *.sln
 *.json
+build/
