@@ -99,9 +99,7 @@ target_compile_definitions(Crimson PUBLIC
     YAML_CPP_STATIC_DEFINE
 )
 
-# ==========================================
 # Platform Specifics: Libraries & Defines
-# ==========================================
 
 if(WIN32)
     # --- WINDOWS SETUP ---
@@ -126,14 +124,23 @@ if(WIN32)
 elseif(APPLE)
     target_compile_definitions(Crimson PUBLIC CN_PLATFORM_MACOS GLFW_INCLUDE_NONE)
     
-    # Mac Frameworks (These replace opengl32, Ws2_32, etc.)
     find_library(COCOA_LIB Cocoa)
     find_library(IOKIT_LIB IOKit)
     find_library(COREVIDEO_LIB CoreVideo)
     find_library(OPENGL_LIB OpenGL)
     
-    target_link_libraries(Crimson PRIVATE
+    # common Homebrew paths (/opt/homebrew for M1/M2, /usr/local for Intel)
+    find_path(ASSIMP_INCLUDE_DIR assimp/Importer.hpp PATHS /opt/homebrew/include /usr/local/include REQUIRED)
+    find_library(ASSIMP_LIB assimp PATHS /opt/homebrew/lib /usr/local/lib REQUIRED)
+
+    message(STATUS "Found Mac Assimp Lib: ${ASSIMP_LIB}")
+    message(STATUS "Found Mac Assimp Headers: ${ASSIMP_INCLUDE_DIR}")
+
+    target_include_directories(Crimson PUBLIC ${ASSIMP_INCLUDE_DIR})
+    
+    target_link_libraries(Crimson PRIVATE 
         ${COCOA_LIB} ${IOKIT_LIB} ${COREVIDEO_LIB} ${OPENGL_LIB}
+        ${ASSIMP_LIB} # Link the .dylib found by brew
     )
 
     # Vendor Libs (Mac)
