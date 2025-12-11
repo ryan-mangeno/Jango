@@ -19,7 +19,7 @@ update_module() {
         fi
         
         # docking for imgui
-        git checkout docking 2>/dev/null || checkout main 2>/dev/null || git checkout master 2>/dev/null || 
+        git checkout docking 2>/dev/null || git checkout main 2>/dev/null || git checkout master 2>/dev/null || 
 
         if [[ -n $(git status --porcelain) ]]; then
             git add .
@@ -42,7 +42,6 @@ update_module "Crimson/vendor/GLFW"
 update_module "Crimson/vendor/imgui"
 update_module "Crimson/vendor/yaml-cpp"
 update_module "Crimson/vendor/Glad"
-update_module "Crimson/vendor/ImGuizmo"
 
 # --- Update the Main Root Repo ---
 echo "------------------------------------------------"
