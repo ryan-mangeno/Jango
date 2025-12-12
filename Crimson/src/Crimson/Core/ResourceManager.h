@@ -5,7 +5,7 @@
 #include "Crimson/Core/Core.h"
 #include "Crimson/Renderer/Material.h"
 #include "Crimson/Renderer/Texture.h"
-#include "Crimson/Mesh/LoadMesh.h";
+#include "Crimson/Mesh/LoadMesh.h"
 
 namespace Crimson
 {

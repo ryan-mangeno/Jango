@@ -30,3 +30,7 @@
 [submodule "Crimson/vendor/mimalloc"]
 	path = Crimson/vendor/mimalloc
 	url = https://github.com/ryan-mangeno/mimalloc
+[submodule "Crimson/vendor/PhysX-MacOS"]
+	path = Crimson/vendor/PhysX-MacOS
+	url = https://github.com/ryan-mangeno/Physx-MacOS.git
+	branch = ApplePlatformPatches

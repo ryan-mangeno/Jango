@@ -27,21 +27,24 @@ namespace Crimson {
 			aabbMin = glm::vec3(maxNum, maxNum, maxNum);
 			aabbMax = glm::vec3(minNum, minNum, minNum);
 		}
-		Bounds(glm::vec3& p)
+
+		Bounds(const glm::vec3& p)
 		{
 			aabbMax = p;
 			aabbMin = p;
 		}
-		Bounds(glm::vec3& min, glm::vec3& max)
+
+		Bounds(const glm::vec3& min, const glm::vec3& max)
 		{
 			aabbMax = max;
 			aabbMin = min;
 		}
-		Bounds(glm::vec3& a, glm::vec3& b, glm::vec3& c)
+		Bounds(const glm::vec3& a, const glm::vec3& b, const glm::vec3& c)
 		{
 			aabbMax = glm::max(glm::max(a, b), c);
 			aabbMin = glm::min(glm::min(a, b), c);
 		}
+
 		void Union(const Bounds& bounds)
 		{
 			aabbMax = glm::max(aabbMax, bounds.aabbMax);
