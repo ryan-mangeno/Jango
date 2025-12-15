@@ -143,21 +143,8 @@ elseif(APPLE)
         ${ASSIMP_LIB} # Link the .dylib found by brew
     )
 
-    # Vendor Libs (Mac)
-    # WARNING: You must have Mac compatible .a or .dylib files for these libraries.
-    # If you installed these via Homebrew (e.g. brew install assimp), use find_package/find_library instead.
-    
-    # Example approach: finding local libraries in a 'mac' folder
-    # You need to manually ensure these files exist or adjust paths.
-    
-    # CUrl (Mac often has curl built-in, but if you use vendor):
-    #target_link_libraries(Crimson PRIVATE curl) 
- 
-    # Assimp (Update path to your mac lib)
-    #target_link_libraries(Crimson PRIVATE "${CMAKE_SOURCE_DIR}/Crimson/vendor/assimp/lib/mac/libassimp.dylib")
-
     # PhysX (Mac support exists but is rare in pre-compiled. If missing, remove temporarily)
-    # target_link_libraries(Crimson PRIVATE "${CMAKE_SOURCE_DIR}/Crimson/vendor/PhysX/mac/libPhysX.a")
+    target_link_libraries(Crimson PRIVATE "${CMAKE_SOURCE_DIR}/Crimson/vendor/PhysX/mac/libPhysX.a")
 
     # OIDN
     # target_link_libraries(Crimson PRIVATE "${CMAKE_SOURCE_DIR}/Crimson/vendor/oidn/lib/mac/libOpenImageDenoise.dylib")
