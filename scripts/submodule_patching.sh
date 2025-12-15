@@ -1,7 +1,6 @@
-# Ensure we are in the root of the repo
+# ensure we are in the root of the repo
 cd "$(git rev-parse --show-toplevel)"
 
-# Function to update a single submodule with SSH fix
 update_module() {
     DIR=$1
     if [ -d "$DIR" ]; then
@@ -9,10 +8,8 @@ update_module() {
         echo "Processing $DIR..."
         cd "$DIR"
 
-        # --- AUTO-FIX: Switch HTTPS to SSH for ryan-mangeno repos ---
         CURRENT_URL=$(git remote get-url origin)
         if [[ "$CURRENT_URL" == https://github.com/ryan-mangeno/* ]]; then
-            # Convert https://github.com/ryan-mangeno/XYZ.git -> git@github.com:ryan-mangeno/XYZ.git
             NEW_URL=${CURRENT_URL/https:\/\/github.com\/ryan-mangeno\//git@github.com:ryan-mangeno/}
             git remote set-url origin "$NEW_URL"
             echo "Auto-switched remote to SSH: $NEW_URL"
@@ -43,14 +40,12 @@ update_module() {
     fi
 }
 
-# --- Run updates for all submodules ---
 update_module "Crimson/vendor/Chroma"
 update_module "Crimson/vendor/GLFW"
 update_module "Crimson/vendor/imgui"
 update_module "Crimson/vendor/yaml-cpp"
 update_module "Crimson/vendor/Glad"
 
-# --- Update the Main Root Repo ---
 echo "------------------------------------------------"
 echo "Updating Jango Root..."
 git add .
