@@ -3,6 +3,6 @@
 
 namespace Crimson {
 
-	double GetTime();
+	double OpenGLGetTime();
 
 }

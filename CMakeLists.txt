@@ -58,7 +58,10 @@ set(INC_ENTT "Crimson/vendor/entt")
 set(INC_CURL "Crimson/vendor/Curl/include")
 set(INC_JSON "Crimson/vendor/jsoncpp")
 set(INC_ASSIMP "Crimson/vendor/assimp/include")
-set(INC_PHYSX "Crimson/vendor/physx_x64-windows/include") # need to seperate for mac
+set(INC_PHYSX 
+        "Crimson/vendor/Nvidia-PhysX/physx/include"
+        "Crimson/vendor/Nvidia-PhysX/PxShared/include"
+    )
 set(INC_YAML "Crimson/vendor/yaml-cpp/include")
 set(INC_OIDN "Crimson/vendor/oidn/include")
 set(INC_IMGUIZMO "Crimson/vendor/ImGuizmo")
@@ -97,6 +100,9 @@ target_include_directories(Crimson PUBLIC
 target_compile_definitions(Crimson PUBLIC
     PX_PHYSX_STATIC_LIB
     YAML_CPP_STATIC_DEFINE
+    $<$<CONFIG:Debug>:_DEBUG>
+    $<$<CONFIG:Release>:NDEBUG>
+    $<$<CONFIG:Dist>:NDEBUG>
 )
 
 # Platform Specifics: Libraries & Defines
@@ -144,7 +150,7 @@ elseif(APPLE)
     )
 
     # PhysX (Mac support exists but is rare in pre-compiled. If missing, remove temporarily)
-    target_link_libraries(Crimson PRIVATE "${CMAKE_SOURCE_DIR}/Crimson/vendor/PhysX/mac/libPhysX.a")
+    target_link_libraries(Crimson PRIVATE "${CMAKE_SOURCE_DIR}/Crimson/vendor/Nvidia-PhysX/mac/libPhysX.a")
 
     # OIDN
     # target_link_libraries(Crimson PRIVATE "${CMAKE_SOURCE_DIR}/Crimson/vendor/oidn/lib/mac/libOpenImageDenoise.dylib")

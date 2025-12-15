@@ -27,7 +27,7 @@ namespace Crimson {
 		shader.SetMat4("m_ModelTransform", ModelTransform);
 
 		vertexarray.Bind();
-		RenderCommand::DrawIndex(vertexarray);
+		RenderCommand::DrawIndex(vertexarray, 0);
 	}
 
 }

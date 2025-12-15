@@ -96,7 +96,7 @@ namespace Crimson {
 		glm::vec2 NewMousePos = { Input::GetMousePos().first,Input::GetMousePos().second };
 		if (Input::IsMouseButtonPressed(CRIMSON_MOUSE_BUTTON_2))//camera pan
 		{
-			auto& delta = NewMousePos - OldMousePos;//get change in mouse position
+			const auto& delta = NewMousePos - OldMousePos;//get change in mouse position
 
 			m_ViewDirection = glm::mat3(glm::rotate(glm::radians(-delta.x) * 0.1f, Up)) * m_ViewDirection;//invert it
 			m_ViewDirection = glm::mat3(glm::rotate(glm::radians(-delta.y) * 0.1f, RightVector)) * m_ViewDirection;//rotate along right vector

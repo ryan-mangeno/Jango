@@ -122,7 +122,7 @@ namespace Crimson
 		};
 
 		Ref<VertexArray> vao = VertexArray::Create();
-		Ref<VertexBuffer> vb = VertexBuffer::Create(quad.data(), sizeof(glm::vec4) * 8);
+		Ref<VertexBuffer> vb = VertexBuffer::Create(reinterpret_cast<const float*>(quad.data()), sizeof(glm::vec4) * 8);
 		const std::array<uint32_t, 6> i_data = { 0,1,2,0,2,3 };
 		Ref<IndexBuffer> ib = IndexBuffer::Create(i_data.data(), sizeof(uint32_t) * 6);
 
@@ -284,7 +284,7 @@ namespace Crimson
 		glDisable(GL_CULL_FACE);
 		glDepthMask(GL_FALSE);//disable depth testing
 
-		RenderCommand::DrawIndex(*vao);
+		//RenderCommand::DrawIndex(*vao);
 
 		glDepthMask(GL_TRUE);//again enable depth testing
 		glEnable(GL_CULL_FACE);

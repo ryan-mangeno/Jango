@@ -485,14 +485,14 @@ namespace Crimson
 	}
 	void QuadTree::DeleteNode(QNode*& node)
 	{
-		glm::vec3& extent = node->chunk_bounds.aabbMax - node->chunk_bounds.aabbMin;
+		const glm::vec3& extent = node->chunk_bounds.aabbMax - node->chunk_bounds.aabbMin;
 		glm::vec3& player_pos = terrain->player_camera_pos;
 
 		for (QNode*& child : node->childrens)
 		{
 			glm::vec3& bounds_min = child->chunk_bounds.aabbMin;
 			glm::vec3& bounds_max = child->chunk_bounds.aabbMax;
-			glm::vec3& chunk_size = bounds_max - bounds_min;
+			const glm::vec3& chunk_size = bounds_max - bounds_min;
 			if (chunk_size.x == 256)
 			{
 				for (auto& topPlant : terrain->topFoliageLayer)

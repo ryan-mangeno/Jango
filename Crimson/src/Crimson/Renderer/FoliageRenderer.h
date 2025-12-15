@@ -26,7 +26,7 @@ namespace Crimson
 		LOD_Distance : max distance after which lower LOD will replace the higher ones (as this engine has 2 lods)
 		applyGradientMask : applies a grigent (dark color at bottom bright color at top)
 		*/
-		Foliage::Foliage(LoadMesh* mesh, uint32_t numInstances,	float cullDistance=100, bool canCastShadow = false,
+		Foliage(LoadMesh* mesh, uint32_t numInstances,	float cullDistance=100, bool canCastShadow = false,
 			float LOD_Distance = 50.0f, bool applyGradientMask = false, bool enableWind = false, bool alignToTerrainNormal = false, float min_scale = 1, float max_scale=2, const std::string & densityMap_Path = "");
 		~Foliage();
 		//For foliage placement in cpu side (not in use)

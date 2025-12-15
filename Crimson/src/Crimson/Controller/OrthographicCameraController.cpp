@@ -1,6 +1,6 @@
 #include "cnpch.h"
 #include "OrthographicCameraController.h"
-#include "Crimson/Core/Input.h";
+#include "Crimson/Core/Input.h"
 #include "Crimson/Core/KeyCodes.h"
 
 #define CN_BIND_FN(x) std::bind(&OrthographicCameraController::x,this,std::placeholders::_1)

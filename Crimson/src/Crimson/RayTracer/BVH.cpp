@@ -1,7 +1,7 @@
 #include "cnpch.h"
 #include "BVH.h"
 #include "Crimson/Core/Core.h"
-#include <Glad/glad.h>
+#include <glad/glad.h>
 #include "Crimson/Core/ResourceManager.h"
 #include <GLFW/glfw3.h>
 
@@ -197,7 +197,7 @@ namespace Crimson
 		Bounds ResultingBound; //get the total bounds of all the triangles in a particular node
 		for (int i = 0; i < node.TriangleCount; i++)
 		{
-			Bounds& bnds = (m_RTTriangles[m_TriIndices[node.TriangleStartID + i]].GetBounds());
+			const Bounds& bnds = (m_RTTriangles[m_TriIndices[node.TriangleStartID + i]].GetBounds());
 
 			// adding node bound to resulting bound
 			ResultingBound.Union(bnds);
@@ -314,7 +314,7 @@ namespace Crimson
 
 		for (int i = 0; i < triCount; i++)
 		{
-			Bounds& bnds = m_RTTriangles[m_TriIndices[i + triStartID]].GetBounds();
+			const Bounds& bnds = m_RTTriangles[m_TriIndices[i + triStartID]].GetBounds();
 			bounds.Union(bnds);
 		}
 

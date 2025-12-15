@@ -12,7 +12,7 @@ namespace Crimson {
 		CubeMapEnvironment::renderBuffer_id = 0, CubeMapEnvironment::framebuffer_id2 = 0, CubeMapEnvironment::tex_id = 0;
 	uint32_t CubeMapEnvironment::captureRes = 512;
 
-	auto RenderUnitCube = [&]() {
+	auto RenderUnitCube = []() {
 		uint32_t cubeVAO = 0;
 		uint32_t cubeVBO = 0;
 		glDisable(GL_CULL_FACE);
@@ -390,7 +390,7 @@ namespace Crimson {
 		vao->AddBuffer(bl, vb);
 		vao->SetIndexBuffer(ib);
 
-		RenderCommand::DrawIndex(*vao);
+		RenderCommand::DrawIndex(*vao, GL_TRIANGLES);
 
 		glDepthMask(GL_TRUE);
 		glEnable(GL_CULL_FACE);
@@ -430,7 +430,7 @@ namespace Crimson {
 		vao->AddBuffer(bl, vb);
 		vao->SetIndexBuffer(ib);
 
-		RenderCommand::DrawIndex(*vao);
+		RenderCommand::DrawIndex(*vao, GL_TRIANGLES);
 
 		glDepthMask(GL_TRUE);
 		glEnable(GL_CULL_FACE);

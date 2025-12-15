@@ -460,8 +460,8 @@ namespace Crimson {
 		size_t valid_end = std::min(static_cast<size_t>(total_instanceCount), foliage_positions.size());
 
 		// new end
-		auto new_end = std::remove_if(std::execution::par, foliage_positions.begin(), foliage_positions.begin() + valid_end,
-			[bounds](glm::vec2& cur_val)
+		auto new_end = std::remove_if(foliage_positions.begin(), foliage_positions.begin() + valid_end,			
+		[bounds](glm::vec2& cur_val)
 			{
 				return (cur_val.x >= bounds.aabbMin.x && cur_val.x <= bounds.aabbMax.x&&
 						cur_val.y >= bounds.aabbMin.z && cur_val.y <= bounds.aabbMax.z); 
@@ -602,7 +602,7 @@ namespace Crimson {
 		glMemoryBarrier(GL_ALL_BARRIER_BITS);
 	}
 
-	auto IsValid = [&](glm::vec2 candidate, glm::vec2 sampleRegionSize, float cellSize, float radius, std::vector<glm::vec2> points, const std::vector<std::vector<int>>& grid)
+	auto IsValid = [](glm::vec2 candidate, glm::vec2 sampleRegionSize, float cellSize, float radius, std::vector<glm::vec2> points, const std::vector<std::vector<int>>& grid)
 	{
 		if (candidate.x >= 0 && candidate.x < sampleRegionSize.x && candidate.y >= 0 && candidate.y < sampleRegionSize.y) {
 			int cellX = (int)(candidate.x / cellSize);

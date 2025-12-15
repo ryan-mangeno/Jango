@@ -2,7 +2,7 @@
 
 #include "OpenGLBuffer.h"
 #include "Crimson/Renderer/Renderer2D.h"
-#include <Glad/glad.h>
+#include <glad/glad.h>
 
 namespace Crimson {
 

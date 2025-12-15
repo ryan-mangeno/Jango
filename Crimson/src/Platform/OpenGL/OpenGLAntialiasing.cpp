@@ -90,7 +90,7 @@ namespace Crimson
 		vao->AddBuffer(bl, vb);
 		vao->SetIndexBuffer(ib);
 
-		RenderCommand::DrawIndex(*vao);
+		RenderCommand::DrawIndex(*vao, GL_TRIANGLES);
 
 		glDepthMask(GL_TRUE);//again enable depth testing
 		glEnable(GL_CULL_FACE);

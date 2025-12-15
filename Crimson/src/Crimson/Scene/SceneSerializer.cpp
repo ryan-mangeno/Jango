@@ -302,7 +302,7 @@ namespace Crimson {
 			}
 		}
 
-		auto& entities = data["Entities"];
+		const auto& entities = data["Entities"];
 		if (entities)
 		{
 			for (auto& entity : entities)

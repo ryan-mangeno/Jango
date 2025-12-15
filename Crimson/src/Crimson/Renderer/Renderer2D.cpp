@@ -68,7 +68,7 @@ namespace Crimson {
 	void Renderer2D::Flush()
 	{
 		m_data->vb->SetData(sizeof(VertexAttributes) * m_data->m_VertexCounter, &m_data->Quad[0].Position.x);
-		RenderCommand::DrawIndex(*m_data->vao);//draw call done only once (batch rendering is implemented)
+		RenderCommand::DrawIndex(*m_data->vao, GL_TRIANGLES);//draw call done only once (batch rendering is implemented)
 		m_data->m_VertexCounter = 0;
 	}
 

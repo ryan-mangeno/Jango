@@ -1,7 +1,7 @@
 #include "cnpch.h"
 #include "Physics3D.h"
 #include "PxPhysicsAPI.h"
-
+#include "cooking/PxCooking.h"
 
 namespace Crimson {
 	physx::PxFoundation* Physics3D::m_foundation = nullptr;
@@ -180,7 +180,7 @@ namespace Crimson {
 
 			physx::PxCookingParams cookingParams(m_physics->getTolerancesScale());
 
-			physx::PxTriangleMesh* triMesh = PxCreateTriangleMesh(cookingParams, triMeshDesc);
+			physx::PxTriangleMesh* triMesh = m_cooking->createTriangleMesh(triMeshDesc, m_physics->getPhysicsInsertionCallback());			
 			if (!triMesh)
 			{
 				CN_CORE_ERROR("Error creating triangle mesh");
@@ -217,7 +217,7 @@ namespace Crimson {
 
 			physx::PxCookingParams cookingParams(m_physics->getTolerancesScale());
 			// Create the convex mesh directly
-			physx::PxConvexMesh* convexMesh = PxCreateConvexMesh(cookingParams, convexMeshDesc);
+			physx::PxConvexMesh* convexMesh = m_cooking->createConvexMesh(convexMeshDesc, m_physics->getPhysicsInsertionCallback());			
 			if (!convexMesh)
 			{
 				CN_CORE_ERROR("Error creating convex mesh");
@@ -277,7 +277,7 @@ namespace Crimson {
 		hfDesc.samples.stride = sizeof(physx::PxHeightFieldSample);
 		hfDesc.flags = physx::PxHeightFieldFlag::eNO_BOUNDARY_EDGES;
 
-		physx::PxHeightField* aHeightField = PxCreateHeightField(hfDesc, m_physics->getPhysicsInsertionCallback());
+		physx::PxHeightField* aHeightField = m_cooking->createHeightField(hfDesc, m_physics->getPhysicsInsertionCallback());
 		// flags = physx::PxMeshGeometryFlags::PxFlags::;
 		physx::PxHeightFieldGeometry hfGeom(aHeightField, physx::PxMeshGeometryFlags(), 1, spacing,
 			spacing);
@@ -375,16 +375,6 @@ namespace Crimson {
 		physx::PxDefaultErrorCallback mDefaultErrorCallback;
 		m_foundation = PxCreateFoundation(PX_PHYSICS_VERSION, mDefaultAllocatorCallback, mDefaultErrorCallback);
 
-		// Create CUDA context manager for GPU acceleration (if needed)
-		physx::PxCudaContextManagerDesc cudaContextManagerDesc;
-		gCudaContextManager = PxCreateCudaContextManager(*m_foundation, cudaContextManagerDesc);
-		if (!gCudaContextManager)
-		{
-			CN_CORE_ERROR("Error in creating CUDA context manager");
-			return;
-		}
-
-		// In PhysX 5.x, cooking is integrated with the PxPhysics object, no need for PxCreateCooking
 		physx::PxTolerancesScale toleranceScale;
 		m_physics = PxCreatePhysics(PX_PHYSICS_VERSION, *m_foundation, toleranceScale);
 		if (!m_physics)
@@ -393,8 +383,35 @@ namespace Crimson {
 			return;
 		}
 
-		// No need for PxRegisterHeightFields in PhysX 5.x
-		// Cooking is now integrated with PxPhysics, so heightfields will be handled through the new API
+		// init Cooking 
+		physx::PxCookingParams cookingParams(toleranceScale);
+		m_cooking = PxCreateCooking(PX_PHYSICS_VERSION, *m_foundation, cookingParams);
+		if (!m_cooking)
+		{
+			CN_CORE_ERROR("Error in creating cooking interface");
+			return;
+		}
+
+		// Create CUDA context manager for GPU acceleration (if needed)
+		#if defined(CN_PLATFORM_WINDOWS)
+			physx::PxCudaContextManagerDesc cudaContextManagerDesc;
+			gCudaContextManager = PxCreateCudaContextManager(*m_foundation, cudaContextManagerDesc);
+
+			if (gCudaContextManager && !gCudaContextManager->contextIsValid())
+			{
+				gCudaContextManager->release();
+				gCudaContextManager = nullptr;
+			}
+		#else
+			// on mac, force this to nullptr. PhysX will fallback to CPU automatically.
+			gCudaContextManager = nullptr;
+		#endif
+
+		if (!gCudaContextManager)
+		{
+			CN_CORE_ERROR("Error in creating CUDA context manager");
+			return;
+		}
 
 		// Create the CPU dispatcher and configure the scene
 		physx::PxSceneDesc sceneDesc(m_physics->getTolerancesScale());

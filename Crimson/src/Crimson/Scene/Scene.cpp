@@ -230,7 +230,7 @@ namespace Crimson {
 		m_Fog->SetFogParameters(fogDensity, fogTop, fogEnd, fogColor);
 
 		//update camera , Mesh Forward vectors....
-		auto& view = m_registry.view<CameraComponent>();
+		const auto& view = m_registry.view<CameraComponent>();
 
 		for (auto& entt : view) {
 
@@ -311,7 +311,7 @@ namespace Crimson {
 	}
 	void Scene::Resize(float Width, float Height)
 	{
-		auto& view = m_registry.view<CameraComponent>();
+		const auto& view = m_registry.view<CameraComponent>();
 		for (auto& entity : view) {
 			SceneCamera& camera = m_registry.get<CameraComponent>(entity).camera;
 			if(camera.IsResiziable && camera.IsResiziable)

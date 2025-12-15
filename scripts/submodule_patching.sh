@@ -16,13 +16,12 @@ update_module() {
         fi
 
         git fetch --all --quiet
-        
 
         if [[ "$DIR" == *"imgui"* ]]; then
             # imgui must use docking
             git checkout docking 2>/dev/null || git checkout -b docking origin/docking
         else
-            # Others use main or master
+            # others use main or master
             git checkout main 2>/dev/null || git checkout master 2>/dev/null || git checkout -b cmake-migration
         fi
         if [[ -n $(git status --porcelain) ]]; then
@@ -51,4 +50,4 @@ echo "Updating Jango Root..."
 git add .
 git commit -m "Update submodules with CMakeLists"
 git push origin main
-echo "🎉 Done!"
+echo "Done!"
