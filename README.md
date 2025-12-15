@@ -72,7 +72,7 @@ Follow these steps to set up the project:
 
    Clone Jango along with its submodules:
    ```bash
-   git clone --recursive https://github.com/anakin004/Jango.git
+   git clone --recursive https://github.com/ryan-mangeno/Jango.git
 
 ### Generate Project Files
 
