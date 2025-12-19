@@ -211,7 +211,10 @@ namespace Crimson {
 		DefferedRenderer::GetDeferredPassShader()->SetInt("Num_PointLights", pos.size());
 	}
 
-	void Renderer3D::DrawMesh(LoadMesh& mesh, glm::mat4& transform, const glm::vec4& color, bool wireframe, const float& material_Roughness, const float& material_metallic, Ref<Shader> otherShader)
+	// todo
+	// void Renderer3D::DrawMesh(LoadMesh& mesh, const glm::vec3& position ...
+
+	void Renderer3D::DrawMesh(LoadMesh& mesh, const glm::mat4& transform, const glm::vec4& color, bool wireframe, const float& material_Roughness, const float& material_metallic, Ref<Shader> otherShader)
 	{
 		for (const auto& sub_mesh : mesh.GetSubMeshes())
 		{

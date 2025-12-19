@@ -61,7 +61,7 @@ namespace Crimson {
 						else
 							shadow_shader->SetInt("isFoliage", 0);
 
-						auto& transform = Entity.GetComponent<TransformComponent>().GetTransform();
+						const auto& transform = Entity.GetComponent<TransformComponent>().GetTransform();
 
 						shadow_shader->SetMat4("u_Model", transform);
 
@@ -133,7 +133,7 @@ namespace Crimson {
 					else
 						shadow_shader->SetInt("isFoliage", 0);
 
-					auto& transform = Entity.GetComponent<TransformComponent>().GetTransform();
+					const auto& transform = Entity.GetComponent<TransformComponent>().GetTransform();
 					shadow_shader->SetMat4("u_Model", transform);
 					auto& mesh = Entity.GetComponent<StaticMeshComponent>();
 

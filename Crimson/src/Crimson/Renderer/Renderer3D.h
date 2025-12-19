@@ -3,6 +3,7 @@
 #include "Crimson/Core/Core.h"
 #include "Crimson/Renderer/CubeMapReflection.h"
 #include "Crimson/Mesh/LoadMesh.h"
+#include "Crimson/Scene/Scene.h"
 
 namespace Crimson {
 	class Camera;
@@ -31,7 +32,7 @@ namespace Crimson {
 		static void SetSunLightColorAndIntensity(const glm::vec3& color, float Intensity);
 		static void SetPointLightPosition(const std::vector<PointLight*>& Lights);
 		static void DrawMesh(LoadMesh& mesh, const glm::vec3& Position, const glm::vec3& Scale = { 1,1,1 }, const glm::vec3& rotation = { 0,0,0 }, const glm::vec4& color = { 1,1,1,1 });//take the mesh class reference
-		static void DrawMesh(LoadMesh& mesh, glm::mat4& transform, const glm::vec4& color = { 1,1,1,1 }, bool wireframe = false, const float& material_Roughness = 1.0f, const float& material_metallic = 0.0f, Ref<Shader> otherShader = nullptr);//take the mesh class reference
+		static void DrawMesh(LoadMesh& mesh, const glm::mat4& transform, const glm::vec4& color = { 1,1,1,1 }, bool wireframe = false, const float& material_Roughness = 1.0f, const float& material_metallic = 0.0f, Ref<Shader> otherShader = nullptr);//take the mesh class reference
 		static void DrawFoliage(LoadMesh& mesh, glm::mat4& transform, const glm::vec4& color = { 1,1,1,1 }, const float& material_Roughness = 1.0f, const float& material_metallic = 0.0f);//take the mesh class reference
 		static void DrawFoliageInstanced(const SubMesh& sub_mesh, glm::mat4& transform, uint32_t& indirectBufferID, float TimeElapsed = 0, bool applyGradientMask = false, bool enableWind = false);//take the mesh class reference
 		static void AllocateInstancedFoliageData(LoadMesh& mesh, const size_t& size, uint32_t& buffIndex);

@@ -89,7 +89,7 @@ namespace Crimson
 				Entity Entity(scene, m_entity);
 				if (Entity.GetComponent<StaticMeshComponent>().isFoliage == false)
 				{
-					auto& transform = Entity.GetComponent<TransformComponent>().GetTransform();
+					const auto& transform = Entity.GetComponent<TransformComponent>().GetTransform();
 
 					auto& mesh = Entity.GetComponent<StaticMeshComponent>();
 					if (Entity.HasComponent<PhysicsComponent>())

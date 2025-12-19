@@ -17,6 +17,6 @@ namespace Crimson {
 		virtual void Init() override;
 		virtual void SwapBuffers() override;
 	private:
-		Ref<GLFWwindow> m_WindowHandle;
+		GLFWwindow* m_WindowHandle;
 	};
 }

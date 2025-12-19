@@ -317,7 +317,7 @@ namespace Crimson {
 				}
 				Entity* DeserializedEntity = m_scene->CreateEntity(entity_name);
 
-				auto& TransformComp = entity["TransformComponent"];
+				const auto& TransformComp = entity["TransformComponent"];
 				if (TransformComp)
 				{
 					glm::vec3 translation = TransformComp["Translation"].as<glm::vec3>();
@@ -326,7 +326,7 @@ namespace Crimson {
 					DeserializedEntity->AddComponent<TransformComponent>(translation, rotation, scale);
 				}
 
-				auto& StaticMeshComp = entity["StaticMeshComponent"];
+				const auto& StaticMeshComp = entity["StaticMeshComponent"];
 				if (StaticMeshComp)
 				{
 					std::string mesh_path = StaticMeshComp["MeshPath"].as<std::string>();
@@ -339,7 +339,7 @@ namespace Crimson {
 						DeserializedEntity->AddComponent<StaticMeshComponent>(mesh);
 				}
 
-				auto& SpriteRenderComp = entity["SpriteRenderer"];
+				const auto& SpriteRenderComp = entity["SpriteRenderer"];
 				if (SpriteRenderComp)
 				{
 					glm::vec4 color = SpriteRenderComp["Color"].as<glm::vec4>();
@@ -349,7 +349,7 @@ namespace Crimson {
 
 					DeserializedEntity->AddComponent<SpriteRenderer>(color, wire, roughness, metallic);
 				}
-				auto& ScriptComp = entity["ScriptComponent"];
+				const auto& ScriptComp = entity["ScriptComponent"];
 				if (ScriptComp)
 				{
 					if (ScriptComp["id"]) {
@@ -358,7 +358,7 @@ namespace Crimson {
 					}
 				}
 
-				auto& CameraComp = entity["CameraComponent"];
+				const auto& CameraComp = entity["CameraComponent"];
 				if (CameraComp)
 				{
 					auto& cc = DeserializedEntity->AddComponent<CameraComponent>();
@@ -380,7 +380,7 @@ namespace Crimson {
 						cc.camera.bIsMainCamera = (bool)CameraComp["Is Main Camera"].as<int>();
 				}
 
-				auto& PhysicsComp = entity["PhysicsComponent"];
+				const auto& PhysicsComp = entity["PhysicsComponent"];
 				if (PhysicsComp)
 				{
 					auto& physics_component = DeserializedEntity->AddComponent<PhysicsComponent>();

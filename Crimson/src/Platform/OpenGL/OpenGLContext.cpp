@@ -16,7 +16,7 @@ namespace Crimson {
 
 		CN_PROFILE_FUNCTION()
 
-		glfwMakeContextCurrent(m_WindowHandle.get());
+		glfwMakeContextCurrent(m_WindowHandle);
 
 		// init glad after creating context
 		int status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
@@ -29,7 +29,7 @@ namespace Crimson {
 
 	void OpenGLContext::SwapBuffers()
 	{
-		glfwSwapBuffers(m_WindowHandle.get());
+		glfwSwapBuffers(m_WindowHandle);
 	}
 }
 

@@ -105,7 +105,7 @@ namespace Crimson {
 			scene.getRegistry().each([&](auto m_entity)//iterate through every entities and render them
 				{
 					Entity Entity(&scene, m_entity);
-					auto& transform = Entity.GetComponent<TransformComponent>().GetTransform();
+					const glm::mat4& transform = Entity.GetComponent<TransformComponent>().GetTransform();
 
 					if (cam.bIsMainCamera) 
 					{

@@ -1,6 +1,7 @@
 #pragma once
 #include "Crimson.h"
 #include "Crimson/Renderer/CubeMapReflection.h"
+#include "Crimson/Scene/Scene.h"
 
 namespace Crimson {
 	class OpenGLCubeMapReflection:public CubeMapReflection
