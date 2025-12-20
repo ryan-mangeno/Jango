@@ -32,17 +32,33 @@ namespace Crimson {
 	};
 
 	struct TransformComponent {
-		glm::vec3 Translation = { 0,0,0 };
-		glm::vec3 Rotation = { 0,0,0 };//in degrees
-		glm::vec3 Scale = { 1,1,1 };
-		glm::vec3 ForwardVector = { 0,0,1 };
-		glm::vec3 UpVector = { 0,1,0 };
-		glm::vec3 RightVector = glm::cross(ForwardVector, UpVector);
-		glm::mat4 m_transform = glm::mat4(1.0f); // can be set to the physx_transform
-		ImGuizmo::OPERATION mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
-		TransformComponent() = default;
+		glm::vec3 Translation;
+		glm::vec3 Rotation;//in degrees
+		glm::vec3 Scale;
+		glm::vec3 ForwardVector;
+		glm::vec3 UpVector;
+		glm::vec3 RightVector;
+		glm::mat4 m_transform; // can be set to the physx_transform
+		ImGuizmo::OPERATION mCurrentGizmoOperation;
+		TransformComponent()
+			: Translation({0,0,0}),
+			  Rotation(0,0,0),
+			  Scale(1,1,1), 
+			  ForwardVector({0,0,1}),
+			  UpVector({0,1,0}),
+			  RightVector(glm::cross(ForwardVector, UpVector)),
+			  m_transform(glm::mat4(1.0f)),
+			  mCurrentGizmoOperation(ImGuizmo::TRANSLATE)
+		{}
 		TransformComponent(const glm::vec3& translation,const glm::vec3& rotatation=glm::vec3(0),const glm::vec3& scale=glm::vec3(1))
-			:Translation(translation),Rotation(rotatation),Scale(scale)
+			: Translation(translation),
+			  Rotation(rotatation),
+			  Scale(scale), 
+			  ForwardVector({0,0,1}),
+			  UpVector({0,1,0}),
+			  RightVector(::glm::cross(ForwardVector, UpVector)),
+			  m_transform(::glm::mat4(1.0f)),
+			  mCurrentGizmoOperation(ImGuizmo::TRANSLATE)
 		{}
 		
 		glm::mat4 GetTransform() {

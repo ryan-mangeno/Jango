@@ -4,53 +4,56 @@
 #include "Crimson/Core/Core.h"
 #include "Crimson/Core/Log.h"
 
-using namespace Crimson;
-class Crimson::PointLight;
-class SceneHierarchyPannel {
-public:
-	SceneHierarchyPannel();
-	~SceneHierarchyPannel();
-	void Context(const Ref<Scene>& context);
-	void OnImGuiRender();
-public:
-	static Ref<Entity> m_selected_entity;
-private:
-    void DrawHierarchyNode(const Entity* ent);
-    void DrawProperties();
-    void DrawTransformUI();
-    void DrawCameraUI();
-    void DrawTagUI();
-    void DrawSpriteRendererUI();
-    void DrawStaticMeshComponentUI();
-    void DrawPhysicsComponentUI();
-    void DrawScriptComponentUI();
 
-    // buffer for imgui, avoiding having to constantly copy into char buffer each pass
-    struct cBuffer
-    {
-        char buff[200];
+namespace Crimson {
+    class PointLight;
 
-        cBuffer(const std::string& str)
+    class SceneHierarchyPannel {
+    public:
+        SceneHierarchyPannel();
+        ~SceneHierarchyPannel();
+        void Context(const Ref<Scene>& context);
+        void OnImGuiRender();
+    public:
+        static Ref<Entity> m_selected_entity;
+    private:
+        void DrawHierarchyNode(const Entity* ent);
+        void DrawProperties();
+        void DrawTransformUI();
+        void DrawCameraUI();
+        void DrawTagUI();
+        void DrawSpriteRendererUI();
+        void DrawStaticMeshComponentUI();
+        void DrawPhysicsComponentUI();
+        void DrawScriptComponentUI();
+
+        // buffer for imgui, avoiding having to constantly copy into char buffer each pass
+        struct cBuffer
         {
-            strcpy_s(buff, sizeof(buff), str.c_str());
-        }
+            char buff[200];
 
-        void print()
-        {
-            printf_s(buff);
-            printf("\n");
-        }
+            cBuffer(const std::string& str)
+            {
+                strcpy_s(buff, str.c_str());
+            }
+
+            void print()
+            {
+                printf_s(buff);
+                printf("\n");
+            }
+        };
+
+    private:
+
+        bool bDrawScript_comp = false;
+
+        Ref<Scene> m_Context;
+        PointLight* m_selected_Light = nullptr;
+
+        glm::vec3 PointLight_position = { 0,0,0 }, PointLight_color = {1,1,1};
+        //For properties pannel (camera ui)
+        //glm::vec3 translation=glm::vec3(0);
+
     };
-
-private:
-
-    bool bDrawScript_comp = false;
-
-	Ref<Scene> m_Context;
-	PointLight* m_selected_Light = nullptr;
-
-	glm::vec3 PointLight_position = { 0,0,0 }, PointLight_color = {1,1,1};
-	//For properties pannel (camera ui)
-	//glm::vec3 translation=glm::vec3(0);
-
-};
+}

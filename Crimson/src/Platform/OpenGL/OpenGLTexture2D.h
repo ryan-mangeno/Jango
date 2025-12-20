@@ -6,7 +6,7 @@ namespace Crimson {
 	{
 	public:
 		OpenGLTexture2D(const std::string& path, bool bUse16BitTexture);
-		OpenGLTexture2D(const unsigned int Width, const unsigned int Height, unsigned int);
+		OpenGLTexture2D(const unsigned int Width = 1, const unsigned int Height = 1, unsigned int data = 0xffffffff);
 		virtual ~OpenGLTexture2D();
 		unsigned int GetWidth() const override { return m_Width; }
 		unsigned int GetHeight() const override { return m_Height; }

@@ -116,7 +116,7 @@ namespace Crimson
 		glDisable(GL_CULL_FACE);
 		glDepthMask(GL_FALSE);
 
-		RenderCommand::DrawIndex(*m_VAO);
+		RenderCommand::DrawIndex(*m_VAO, GL_TRIANGLES);
 
 		glDepthMask(GL_TRUE);
 		glEnable(GL_CULL_FACE);

@@ -202,7 +202,7 @@ void CrimsonEditor::OnImGuiRender()
 	if (SceneHierarchyPannel::m_selected_entity) //gizmo logics
 	{
 		const auto& w_pos = ImGui::GetWindowPos();
-		const auto& transform = SceneHierarchyPannel::m_selected_entity->GetComponent<TransformComponent>();
+		auto& transform = SceneHierarchyPannel::m_selected_entity->GetComponent<TransformComponent>();
 		ImGuizmo::MODE mCurrentGizmoMode(ImGuizmo::WORLD);
 		if (Input::IsKeyPressed(CRIMSON_KEY_E))
 			transform.mCurrentGizmoOperation = ImGuizmo::TRANSLATE;

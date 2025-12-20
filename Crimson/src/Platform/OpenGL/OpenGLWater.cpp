@@ -66,7 +66,7 @@ namespace Crimson {
 		m_waterShader->Bind();
 		m_waterShader->SetMat4("u_ProjectionView", cam.GetProjectionView());
 		m_waterShader->SetFloat4("u_Color",  m_waterColor);
-		RenderCommand::DrawIndex(*m_VAO);
+		RenderCommand::DrawIndex(*m_VAO, GL_TRIANGLES);
 	}
 
 }

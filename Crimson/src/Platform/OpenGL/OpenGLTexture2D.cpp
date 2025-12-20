@@ -16,8 +16,9 @@ namespace Crimson {
 		else
 			Create8BitsTexture(path);
 	}
-																							//data is defaulted to a color, can be used as a texture or base color also
-	OpenGLTexture2D::OpenGLTexture2D(const unsigned int Width = 1, const unsigned int Height = 1, unsigned int data = 0xffffffff)
+	
+	//data is defaulted to a color, can be used as a texture or base color also
+	OpenGLTexture2D::OpenGLTexture2D(const unsigned int Width, const unsigned int Height, unsigned int data)
 		:m_Height(Height), m_Width(Width), channels(0)
 	{
 

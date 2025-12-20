@@ -3,17 +3,11 @@
 #include <memory>
 
 
-#ifdef CN_ENABLE_ASSERTS
-	#define CN_ASSERT(x, ...) {if(!(x)) { CN_ERROR("Assertion Failed: {0}", __VA_ARGS__); __debugbreak(); } }
-	#define CN_CORE_ASSERT(x, ...) {if(!(x)) { CN_CORE_ERROR("Assertion Failed: {0}", __VA_ARGS__); __debugbreak(); } }
-#else
-	#define CN_ASSERT(x, ...)
-	#define CN_CORE_ASSERT(x, ...) 
-#endif
-
 #ifdef CN_DEBUG
 #if CN_PLATFORM_WINDOWS
 #define CN_DEBUGBREAK() __debugbreak()
+#elif CN_PLATFORM_MACOS
+#define CN_DEBUGBREAK() __builtin_debugtrap()
 #else
 #error "This platform is not supported"
 #endif
@@ -21,6 +15,15 @@
 #else
 #define CN_DEBUGBREAK()
 #endif // CN_DEBUG
+
+
+#ifdef CN_ENABLE_ASSERTS
+	#define CN_ASSERT(x, ...) {if(!(x)) { CN_ERROR("Assertion Failed: {0}", __VA_ARGS__); CN_DEBUGBREAK(); } }
+	#define CN_CORE_ASSERT(x, ...) {if(!(x)) { CN_CORE_ERROR("Assertion Failed: {0}", __VA_ARGS__); CN_DEBUGBREAK(); } }
+#else
+	#define CN_ASSERT(x, ...)
+	#define CN_CORE_ASSERT(x, ...) 
+#endif
 
 
 
