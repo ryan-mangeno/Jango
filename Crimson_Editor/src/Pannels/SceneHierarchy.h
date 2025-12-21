@@ -3,6 +3,7 @@
 #include "Crimson/Scene/Entity.h"
 #include "Crimson/Core/Core.h"
 #include "Crimson/Core/Log.h"
+#include "Platform/Util/util.h"
 
 
 namespace Crimson {
@@ -34,13 +35,12 @@ namespace Crimson {
 
             cBuffer(const std::string& str)
             {
-                strcpy_s(buff, str.c_str());
+                jg_strcpy_s(buff, sizeof(buff), str.c_str());
             }
 
             void print()
             {
-                printf_s(buff);
-                printf("\n");
+                jg_printf_s(buff, "%s\n");
             }
         };
 

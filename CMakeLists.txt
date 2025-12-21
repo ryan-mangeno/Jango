@@ -108,16 +108,13 @@ target_compile_definitions(Crimson PUBLIC
 # Platform Specifics: Libraries & Defines
 
 if(WIN32)
-    # --- WINDOWS SETUP ---
     target_compile_definitions(Crimson PUBLIC CN_PLATFORM_WINDOWS CN_BUILD_DLL GLFW_INCLUDE_NONE _CRT_SECURE_NO_WARNINGS)
     target_compile_options(Crimson PRIVATE "/utf-8")
     
-    # Windows System Libs
     target_link_libraries(Crimson PRIVATE
         opengl32.lib Normaliz.lib Ws2_32.lib Wldap32.lib Crypt32.lib advapi32.lib
     )
 
-    # Vendor Libs (Windows)
     file(GLOB PHYSX_LIBS "Crimson/vendor/physx_x64-windows/lib/*.lib")
     target_link_libraries(Crimson PRIVATE
         "${CMAKE_SOURCE_DIR}/Crimson/vendor/Curl/lib/libcurl_a_debug.lib"
@@ -135,7 +132,6 @@ elseif(APPLE)
     find_library(COREVIDEO_LIB CoreVideo)
     find_library(OPENGL_LIB OpenGL)
     
-    # common Homebrew paths (/opt/homebrew for M1/M2, /usr/local for Intel)
     find_path(ASSIMP_INCLUDE_DIR assimp/Importer.hpp PATHS /opt/homebrew/include /usr/local/include REQUIRED)
     find_library(ASSIMP_LIB assimp PATHS /opt/homebrew/lib /usr/local/lib REQUIRED)
 
@@ -149,8 +145,19 @@ elseif(APPLE)
         ${ASSIMP_LIB} # Link the .dylib found by brew
     )
 
-    # PhysX (Mac support exists but is rare in pre-compiled. If missing, remove temporarily)
-    target_link_libraries(Crimson PRIVATE "${CMAKE_SOURCE_DIR}/Crimson/vendor/Nvidia-PhysX/mac/libPhysX.a")
+    set(PHYSX_DEBUG_DIR "${CMAKE_SOURCE_DIR}/Crimson/vendor/Nvidia-PhysX/physx/bin/mac.x86_64/bin/mac.x86_64/debug")
+
+    target_link_libraries(Crimson PRIVATE
+        "${PHYSX_DEBUG_DIR}/libPhysX_64.dylib"
+        "${PHYSX_DEBUG_DIR}/libPhysXCommon_64.dylib"
+        "${PHYSX_DEBUG_DIR}/libPhysXFoundation_64.dylib"
+        "${PHYSX_DEBUG_DIR}/libPhysXCooking_64.dylib"
+
+        "${PHYSX_DEBUG_DIR}/libPhysXExtensions_static_64.a"
+        "${PHYSX_DEBUG_DIR}/libPhysXCharacterKinematic_static_64.a"
+        "${PHYSX_DEBUG_DIR}/libPhysXVehicle_static_64.a"
+        "${PHYSX_DEBUG_DIR}/libPhysXPvdSDK_static_64.a"
+    )
 
     # OIDN
     # target_link_libraries(Crimson PRIVATE "${CMAKE_SOURCE_DIR}/Crimson/vendor/oidn/lib/mac/libOpenImageDenoise.dylib")

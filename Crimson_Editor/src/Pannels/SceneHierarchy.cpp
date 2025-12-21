@@ -8,6 +8,7 @@
 #include "Crimson/Renderer/Material.h"
 #include "../CustomScript.h"
 #include "Crimson/Core/ResourceManager.h"
+#include "Platform/Util/util.h"
 
 using namespace Crimson;
 std::string texture_path = "Assets/Textures/Test.png";
@@ -365,7 +366,7 @@ void SceneHierarchyPannel::DrawTagUI()
 		char buffer[200];
 		TagComponent& tag = m_selected_entity->GetComponent<TagComponent>();
 		std::string s = tag;
-		strcpy_s(buffer, sizeof(buffer), s.c_str());
+		jg_strcpy_s(buffer, sizeof(buffer), s.c_str());
 		if (ImGui::InputText("TAG", buffer, sizeof(buffer)))
 		{
 			tag = std::string(buffer);
@@ -402,7 +403,7 @@ void SceneHierarchyPannel::DrawSpriteRendererUI()
 		if ( ImGui::InputText("Texture Path", buffer.buff, static_cast<int>( sizeof(buffer.buff)/sizeof(char)) ) )
 		{
 			texture_path = std::string(buffer.buff);
-			strcpy_s(buffer.buff, sizeof(buffer.buff), texture_path.c_str());
+			jg_strcpy_s(buffer.buff, sizeof(buffer.buff), texture_path.c_str());
 		}
 		if ( ImGui::Button("APPLY", {100,30}) )
 		{
