@@ -30,7 +30,7 @@
 [submodule "Crimson/vendor/mimalloc"]
 	path = Crimson/vendor/mimalloc
 	url = https://github.com/ryan-mangeno/mimalloc
-[submodule "Crimson/vendor/Nvidia-PhysX"]
-	path = Crimson/vendor/Nvidia-PhysX
-	url = https://github.com/NVIDIAGameWorks/PhysX.git
-	branch = 4.1
+[submodule "Crimson/vendor/PhysX"]
+	path = Crimson/vendor/PhysX
+	url = https://github.com/dpogue/PhysX.git
+	branch = macos-aarch64

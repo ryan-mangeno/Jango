@@ -59,8 +59,8 @@ set(INC_CURL "Crimson/vendor/Curl/include")
 set(INC_JSON "Crimson/vendor/jsoncpp")
 set(INC_ASSIMP "Crimson/vendor/assimp/include")
 set(INC_PHYSX 
-        "Crimson/vendor/Nvidia-PhysX/physx/include"
-        "Crimson/vendor/Nvidia-PhysX/PxShared/include"
+        "Crimson/vendor/PhysX/physx/include"
+        "Crimson/vendor/PhysX/PxShared/include"
     )
 set(INC_YAML "Crimson/vendor/yaml-cpp/include")
 set(INC_OIDN "Crimson/vendor/oidn/include")
@@ -131,6 +131,7 @@ elseif(APPLE)
     find_library(IOKIT_LIB IOKit)
     find_library(COREVIDEO_LIB CoreVideo)
     find_library(OPENGL_LIB OpenGL)
+    find_library(QUARTZ_LIB QuartzCore) 
     
     find_path(ASSIMP_INCLUDE_DIR assimp/Importer.hpp PATHS /opt/homebrew/include /usr/local/include REQUIRED)
     find_library(ASSIMP_LIB assimp PATHS /opt/homebrew/lib /usr/local/lib REQUIRED)
@@ -141,22 +142,22 @@ elseif(APPLE)
     target_include_directories(Crimson PUBLIC ${ASSIMP_INCLUDE_DIR})
     
     target_link_libraries(Crimson PRIVATE 
-        ${COCOA_LIB} ${IOKIT_LIB} ${COREVIDEO_LIB} ${OPENGL_LIB}
-        ${ASSIMP_LIB} # Link the .dylib found by brew
+        ${COCOA_LIB} ${IOKIT_LIB} ${COREVIDEO_LIB} ${OPENGL_LIB} ${QUARTZ_LIB}
+        ${ASSIMP_LIB}
     )
 
-    set(PHYSX_DEBUG_DIR "${CMAKE_SOURCE_DIR}/Crimson/vendor/Nvidia-PhysX/physx/bin/mac.x86_64/bin/mac.x86_64/debug")
+    set(PHYSX_LIB_DIR "${CMAKE_SOURCE_DIR}/Crimson/vendor/PhysX/physx/bin/mac.arm64/bin/mac.universal/debug")
 
-    target_link_libraries(Crimson PRIVATE
-        "${PHYSX_DEBUG_DIR}/libPhysX_64.dylib"
-        "${PHYSX_DEBUG_DIR}/libPhysXCommon_64.dylib"
-        "${PHYSX_DEBUG_DIR}/libPhysXFoundation_64.dylib"
-        "${PHYSX_DEBUG_DIR}/libPhysXCooking_64.dylib"
-
-        "${PHYSX_DEBUG_DIR}/libPhysXExtensions_static_64.a"
-        "${PHYSX_DEBUG_DIR}/libPhysXCharacterKinematic_static_64.a"
-        "${PHYSX_DEBUG_DIR}/libPhysXVehicle_static_64.a"
-        "${PHYSX_DEBUG_DIR}/libPhysXPvdSDK_static_64.a"
+    set(PHYSX_LIBS
+        "${PHYSX_LIB_DIR}/libPhysXExtensions_static_64.a"
+        "${PHYSX_LIB_DIR}/libPhysX_static_64.a"
+        "${PHYSX_LIB_DIR}/libPhysXCharacterKinematic_static_64.a"
+        "${PHYSX_LIB_DIR}/libPhysXVehicle_static_64.a"
+        "${PHYSX_LIB_DIR}/libPhysXCooking_static_64.a"
+        "${PHYSX_LIB_DIR}/libPhysXCommon_static_64.a"
+        "${PHYSX_LIB_DIR}/libPhysXPvdSDK_static_64.a"
+        "${PHYSX_LIB_DIR}/libPhysXFoundation_64.a"
+        "${PHYSX_LIB_DIR}/libFastXml.a"
     )
 
     # OIDN
@@ -167,6 +168,11 @@ endif()
 # Linked CMake Targets
 target_link_libraries(Crimson PUBLIC GLFW Glad ImGui Chroma yaml-cpp)
 
+if(CMAKE_BUILD_TYPE MATCHES "Debug")
+    target_compile_definitions(Crimson PRIVATE _DEBUG)
+else()
+    target_compile_definitions(Crimson PRIVATE NDEBUG)
+endif()
 
 # ==========================================
 # sandbox disabled for now
@@ -204,6 +210,7 @@ add_executable(Crimson_Editor)
 file(GLOB_RECURSE EDITOR_SRC "Crimson_Editor/src/*.h" "Crimson_Editor/src/*.cpp")
 target_sources(Crimson_Editor PRIVATE ${EDITOR_SRC})
 
+
 target_include_directories(Crimson_Editor PRIVATE
     "Crimson/vendor/spdlog/include"
     "Crimson/src" "Crimson/vendor"
@@ -211,7 +218,11 @@ target_include_directories(Crimson_Editor PRIVATE
     ${INC_CURL} ${INC_JSON} ${INC_PHYSX} ${INC_IMGUIZMO} ${INC_YAML}
 )
 
-target_link_libraries(Crimson_Editor PRIVATE Crimson)
+if(WIN32)
+    target_link_libraries(Crimson_Editor PRIVATE Crimson)
+elseif(APPLE)
+    target_link_libraries(Crimson_Editor PRIVATE "-framework Foundation")
+endif()
 
 if(WIN32)
     target_compile_definitions(Crimson_Editor PRIVATE CN_PLATFORM_WINDOWS)
@@ -243,8 +254,21 @@ elseif(APPLE)
     # Adjust "lib/mac" to wherever you actually store your Mac dylibs.
     add_custom_command(TARGET Crimson_Editor POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        "${CMAKE_SOURCE_DIR}/Crimson/vendor/assimp/lib/mac/libassimp.dylib"
-        "$<TARGET_FILE_DIR:Crimson_Editor>/"
-        COMMENT "Copying Mac dylibs..."
+            "${PHYSX_DEBUG_DIR}/libPhysX_64.dylib"
+            "$<TARGET_FILE_DIR:Crimson_Editor>/"
+            
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${PHYSX_DEBUG_DIR}/libPhysXCommon_64.dylib"
+            "$<TARGET_FILE_DIR:Crimson_Editor>/"
+
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${PHYSX_DEBUG_DIR}/libPhysXFoundation_64.dylib"
+            "$<TARGET_FILE_DIR:Crimson_Editor>/"
+
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${PHYSX_DEBUG_DIR}/libPhysXCooking_64.dylib"
+            "$<TARGET_FILE_DIR:Crimson_Editor>/"
+
+        COMMENT "Copying PhysX Dylibs to Output..."
     )
 endif()

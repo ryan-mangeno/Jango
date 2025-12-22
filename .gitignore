@@ -2,19 +2,20 @@
 bin/
 bin-int/
 
-Crimson/vendor/physx_x64-windows/dll/
-Crimson/vendor/physx_x64-windows/lib/
-
 *.user
 
+CMakeCache.txt
+CMakeFiles/
+CMakeConfigureLog.yaml
+cmake_install.cmake
+Makefile
+*.cmake
 
-**/Makefile
-
-
-# Ignore Visual Studio project files
 *.vcxproj
 *.vcxproj.filters
 *.vcxproj.user
 *.sln
 *.json
 build/
+
+.DS_Store
