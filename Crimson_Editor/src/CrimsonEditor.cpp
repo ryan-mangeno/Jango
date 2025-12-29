@@ -19,16 +19,17 @@ LoadMesh* mesh;
 {
 	CN_PROFILE_SCOPE("CrimsonEditor()");
 
-
-	texture = Texture2D::Create(std::string("Assets/Textures/RPGpack_sheet_2X.png"));
+	CN_CORE_INFO("Making Textures ...");
+	texture = Texture2D::Create(std::string("Crimson_Editor/Assets/Textures/RPGpack_sheet_2X.png"));
 	tree = SubTexture2D::CreateFromCoordinate(texture, { 2560.f,1664.f }, { 4,1 }, { 128.f,128.f }, {1,2});
 	mud = SubTexture2D::CreateFromCoordinate(texture, { 2560.f,1664.f }, { 6,11 }, { 128.f,128.f });
 	land = SubTexture2D::CreateFromCoordinate(texture, { 2560.f,1664.f }, { 3,10 }, { 128.f,128.f });
 	water = SubTexture2D::CreateFromCoordinate(texture, { 2560.f,1664.f }, { 11,11 }, { 128.f,128.f });
+	CN_CORE_INFO("Done")
 
 	asset_map = { {'l', land}, {'w', water}, {'t', tree}, {'m', mud} };
 
-
+	CN_CORE_INFO("Creating FrameBuffers ...");
 	glm::vec2 viewportSize = RenderCommand::GetViewportSize();
 	m_FrameBuffer = FrameBuffer::Create({ (unsigned int)viewportSize.x,(unsigned int)viewportSize .y});//create a frame buffer object
 	m_FrameBuffer2 = FrameBuffer::Create({ (unsigned int)viewportSize.x,(unsigned int)viewportSize.y });

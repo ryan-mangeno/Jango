@@ -4,9 +4,6 @@ project(CrimsonWorkspace C CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# ==========================================
-# Platform & Architecture Detection
-# ==========================================
 if(WIN32)
     set(PLATFORM_NAME "windows")
 elseif(APPLE)
@@ -28,26 +25,22 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin/${OUTPUT_DIR_NAME})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin/${OUTPUT_DIR_NAME})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin/${OUTPUT_DIR_NAME})
 
-# Custom "Dist" configuration
 set(CMAKE_CONFIGURATION_TYPES "Debug;Release;Dist" CACHE STRING "" FORCE)
 set(CMAKE_CXX_FLAGS_DIST "${CMAKE_CXX_FLAGS_RELEASE}" CACHE STRING "" FORCE)
 set(CMAKE_EXE_LINKER_FLAGS_DIST "${CMAKE_EXE_LINKER_FLAGS_RELEASE}" CACHE STRING "" FORCE)
 
-# ==========================================
 # Dependencies
-# ==========================================
 add_subdirectory(Crimson/vendor/GLFW)
 add_subdirectory(Crimson/vendor/imgui)
 add_subdirectory(Crimson/vendor/Glad)
 add_subdirectory(Crimson/vendor/Chroma)
 add_subdirectory(Crimson/vendor/yaml-cpp)
 
-# ==========================================
+
 # Project: Crimson (Static Library)
-# ==========================================
 add_library(Crimson STATIC)
 
-# Define Include Paths
+# Include Paths
 set(INC_GLFW "Crimson/vendor/GLFW/include")
 set(INC_GLAD "Crimson/vendor/Glad/include")
 set(INC_IMGUI "Crimson/vendor/imgui")
@@ -156,8 +149,7 @@ elseif(APPLE)
         "${PHYSX_LIB_DIR}/libPhysXCooking_static_64.a"
         "${PHYSX_LIB_DIR}/libPhysXCommon_static_64.a"
         "${PHYSX_LIB_DIR}/libPhysXPvdSDK_static_64.a"
-        "${PHYSX_LIB_DIR}/libPhysXFoundation_64.a"
-        "${PHYSX_LIB_DIR}/libFastXml.a"
+        "${PHYSX_LIB_DIR}/libPhysXFoundation_static_64.a" 
     )
 
     # OIDN
@@ -202,9 +194,7 @@ endif()
 #    $<$<CONFIG:Dist>:CN_DIST>
 #)
 
-# ==========================================
 # Project: Crimson_Editor
-# ==========================================
 add_executable(Crimson_Editor)
 
 file(GLOB_RECURSE EDITOR_SRC "Crimson_Editor/src/*.h" "Crimson_Editor/src/*.cpp")
@@ -221,7 +211,17 @@ target_include_directories(Crimson_Editor PRIVATE
 if(WIN32)
     target_link_libraries(Crimson_Editor PRIVATE Crimson)
 elseif(APPLE)
-    target_link_libraries(Crimson_Editor PRIVATE "-framework Foundation")
+    target_link_libraries(Crimson_Editor PRIVATE 
+        Crimson
+        ${PHYSX_LIBS}
+        GLFW Glad ImGui Chroma yaml-cpp
+        "-framework Foundation"
+        "-framework QuartzCore"
+        "-framework Cocoa"
+        "-framework IOKit"
+        "-framework CoreVideo"
+        "-framework OpenGL"
+    )
 endif()
 
 if(WIN32)
@@ -236,39 +236,37 @@ target_compile_definitions(Crimson_Editor PRIVATE
     $<$<CONFIG:Dist>:CN_DIST>
 )
 
-# ==========================================
 # Post Build: Copy Binaries
-# ==========================================
-if(WIN32)
-    add_custom_command(TARGET Crimson_Editor POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_directory
-        "${CMAKE_SOURCE_DIR}/Crimson/vendor/assimp/dll/"
-        "$<TARGET_FILE_DIR:Crimson_Editor>/"
-        COMMAND ${CMAKE_COMMAND} -E copy_directory
-        "${CMAKE_SOURCE_DIR}/Crimson/vendor/physx_x64-windows/dll/"
-        "$<TARGET_FILE_DIR:Crimson_Editor>/"
-        COMMENT "Copying Vendor DLLs to Output Directory..."
-    )
-elseif(APPLE)
-    # On Mac, we typically need to copy .dylibs if they aren't installed in system paths.
-    # Adjust "lib/mac" to wherever you actually store your Mac dylibs.
-    add_custom_command(TARGET Crimson_Editor POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            "${PHYSX_DEBUG_DIR}/libPhysX_64.dylib"
-            "$<TARGET_FILE_DIR:Crimson_Editor>/"
-            
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            "${PHYSX_DEBUG_DIR}/libPhysXCommon_64.dylib"
-            "$<TARGET_FILE_DIR:Crimson_Editor>/"
+#if(WIN32)
+#    add_custom_command(TARGET Crimson_Editor POST_BUILD
+#        COMMAND ${CMAKE_COMMAND} -E copy_directory
+#        "${CMAKE_SOURCE_DIR}/Crimson/vendor/assimp/dll/"
+#        "$<TARGET_FILE_DIR:Crimson_Editor>/"
+#        COMMAND ${CMAKE_COMMAND} -E copy_directory
+#        "${CMAKE_SOURCE_DIR}/Crimson/vendor/physx_x64-windows/dll/"
+#        "$<TARGET_FILE_DIR:Crimson_Editor>/"
+#        COMMENT "Copying Vendor DLLs to Output Directory..."
+#    )
+#elseif(APPLE)
+#    # On Mac, we typically need to copy .dylibs if they aren't installed in system paths.
+#    # Adjust "lib/mac" to wherever you actually store your Mac dylibs.
+#    add_custom_command(TARGET Crimson_Editor POST_BUILD
+#        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+#            "${PHYSX_DEBUG_DIR}/libPhysX_64.dylib"
+#            "$<TARGET_FILE_DIR:Crimson_Editor>/"
+#            
+#        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+#            "${PHYSX_DEBUG_DIR}/libPhysXCommon_64.dylib"
+#            "$<TARGET_FILE_DIR:Crimson_Editor>/"#
+#
+#        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+#            "${PHYSX_DEBUG_DIR}/libPhysXFoundation_64.dylib"
+#            "$<TARGET_FILE_DIR:Crimson_Editor>/"#
+#
+#        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+#            "${PHYSX_DEBUG_DIR}/libPhysXCooking_64.dylib"
+#            "$<TARGET_FILE_DIR:Crimson_Editor>/"#
 
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            "${PHYSX_DEBUG_DIR}/libPhysXFoundation_64.dylib"
-            "$<TARGET_FILE_DIR:Crimson_Editor>/"
-
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            "${PHYSX_DEBUG_DIR}/libPhysXCooking_64.dylib"
-            "$<TARGET_FILE_DIR:Crimson_Editor>/"
-
-        COMMENT "Copying PhysX Dylibs to Output..."
-    )
-endif()
+#        COMMENT "Copying PhysX Dylibs to Output..."
+#    )
+#endif()

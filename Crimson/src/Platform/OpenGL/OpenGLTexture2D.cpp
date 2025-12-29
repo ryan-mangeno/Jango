@@ -43,7 +43,7 @@ namespace Crimson {
 		GLenum InternalFormat = 0, Format = 0;
 		if (pixel_data_16 == nullptr) 
 		{
-			CN_CORE_ERROR("2D Image Not Found: ", path);
+			CN_CORE_ERROR("2D Image Not Found: {0}", path);
 			CreateWhiteTexture();
 		}
 		else 
@@ -107,7 +107,7 @@ namespace Crimson {
 
 		if (pixel_data_8 == nullptr) 
 		{
-			CN_CORE_ERROR("2D Image not found: ", path);
+			CN_CORE_ERROR("2D Image not found: {0}", path);
 			CreateWhiteTexture();
 		}
 		else 
@@ -134,8 +134,14 @@ namespace Crimson {
 			}
 			else
 				CN_CORE_ERROR("Invalid Texture format");
+			CN_CORE_INFO("1 ...");
+			
+			glGenTextures(1, &m_Renderid);
+			glBindTexture(GL_TEXTURE_2D, m_Renderid);
+			glCreateTextures(GL_TEXTURE_2D, 1, &m_Renderid); // need to make this more modular, can creating a macro glfeatures::supportsdsa major > 4 or major == 4 and minor == 5
+			
+			CN_CORE_INFO("2 ...");
 
-			glCreateTextures(GL_TEXTURE_2D, 1, &m_Renderid);
 			glTextureStorage2D(m_Renderid, 1, InternalFormat, m_Width, m_Height);
 
 			glGenerateTextureMipmap(m_Renderid);
@@ -143,6 +149,7 @@ namespace Crimson {
 			glTextureParameteri(m_Renderid, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_NEAREST);
 			glTextureParameteri(m_Renderid, GL_TEXTURE_WRAP_S, GL_REPEAT);
 			glTextureParameteri(m_Renderid, GL_TEXTURE_WRAP_R, GL_REPEAT);
+			CN_CORE_INFO("3 ...");
 
 			if (resized_image_8)
 			{

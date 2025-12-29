@@ -10,7 +10,6 @@
 // temp
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
-
 namespace Crimson {
 
 	#define BIND_FUNC(x) std::bind(&ImGuiLayer::x,this,std::placeholders::_1)
@@ -70,8 +69,8 @@ namespace Crimson {
 		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
 		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;         // Enable Multi-Viewport / Platform Windows
 
-		io.FontDefault = io.Fonts->AddFontFromFileTTF("Assets/Font/OpenSans-Bold.ttf", 18.0f);
-		s_Font = io.Fonts->AddFontFromFileTTF("Assets/Font/OpenSans-ExtraBold.ttf", 20.0f);
+		io.FontDefault = io.Fonts->AddFontFromFileTTF("Crimson_Editor/Assets/Font/OpenSans-Bold.ttf", 18.0f);
+		s_Font = io.Fonts->AddFontFromFileTTF("Crimson_Editor/Assets/Font/OpenSans-ExtraBold.ttf", 20.0f);
 
 		ImGui::StyleColorsDark();
 

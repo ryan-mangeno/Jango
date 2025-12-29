@@ -34,7 +34,9 @@ namespace Crimson {
 				ID = UUID(path);
 				if (ResourceManager::allTextures.find(ID) == ResourceManager::allTextures.end())// load a texture only once
 				{
+					CN_CORE_INFO("Making Instance ...");
 					instance = MakeRef<OpenGLTexture2D>(path, bUse16BitTexture);
+					CN_CORE_INFO("Made Instance ...");
 					ResourceManager::allTextures[instance->uuid] = instance;
 				}
 				else
