@@ -29,8 +29,8 @@ namespace Crimson {
 
 	public:
 		glm::vec3 v3;
-		float v = 0;
-		float r = 0;
+		float v = 0.f;
+		float r = 0.f;
 
 
 	private:

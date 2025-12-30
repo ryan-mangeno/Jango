@@ -1,6 +1,6 @@
 #include "cnpch.h"
 #include "Bloom.h"
-#include "Platform/Opengl/OpenGlBloom.h"
+#include "Platform/OpenGL/OpenGLBloom.h"
 
 namespace Crimson {
     Ref<Bloom> Bloom::Create()

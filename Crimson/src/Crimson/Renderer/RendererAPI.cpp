@@ -4,6 +4,10 @@
 
 namespace Crimson {
 
-	GraphicsAPI RendererAPI::m_API = GraphicsAPI::OpenGL;
+#ifdef CN_PLATFORM_WINDOWS
+		GraphicsAPI RendererAPI::m_API = GraphicsAPI::OpenGL;
+#elif CN_PLATFORM_MACOS
+		GraphicsAPI RendererAPI::m_API = GraphicsAPI::Metal;
+#endif
 
 }

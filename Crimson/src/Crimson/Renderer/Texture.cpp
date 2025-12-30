@@ -3,8 +3,8 @@
 #include "stb_image.h"
 #include "RendererAPI.h"
 #include "Crimson/Core/ResourceManager.h"
-#include "Platform/Opengl/OpenGlTexture2D.h"
-#include "Platform/Opengl/OpenGlTexture2DArray.h"
+#include "Platform/OpenGL/OpenGLTexture2D.h"
+#include "Platform/OpenGL/OpenGLTexture2DArray.h"
 
 namespace Crimson {
 	bool Texture2D::ValidateTexture(const std::string& path)

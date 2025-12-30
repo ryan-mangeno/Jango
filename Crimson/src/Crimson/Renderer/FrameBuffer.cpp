@@ -1,7 +1,7 @@
 #include "cnpch.h"
 #include "FrameBuffer.h"
 #include "RendererAPI.h"
-#include "Platform/Opengl/OpenGlFrameBuffer.h"
+#include "Platform/Opengl/OpenGLFrameBuffer.h"
 
 namespace Crimson {
     Ref<FrameBuffer> FrameBuffer::Create(const FrameBufferSpecification& spec)

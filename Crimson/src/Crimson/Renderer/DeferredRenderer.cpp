@@ -1,5 +1,5 @@
 #include "cnpch.h"
-#include "Platform/Opengl/OpenGlDeferredRenderer.h"
+#include "Platform/OpenGL/OpenGLDeferredRenderer.h"
 #include "DeferredRenderer.h"
 
 namespace Crimson

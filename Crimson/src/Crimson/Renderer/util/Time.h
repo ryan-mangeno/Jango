@@ -3,7 +3,5 @@
 #include <Crimson.h>
 
 namespace Crimson {
-
 	double GetTime();
-
 }

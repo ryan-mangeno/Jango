@@ -1,7 +1,7 @@
 #include "cnpch.h"
 #include "Crimson.h"
 #include "Shadows.h"
-#include "Platform/Opengl/OpenGlShadows.h"
+#include "Platform/OpenGL/OpenGLShadows.h"
 
 namespace Crimson
 {

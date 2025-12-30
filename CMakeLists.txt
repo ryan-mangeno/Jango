@@ -1,6 +1,11 @@
 cmake_minimum_required(VERSION 3.16)
 project(CrimsonWorkspace C CXX)
 
+if(APPLE)
+    enable_language(OBJC)
+    enable_language(OBJCXX)
+endif()
+
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
@@ -12,7 +17,7 @@ else()
     set(PLATFORM_NAME "linux")
 endif()
 
-# Detect Architecture (x86_64 vs arm64)
+# detect arch (x86_64 vs arm64)
 if(CMAKE_SYSTEM_PROCESSOR MATCHES "arm64")
     set(ARCH_NAME "arm64")
 else()
@@ -58,8 +63,8 @@ set(INC_PHYSX
 set(INC_YAML "Crimson/vendor/yaml-cpp/include")
 set(INC_OIDN "Crimson/vendor/oidn/include")
 set(INC_IMGUIZMO "Crimson/vendor/ImGuizmo")
+set(INC_SPDLOG "Crimson/vendor/spdlog/include")
 
-# Gather Sources
 file(GLOB_RECURSE CRIMSON_SRC 
     "Crimson/src/*.h"
     "Crimson/src/*.cpp"
@@ -74,16 +79,56 @@ file(GLOB_RECURSE CRIMSON_SRC
     "${INC_YAML}/*.h" "${INC_YAML}/*.cpp"
 )
 
+# filter out  Platform specific files initially
+file(GLOB_RECURSE PLATFORM_SOURCES "Crimson/src/Platform/*")
+list(REMOVE_ITEM CRIMSON_SRC ${PLATFORM_SOURCES})
+
+
+# Add Platform Specific Sources
+if(WIN32)
+    file(GLOB_RECURSE WINDOWS_SRC 
+        "Crimson/src/Platform/Windows/*.h" 
+        "Crimson/src/Platform/Windows/*.cpp"
+        "Crimson/src/Platform/OpenGL/*.h"  
+        "Crimson/src/Platform/OpenGL/*.cpp"
+    )
+    list(APPEND CRIMSON_SRC ${WINDOWS_SRC})
+
+elseif(APPLE)
+    file(GLOB_RECURSE MAC_SRC 
+        "Crimson/src/Platform/Mac/*.h" 
+        "Crimson/src/Platform/Mac/*.cpp" 
+        "Crimson/src/Platform/Mac/*.mm"
+        "Crimson/src/Platform/Metal/*.h" 
+        "Crimson/src/Platform/Metal/*.cpp" 
+        "Crimson/src/Platform/Metal/*.mm"
+
+        "Crimson/src/Platform/OpenGL/*.h"
+        "Crimson/src/Platform/OpenGL/*.cpp" # temporary while mac support is worked on
+    )
+    list(APPEND CRIMSON_SRC ${MAC_SRC})
+        
+    # disabling PCH for .mm files to prevent language mismatch errors
+    foreach(file ${MAC_SRC})
+        if(file MATCHES "\\.mm$")
+            set_source_files_properties(${file} PROPERTIES SKIP_PRECOMPILE_HEADERS ON)
+        endif()
+    endforeach()
+endif()
+
+# create Library with Final Source List
 target_sources(Crimson PRIVATE ${CRIMSON_SRC})
 
 # Precompiled Header
-target_precompile_headers(Crimson PRIVATE "Crimson/src/cnpch.h")
-
+target_precompile_headers(Crimson PRIVATE
+    "$<$<COMPILE_LANGUAGE:CXX>:Crimson/src/cnpch.h>"
+    "$<$<COMPILE_LANGUAGE:OBJCXX>:Crimson/src/cnpch.h>"
+)
 # Include Directories
 target_include_directories(Crimson PUBLIC
-    "Crimson/vendor/spdlog/include"
     "Crimson/src"
-    ${INC_GLFW} ${INC_GLAD} ${INC_IMGUI} ${INC_CHROMA}
+    ${CMAKE_SOURCE_DIR}
+    ${INC_GLFW} ${INC_GLAD} ${INC_IMGUI} ${INC_CHROMA} ${INC_SPDLOG}
     ${INC_GLM} ${INC_STB} ${INC_CURL} ${INC_JSON}
     ${INC_ENTT} ${INC_ASSIMP} ${INC_PHYSX} ${INC_YAML}
     ${INC_OIDN} ${INC_IMGUIZMO}
@@ -108,7 +153,7 @@ if(WIN32)
         opengl32.lib Normaliz.lib Ws2_32.lib Wldap32.lib Crypt32.lib advapi32.lib
     )
 
-    file(GLOB PHYSX_LIBS "Crimson/vendor/physx_x64-windows/lib/*.lib")
+    file(GLOB PHYSX_LIBS "Crimson/vendor/PhysX/lib/*.lib")
     target_link_libraries(Crimson PRIVATE
         "${CMAKE_SOURCE_DIR}/Crimson/vendor/Curl/lib/libcurl_a_debug.lib"
         "${CMAKE_SOURCE_DIR}/Crimson/vendor/assimp/lib/x64/assimp-vc143-mt.lib"
@@ -166,9 +211,7 @@ else()
     target_compile_definitions(Crimson PRIVATE NDEBUG)
 endif()
 
-# ==========================================
 # sandbox disabled for now
-# ==========================================
 #add_executable(Sandbox)
 
 #file(GLOB_RECURSE SANDBOX_SRC "Sandbox/src/*.h" "Sandbox/src/*.cpp" "Sandbox/vendor/glm/glm")
@@ -220,7 +263,8 @@ elseif(APPLE)
         "-framework Cocoa"
         "-framework IOKit"
         "-framework CoreVideo"
-        "-framework OpenGL"
+        "-framework OpenGL" # temp during macos support work
+        "-framework Metal"
     )
 endif()
 

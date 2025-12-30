@@ -1,6 +1,6 @@
 #include "cnpch.h"
 #include "Fog.h"
-#include "Platform/Opengl/OpenGlFog.h"
+#include "Platform/OpenGL/OpenGLFog.h"
 
 namespace Crimson
 {

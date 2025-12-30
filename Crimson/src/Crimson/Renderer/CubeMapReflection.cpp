@@ -1,6 +1,6 @@
 #include "cnpch.h"
 #include "CubeMapReflection.h"
-#include "Platform/Opengl/OpenGlCubeMapReflection.h"
+#include "Platform/OpenGL/OpenGLCubeMapReflection.h"
 
 namespace Crimson {
 	CubeMapReflection::CubeMapReflection()

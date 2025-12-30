@@ -11,7 +11,8 @@ namespace Crimson {
 	enum class GraphicsAPI
 	{
 		None = 0,
-		OpenGL = 1
+		OpenGL = 1,
+		Metal = 2,
 	};
 
 	struct DrawElementsIndirectCommand

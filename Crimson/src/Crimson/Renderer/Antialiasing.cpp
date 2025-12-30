@@ -1,6 +1,6 @@
 #include "cnpch.h"
 #include "Antialiasing.h"
-#include "Platform/OpenGL/OpenGlAntialiasing.h"
+#include "Platform/OpenGL/OpenGLAntialiasing.h"
 
 #include <glm/glm.hpp>
 

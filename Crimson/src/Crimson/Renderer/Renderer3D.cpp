@@ -8,7 +8,7 @@
 #include "glad/glad.h"
 #include "Crimson/Renderer/Shadows.h"
 #include "Crimson/Scene/PointLight.h"
-#include "Platform/Opengl/OpenGlSSAO.h"//temporary testing purpose
+#include "Platform/OpenGL/OpenGLSSAO.h" //temporary testing purpose
 #include "Crimson/Renderer/Terrain.h"
 #include "Crimson/Renderer/SkyRenderer.h"
 #include "Crimson/Renderer/DeferredRenderer.h"
