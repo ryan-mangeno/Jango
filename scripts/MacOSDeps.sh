@@ -8,7 +8,27 @@ CMAKE_MODULES="${BASE_DIR}/externals/cmakemodules"
 PHYSX_BUILD="${PHYSX_ROOT}/compiler/mac-arm64-native"
 ABS_OUTPUT_DIR="${PHYSX_ROOT}/bin/mac.arm64"
 
-echo "--- Building Minimal PhysX (M1 Native) ---"
+
+echo "--- Checking build prerequisites ---"
+
+for tool in cmake xcodebuild; do
+    if ! command -v "$tool" >/dev/null 2>&1; then
+        echo "Error: required tool not found: $tool"
+        exit 1
+    fi
+done
+
+if command -v pkg-config >/dev/null 2>&1 && pkg-config --exists assimp; then
+    echo "Assimp found"
+elif command -v brew >/dev/null 2>&1 && brew list assimp >/dev/null 2>&1; then
+    echo "Assimp found (brew)"
+    export PKG_CONFIG_PATH="$(brew --prefix assimp)/lib/pkgconfig:${PKG_CONFIG_PATH}"
+else
+    echo "Error: Assimp not found. Install with:"
+    echo "  brew install assimp"
+    exit 1
+fi
+
 
 if [ ! -d "$CMAKE_MODULES" ]; then
     pushd "$PHYSX_ROOT" > /dev/null
@@ -25,6 +45,8 @@ find "$BASE_DIR" -type f \( -name "*.cmake" -o -name "CMakeLists.txt" \) -exec s
 rm -rf "$PHYSX_BUILD"
 mkdir -p "$PHYSX_BUILD"
 mkdir -p "$ABS_OUTPUT_DIR"
+
+echo "--- Building PhysX ---"
 
 cmake -S "${PHYSX_ROOT}/compiler/public" -B "$PHYSX_BUILD" \
       -G "Xcode" \

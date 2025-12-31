@@ -8,12 +8,12 @@ namespace Crimson {
 	{
 		CN_PROFILE_FUNCTION()
 
-		SSAOShader = Shader::Create("Assets/Shaders/SSAOShader.glsl");
-		GbufferPosition = Shader::Create("Assets/Shaders/gBuffersShader.glsl");
-		GbufferPosition_Terrain = Shader::Create("Assets/Shaders/gBufferShader_Terrain.glsl");
-		GbufferPositionInstanced = Shader::Create("Assets/Shaders/gBufferShaderInstanced.glsl");
-		SSAOShader_Terrain = Shader::Create("Assets/Shaders/SSAOShader_Terrain.glsl");
-		SSAOblurShader = Shader::Create("Assets/Shaders/SSAOblurShader.glsl");
+		SSAOShader = Shader::Create("Crimson_Editor/Assets/Shaders/GLSL/SSAO.glsl");
+		GbufferPosition = Shader::Create("Crimson_Editor/Assets/Shaders/GLSL/GBuffer.glsl");
+		GbufferPosition_Terrain = Shader::Create("Crimson_Editor/Assets/Shaders/GLSL/GBufferTerrain.glsl");
+		GbufferPositionInstanced = Shader::Create("Crimson_Editor/Assets/Shaders/GLSL/GBufferInstanced.glsl");
+		SSAOShader_Terrain = Shader::Create("Crimson_Editor/Assets/Shaders/GLSL/SSAO_Terrain.glsl");
+		SSAOblurShader = Shader::Create("Crimson_Editor/Assets/Shaders/GLSL/SSAO_Blur.glsl");
 		CreateSSAOTexture(width,height);
 	}
 

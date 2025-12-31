@@ -1,4 +1,5 @@
 #include "cnpch.h"
+
 #include "CubeMapEnvironment.h"
 #include "Crimson/Renderer/Cameras/EditorCamera.h"
 #include "glad/glad.h"
@@ -92,11 +93,11 @@ namespace Crimson {
 	{
 		CN_PROFILE_FUNCTION()
 
-		Cube_Shader = (Shader::Create("Crimson_Editor/Assets/Shaders/CubeMapShader.glsl"));
-		equirectangularToCube_shader = Shader::Create("Crimson_Editor/Assets/Shaders/equirectangularToCube_shader.glsl");
-		irradiance_shader = Shader::Create("Crimson_Editor/Assets/Shaders/irradianceCubeMapShader.glsl");
-		prefilterShader = Shader::Create("Crimson_Editor/Assets/Shaders/IBL_preFilteredSpecularMap.glsl");
-		BRDFSumShader = Shader::Create("Crimson_Editor/Assets/Shaders/IBL_brdfSum.glsl");
+		Cube_Shader = (Shader::Create("Crimson_Editor/Assets/Shaders/GLSL/CubeMap.glsl"));
+		equirectangularToCube_shader = Shader::Create("Crimson_Editor/Assets/Shaders/GLSL/EquirectangularToCube.glsl");
+		irradiance_shader = Shader::Create("Crimson_Editor/Assets/Shaders/GLSL/IBL_Irradiance.glsl");
+		prefilterShader = Shader::Create("Crimson_Editor/Assets/Shaders/GLSL/IBL_Prefilter.glsl");
+		BRDFSumShader = Shader::Create("Crimson_Editor/Assets/Shaders/GLSL/IBL_BRDFSum.glsl");
 
 		int width = 1920, height = 1080, channels;
 		float* hdr_map_data = nullptr, *resized_image=nullptr;

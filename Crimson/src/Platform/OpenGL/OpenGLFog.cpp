@@ -8,7 +8,7 @@ namespace Crimson
 	OpenGLFog::OpenGLFog()
 		:m_density(0.005),m_gradient(1.3),m_fogStart(60.0f),m_fogEnd(5000)
 	{
-		m_fogShader = Shader::Create("Assets/Shaders/pp_fogShader.glsl");
+		m_fogShader = Shader::Create("Crimson_Editor/Assets/Shaders/GLSL/PostProcessFog.glsl");
 	}
 
 
@@ -17,7 +17,7 @@ namespace Crimson
 	{
 		CN_PROFILE_FUNCTION()
 
-		m_fogShader = Shader::Create("Assets/Shaders/pp_fogShader.glsl");
+		m_fogShader = Shader::Create("Crimson_Editor/Assets/Shaders/GLSL/PostProcessFog.glsl");
 
 		glGenFramebuffers(1, &m_framebufferID);
 		glBindFramebuffer(GL_FRAMEBUFFER, m_framebufferID);

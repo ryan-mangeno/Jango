@@ -23,8 +23,8 @@ namespace Crimson
 		m_width = width;
 		m_height = height;
 
-		m_DefferedPassShader = Shader::Create("Assets/Shaders/DeferredPassShader.glsl");
-		m_ForwardPassShader = Shader::Create("Assets/Shaders/ForwardPassShader.glsl");
+		m_DefferedPassShader = Shader::Create("Crimson_Editor/Assets/Shaders/GLSL/DeferredPass.glsl");
+		m_ForwardPassShader = Shader::Create("Crimson_Editor/Assets/Shaders/GLSL/ForwardPass.glsl");
 
 		glCreateFramebuffers(1, &m_framebufferID);		
 		glBindFramebuffer(GL_FRAMEBUFFER, m_framebufferID);		

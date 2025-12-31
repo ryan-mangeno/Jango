@@ -14,9 +14,9 @@ namespace Crimson {
 	OpenGLShadows::OpenGLShadows(const float& width, const float& height)
 		:m_width(width/ MAX_CASCADES),m_height(height/MAX_CASCADES)
 	{
-		shadow_shader = Shader::Create("Assets/Shaders/ShadowShader.glsl");
-		terrain_shadowShader = Shader::Create("Assets/Shaders/TerrainShadowShader.glsl");
-		shadow_shaderInstanced = Shader::Create("Assets/Shaders/ShadowShaderInstanced.glsl");
+		shadow_shader = Shader::Create("Crimson_Editor/Assets/Shaders/GLSL/Shadow.glsl");
+		terrain_shadowShader = Shader::Create("Crimson_Editor/Assets/Shaders/GLSL/TerrainShadow.glsl");
+		shadow_shaderInstanced = Shader::Create("Crimson_Editor/Assets/Shaders/GLSL/ShadowInstanced.glsl");
 
 		CreateShdowMap();
 	}

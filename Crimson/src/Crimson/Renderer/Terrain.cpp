@@ -99,8 +99,8 @@ namespace Crimson
 		m_Dimension.x = width;
 		m_Dimension.y = height;
 		m_maxTerrainHeight = std::numeric_limits<float>::min();
-		m_terrainShader = Shader::Create("Assets/Shaders/TerrainShader.glsl");
-		m_terrainWireframeShader = Shader::Create("Assets/Shaders/TerrainWireframeShader.glsl");
+		m_terrainShader = Shader::Create("Crimson_Editor/Assets/Shaders/GLSL/Terrain.glsl");
+		m_terrainWireframeShader = Shader::Create("Crimson_Editor/Assets/Shaders/GLSL/TerrainWireframe.glsl");
 
 
 		m_Water = Water::Create({ width, 20.0f, width }, { 0.0f, 0.0f, 1.0f, 1.0f }, { 512, 512 });

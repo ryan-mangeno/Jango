@@ -31,13 +31,13 @@ namespace Crimson {
 		camera = new EditorCamera(16, 9);
 		camera->SetCameraPosition(Showcase_camPosition);
 		
-		cs_FrustumCull = Shader::Create("Assets/Shaders/cs_FrustumCull.glsl");
-		cs_FoliageSpawn = Shader::Create("Assets/Shaders/cs_ProceduralFoliagePlacement.glsl");
-		cs_GrassPlacement = Shader::Create("Assets/Shaders/cs_GrassPlacement.glsl");
-		cs_createLod = Shader::Create("Assets/Shaders/cs_CreateLODs.glsl");
-		//cs_CopyIndirectBufferData = Shader::Create("Assets/Shaders/cs_CopyIndirectBufferDataArrays.glsl");
-		cs_CopyIndirectBufferData = Shader::Create("Assets/Shaders/cs_CopyIndirectBufferDataElements.glsl");
-		cs_ResetDensityMap = Shader::Create("Assets/Shaders/cs_ResetDensityMap.glsl");
+		cs_FrustumCull = Shader::Create("Crimson_Editor/Assets/Shaders/GLSL/CS_FrustumCull.glsl");
+		cs_FoliageSpawn = Shader::Create("Crimson_Editor/Assets/Shaders/GLSL/CS_ProceduralFoliagePlacement.glsl");
+		cs_GrassPlacement = Shader::Create("Crimson_Editor/Assets/Shaders/GLSL/CS_GrassPlacement.glsl");
+		cs_createLod = Shader::Create("Crimson_Editor/Assets/Shaders/GLSL/CS_CreateLODs.glsl");
+		//cs_CopyIndirectBufferData = Shader::Create("Crimson_Editor/Assets/Shaders/GLSL/CS_CopyIndirectBufferDataArrays.glsl");
+		cs_CopyIndirectBufferData = Shader::Create("Crimson_Editor/Assets/Shaders/GLSL/CS_CopyIndirectBufferDataElements.glsl");
+		cs_ResetDensityMap = Shader::Create("Crimson_Editor/Assets/Shaders/GLSL/CS_ResetDensityMap.glsl");
 
 		blueNoiseTexture = Texture2D::Create("Assets/Textures/Blue_Noise.png");
 		blueNoiseTexture->Bind(BLUE_NOISE_TEXTURE_SLOT);

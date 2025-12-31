@@ -132,8 +132,8 @@ namespace Crimson {
 
 
 		m_data->WhiteTex = Texture2D::Create(1, 1, 0xffffffff);//create a default white texture
-		m_data->Lineshader = (Shader::Create("Assets/Shaders/LineShader.glsl"));
-		m_data->shader = (Shader::Create("Assets/Shaders/2_In_1Shader.glsl"));//texture shader
+		m_data->Lineshader = (Shader::Create("Crimson_Editor/Assets/Shaders/GLSL/Line.glsl"));
+		m_data->shader = (Shader::Create("Crimson_Editor/Assets/Shaders/GLSL/Composite2D.glsl"));//texture shader
 
 		unsigned int TextureIDindex[] = { 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31 };
 
@@ -472,7 +472,7 @@ namespace Crimson {
 // 		}
 // 
 // 		s_Storage.TextureShader = Shader::Create("assets/shaders/texture.glsl");
-// 		s_Storage.LineShader    = Shader::Create("Assets/Shaders/LineShader.glsl");
+// 		s_Storage.LineShader    = Shader::Create("Crimson_Editor/Assets/Shaders/GLSL/Line.glsl");
 // 
 // 		s_Storage.TextureShader->Bind();
 // 		s_Storage.TextureShader->SetIntArray("u_Textures", samplers, s_Storage.maxTextureSlots);

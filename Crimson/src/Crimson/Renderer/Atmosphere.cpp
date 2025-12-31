@@ -37,7 +37,7 @@ namespace Crimson {
 
 		CN_PROFILE_FUNCTION()
 
-		atmosphere_shader = Shader::Create("Assets/Shaders/Atmosphere_Shader.glsl");
+		atmosphere_shader = Shader::Create("Crimson_Editor/Assets/Shaders/GLSL/Atmosphere.glsl");
 
 		std::vector<std::string> gradientTex_paths = {"Assets/Textures/Sky_Gradient_Textures/SunZenith_Gradient.png",
 			"Assets/Textures/Sky_Gradient_Textures/ViewZenith_Gradient.png", "Assets/Textures/Sky_Gradient_Textures/SunView_Gradient.png"};
