@@ -52,14 +52,14 @@ namespace Crimson {
 		framebuffer = FrameBuffer::Create({ 2048,2048 });
 		CN_CORE_INFO("----Scene Frame Buffer Created!----");
 
-		CN_CORE_TRACE("Initializng Physx");
+		CN_CORE_TRACE("Initializing Physx");
 		Physics3D::Initialize();
 		CN_CORE_INFO("----Phsyx Initialized!----");
 
 		SkyRenderer::SetSkyType(SkyType::PROCEDURAL_SKY);
 
 		CN_CORE_TRACE("Initializng SkyRenderer");
-		SkyRenderer::Initilize("Assets/Textures/HDR/dusk.hdr");
+		SkyRenderer::Initilize("Crimson_Editor/Assets/Textures/HDR/dusk.hdr");
 		CN_CORE_INFO("----SkyRender Initialized!----");
 
 		CN_CORE_TRACE("Initializng 2D and 3D Renderer");

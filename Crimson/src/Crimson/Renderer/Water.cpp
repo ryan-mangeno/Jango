@@ -14,6 +14,8 @@ namespace Crimson {
 				return nullptr;
 			case GraphicsAPI::OpenGL:
 				return MakeRef<OpenGLWater>( dims , water_color, screen_size );
+			case GraphicsAPI::Metal:
+				return nullptr;
 			default:
 				return nullptr;
 		}

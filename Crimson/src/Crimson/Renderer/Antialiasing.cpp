@@ -24,6 +24,8 @@ namespace Crimson
 		{
 		case GraphicsAPI::OpenGL:
 			return MakeRef<OpenGLAntialiasing>(width,height);
+		case GraphicsAPI::Metal:
+			return nullptr;
 		case GraphicsAPI::None:
 			return nullptr;
 		default:

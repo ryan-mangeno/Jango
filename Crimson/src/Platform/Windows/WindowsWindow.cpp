@@ -43,14 +43,16 @@ namespace Crimson {
 		CN_CORE_INFO("Creating Window {0} ({1}, {2})", attribs.Title, attribs.Width, attribs.Height);
 
 		// gl intialized before we init attribs
-		
-		
 		{
 			CN_PROFILE_SCOPE("glfwCreateWindow")
 			m_Window = glfwCreateWindow((int)attribs.Width, (int)attribs.Height, m_Data.Title.c_str(), nullptr, nullptr);
 		}
+		CN_CORE_ASSERT(m_Window, "Window Failed to be made!");
+
 		m_Context = MakeScope<OpenGLContext>(m_Window);
 		m_Context->Init();
+		
+		
 
 		glfwSetWindowUserPointer(m_Window, &m_Data);
 		SetVSync(true);

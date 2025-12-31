@@ -39,7 +39,7 @@ cmake -S "${PHYSX_ROOT}/compiler/public" -B "$PHYSX_BUILD" \
       -DPX_GENERATE_STATIC_LIBRARIES=ON \
       -DPX_SIMD=0 \
       -DCMAKE_CXX_FLAGS="-arch arm64 -D_DEBUG -Wno-everything" \
-      -Wno-dev
+      -Wno-dev 2> /dev/null
 
 if [ $? -eq 0 ]; then
     echo "Configuration successful. Building..."

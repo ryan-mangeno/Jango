@@ -379,7 +379,7 @@ namespace Crimson {
 		m_physics = PxCreatePhysics(PX_PHYSICS_VERSION, *m_foundation, toleranceScale);
 		if (!m_physics)
 		{
-			CN_CORE_ERROR("Error in creating physics object");
+			CN_CORE_ERROR("Error creating physics object");
 			return;
 		}
 
@@ -388,7 +388,7 @@ namespace Crimson {
 		m_cooking = PxCreateCooking(PX_PHYSICS_VERSION, *m_foundation, cookingParams);
 		if (!m_cooking)
 		{
-			CN_CORE_ERROR("Error in creating cooking interface");
+			CN_CORE_ERROR("Error creating cooking interface");
 			return;
 		}
 
@@ -402,16 +402,17 @@ namespace Crimson {
 				gCudaContextManager->release();
 				gCudaContextManager = nullptr;
 			}
-		#else
+
+			if (!gCudaContextManager)
+			{
+				CN_CORE_ERROR("Error creating CUDA context manager");
+				return;
+			}
+		#elif defined(CN_PLATFORM_MACOS)
 			// on mac, force this to nullptr. PhysX will fallback to CPU automatically.
 			gCudaContextManager = nullptr;
 		#endif
 
-		if (!gCudaContextManager)
-		{
-			CN_CORE_ERROR("Error in creating CUDA context manager");
-			return;
-		}
 
 		// Create the CPU dispatcher and configure the scene
 		physx::PxSceneDesc sceneDesc(m_physics->getTolerancesScale());

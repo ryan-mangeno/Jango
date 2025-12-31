@@ -2,8 +2,6 @@
 
 #include "Event.h"
 
-
-
 namespace Crimson {
 
 	class WindowResizeEvent : public Event

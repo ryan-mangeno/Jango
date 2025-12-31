@@ -4,6 +4,7 @@
 
 
 // from glfw3.h
+
 #define CRIMSON_KEY_SPACE              32
 #define CRIMSON_KEY_APOSTROPHE         39  /* ' */
 #define CRIMSON_KEY_COMMA              44  /* , */

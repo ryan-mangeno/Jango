@@ -1,5 +1,5 @@
 #include "cnpch.h"
-#include "OpenGlSSAO.h"
+#include "OpenGLSSAO.h"
 #include "glad/glad.h"
 #include "Crimson/Renderer/Terrain.h"
 

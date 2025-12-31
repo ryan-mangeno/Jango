@@ -1,110 +1,39 @@
 #include "cnpch.h"
+
+
 #include "ImGuiLayer.h"
+#include "Crimson/Renderer/RendererAPI.h"
 
-#include "imgui.h"
-#include "backends/imgui_impl_glfw.h"
-#include "backends/imgui_impl_opengl3.h"
-#include "Crimson/Core/Application.h"
-#include "ImGuizmo.h"
+#include "Platform/OpenGL/OpenGLImGuiLayer.h"
+#include "Platform/Metal/MetalImGuiLayer.h"
 
-// temp
-#include <GLFW/glfw3.h>
-#include <glad/glad.h>
+#include <imgui.h>
+
 namespace Crimson {
 
-	#define BIND_FUNC(x) std::bind(&ImGuiLayer::x,this,std::placeholders::_1)
+    ImGuiLayer::ImGuiLayer() : Layer("ImGuiLayer") {}
+    ImGuiLayer::~ImGuiLayer() {}
 
-
-	ImFont* ImGuiLayer::s_Font = nullptr;
-
-	ImGuiLayer::ImGuiLayer()
-		:Layer("ImGuiLayer")
-	{
-	}
-
-
-	ImGuiLayer::~ImGuiLayer()
-	{
-	}
-
-	void ImGuiLayer::Begin()
-	{
-
+    ImGuiLayer* ImGuiLayer::Create()
+    {
 		CN_PROFILE_FUNCTION()
-
-
-		ImGui_ImplOpenGL3_NewFrame();
-		ImGui_ImplGlfw_NewFrame();
-		ImGui::NewFrame();
-		ImGuizmo::BeginFrame();
-	}
-
-	void ImGuiLayer::End()
-	{
-		CN_PROFILE_FUNCTION()
-
-
-		ImGuiIO& io = ImGui::GetIO();
-		Application& app = Application::Get();
-		io.DisplaySize = ImVec2(float(app.GetWindow().GetWidth()), float(app.GetWindow().GetHeight()));
-
-		ImGui::Render();
-		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
-		if (io.ConfigFlags && ImGuiConfigFlags_ViewportsEnable)
+		switch (RendererAPI::GetAPI())
 		{
-			GLFWwindow* backup_current_context = glfwGetCurrentContext();
-			ImGui::UpdatePlatformWindows();
-			ImGui::RenderPlatformWindowsDefault();
-			glfwMakeContextCurrent(backup_current_context);
-		}
+		case GraphicsAPI::OpenGL:
+			return new OpenGLImGuiLayer();
+		case GraphicsAPI::Metal:
+			return new MetalImGuiLayer();
+		case GraphicsAPI::None:
+		    CN_CORE_ASSERT(false, "Unknown Platform!");
+			return nullptr;
+		default:
+			return nullptr;
+	    }
 	}
 
-	void ImGuiLayer::OnAttach()
-	{
-		IMGUI_CHECKVERSION();
-		ImGui::CreateContext();
-		ImGuiIO& io = ImGui::GetIO(); (void)io;
-		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;       // Enable Keyboard Controls
-		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
-		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;         // Enable Multi-Viewport / Platform Windows
-
-		io.FontDefault = io.Fonts->AddFontFromFileTTF("Crimson_Editor/Assets/Font/OpenSans-Bold.ttf", 18.0f);
-		s_Font = io.Fonts->AddFontFromFileTTF("Crimson_Editor/Assets/Font/OpenSans-ExtraBold.ttf", 20.0f);
-
-		ImGui::StyleColorsDark();
-
-		ImGuiStyle& style = ImGui::GetStyle();
-		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-		{
-			style.WindowRounding = 0.0f;
-			style.Colors[ImGuiCol_WindowBg].w = 1.0f;
-		}
-
-		SetDarkThemeColors();
-
-		GLFWwindow* window = (GLFWwindow*)Application::Get().GetWindow().GetNativeWindow();
-		
-		// Setup Platform/Renderer backends
-		ImGui_ImplGlfw_InitForOpenGL(window, true);
-
-		ImGui_ImplOpenGL3_Init("#version 410");
-
-	}
-
-	void ImGuiLayer::OnDetach()
-	{
-		ImGui_ImplGlfw_Shutdown();
-		ImGui_ImplOpenGL3_Shutdown();
-		ImGui::DestroyContext();
-	}
-
-	void ImGuiLayer::OnImGuiRender()
-	{
-	}
-
-	void ImGuiLayer::SetDarkThemeColors()
-	{
+    // Move your SetDarkThemeColors here since it's shared C++ code
+    void ImGuiLayer::SetDarkThemeColors()
+    {
 		auto& colors = ImGui::GetStyle().Colors;
 		colors[ImGuiCol_WindowBg] = { 0.1f ,0.105f ,0.1f ,1.0f };
 
@@ -128,8 +57,6 @@ namespace Crimson {
 
 		colors[ImGuiCol_TitleBg] = { 0.15f,0.1505f,0.15f,1.0f };
 		colors[ImGuiCol_TitleBgActive] = { 0.15f,0.1505f,0.15f,1.0f };
-		colors[ImGuiCol_TitleBgCollapsed] = { 0.95f,0.1505f,0.951f,1.0f };
+		colors[ImGuiCol_TitleBgCollapsed] = { 0.95f,0.1505f,0.951f,1.0f };    
 	}
-
-
 }

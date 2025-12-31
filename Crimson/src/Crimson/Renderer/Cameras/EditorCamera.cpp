@@ -1,5 +1,7 @@
 #include "cnpch.h"
+
 #include "EditorCamera.h"
+#include "Crimson/Core/Input.h"
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtx/transform.hpp"
 #include "glm/gtx/quaternion.hpp"

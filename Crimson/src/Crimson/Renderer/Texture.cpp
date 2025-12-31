@@ -42,6 +42,8 @@ namespace Crimson {
 				else
 					instance = std::dynamic_pointer_cast<Texture2D>(ResourceManager::allTextures[ID]); //dynamic_pointer_cast helps to give a shared ptr of derived type casting from base
 				return instance;
+			case GraphicsAPI::Metal:
+				return nullptr;
 			default:
 				return nullptr;
 		}
@@ -54,6 +56,8 @@ namespace Crimson {
 				return nullptr;
 			case GraphicsAPI::OpenGL:
 				return MakeRef<OpenGLTexture2D>(Width, Height, data);
+			case GraphicsAPI::Metal:
+				return nullptr;
 			default:
 				return nullptr;
 		}
@@ -66,6 +70,8 @@ namespace Crimson {
 				return nullptr;
 			case GraphicsAPI::OpenGL:
 				return std::make_shared<OpenGLTexture2DArray>(paths, numMaterials, numChannels, bUse16BitTexture);
+			case GraphicsAPI::Metal:
+				return nullptr;
 			default:
 				return nullptr;
 		}

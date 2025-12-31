@@ -1,5 +1,5 @@
 #include "cnpch.h"
-#include "OpenGlVertexArray.h"
+#include "OpenGLVertexArray.h"
 #include "glad/glad.h"
 
 namespace Crimson {

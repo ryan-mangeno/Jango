@@ -90,15 +90,13 @@ namespace Crimson {
 	};
 	void CubeMapEnvironment::Init(const std::string& path)
 	{
-
 		CN_PROFILE_FUNCTION()
 
-
-		Cube_Shader = (Shader::Create("Assets/Shaders/CubeMapShader.glsl"));
-		equirectangularToCube_shader = Shader::Create("Assets/Shaders/equirectangularToCube_shader.glsl");
-		irradiance_shader = Shader::Create("Assets/Shaders/irradianceCubeMapShader.glsl");
-		prefilterShader = Shader::Create("Assets/Shaders/IBL_preFilteredSpecularMap.glsl");
-		BRDFSumShader = Shader::Create("Assets/Shaders/IBL_brdfSum.glsl");
+		Cube_Shader = (Shader::Create("Crimson_Editor/Assets/Shaders/CubeMapShader.glsl"));
+		equirectangularToCube_shader = Shader::Create("Crimson_Editor/Assets/Shaders/equirectangularToCube_shader.glsl");
+		irradiance_shader = Shader::Create("Crimson_Editor/Assets/Shaders/irradianceCubeMapShader.glsl");
+		prefilterShader = Shader::Create("Crimson_Editor/Assets/Shaders/IBL_preFilteredSpecularMap.glsl");
+		BRDFSumShader = Shader::Create("Crimson_Editor/Assets/Shaders/IBL_brdfSum.glsl");
 
 		int width = 1920, height = 1080, channels;
 		float* hdr_map_data = nullptr, *resized_image=nullptr;
@@ -117,8 +115,10 @@ namespace Crimson {
 			glBindTexture(GL_TEXTURE_2D, 0);
 			stbi_image_free(hdr_map_data);
 		}
-		else
-			CN_CORE_ERROR("HDR Map NOT LOADED !!");
+		else {
+			CN_CORE_ERROR("HDR Map Failed to Load!");
+			CN_CORE_ERROR("STB Failure Reason: {0}", stbi_failure_reason());
+		}
 
 		EditorCamera camera;//Set up camera
 		camera.SetPerspctive(90.0f, 0.1f, 10.f);

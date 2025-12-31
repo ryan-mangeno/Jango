@@ -1,35 +1,30 @@
 #pragma once
 
 #include "Crimson/Core/Layer.h"
+#include "Crimson/Events/ApplicationEvent.h"
 #include "Crimson/Events/KeyEvent.h"
 #include "Crimson/Events/MouseEvent.h"
-#include "Crimson/Events/ApplicationEvent.h"
-#include "imgui.h"
 
 namespace Crimson {
 
-	class ImGuiLayer : public Layer
-	{
-	public:
-		ImGuiLayer();
-		~ImGuiLayer();
+    class ImGuiLayer : public Layer
+    {
+    public:
+        ImGuiLayer();
+        virtual ~ImGuiLayer();
 
-		virtual void OnAttach() override;
-		virtual void OnDetach() override;
-		virtual void OnImGuiRender() override;
+        virtual void OnAttach() override = 0;
+        virtual void OnDetach() override = 0;
+        virtual void OnImGuiRender() override = 0;
 
-		static inline ImFont* GetFont() { return s_Font; }
+        virtual void Begin() = 0;
+        virtual void End() = 0;
 
-		void Begin();
-		void End();
+        void SetDarkThemeColors();
+        
+		static ImGuiLayer* Create();
 
-	private:
-		void SetDarkThemeColors();
-
-	private:
-
-		bool m_DispatchEvents = false;
-		static ImFont* s_Font;
-	};
-
+    protected:
+        float m_Time = 0.0f;
+    };
 }

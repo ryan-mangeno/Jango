@@ -8,6 +8,8 @@ namespace Crimson {
         switch (RendererAPI::GetAPI()) {
         case GraphicsAPI::OpenGL:
             return MakeRef<OpenGLBloom>();
+        case GraphicsAPI::Metal:
+			return nullptr;
         case GraphicsAPI::None:
             return nullptr;
         default:

@@ -22,6 +22,8 @@ namespace Crimson
 			return nullptr;
 		case GraphicsAPI::OpenGL:
 			return MakeRef<OpenGLShadows>(width,height);
+		case GraphicsAPI::Metal:
+			return nullptr;
 		}
 	}
 	Ref<Shadows> Shadows::Create()
@@ -32,6 +34,8 @@ namespace Crimson
 			return nullptr;
 		case GraphicsAPI::OpenGL:
 			return MakeRef<OpenGLShadows>(2048.f, 2048.f);
+		case GraphicsAPI::Metal:
+			return nullptr;
 		}
 	}
 }

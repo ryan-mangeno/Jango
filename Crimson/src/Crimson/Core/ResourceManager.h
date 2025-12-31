@@ -7,10 +7,8 @@
 #include "Crimson/Renderer/Texture.h"
 #include "Crimson/Mesh/LoadMesh.h"
 
-namespace Crimson
-{
-	class ResourceManager
-	{
+namespace Crimson {
+	class ResourceManager {
 	public:
 		ResourceManager() = default;
 	public:

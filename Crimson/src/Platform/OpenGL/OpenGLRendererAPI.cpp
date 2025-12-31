@@ -1,5 +1,5 @@
 #include "cnpch.h"
-#include "OpenGlRendererAPI.h"
+#include "OpenGLRendererAPI.h"
 #include "glad/glad.h"
 
 namespace Crimson {

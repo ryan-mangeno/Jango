@@ -15,6 +15,8 @@ namespace Crimson {
 		{
 		case GraphicsAPI::None:
 			return nullptr;
+		case GraphicsAPI::Metal:
+			return nullptr;
 		case GraphicsAPI::OpenGL:
 			return MakeRef<OpenGLCubeMapReflection>();
 		}

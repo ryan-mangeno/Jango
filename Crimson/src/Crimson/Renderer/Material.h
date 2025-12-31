@@ -1,5 +1,7 @@
 #pragma once
-#include "Crimson.h"
+
+#include "Crimson/Renderer/Shader.h"
+#include "Crimson/Renderer/Texture.h"
 #include "Crimson/Core/UUID.h"
 
 namespace Crimson

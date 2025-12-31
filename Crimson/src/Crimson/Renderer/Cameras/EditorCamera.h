@@ -1,5 +1,5 @@
 #pragma once
-#include "Crimson.h"
+
 #include "Camera.h"
 #include "Crimson/Events/ApplicationEvent.h"
 #include "Crimson/Events/KeyEvent.h"
@@ -38,7 +38,7 @@ namespace Crimson {
 
 		void OnEvent(Event& e) override;
 		void OnUpdate(TimeStep ts) override;
-		void RotateCamera(float pitch = 0, float yaw = 0, float roll = 0) override;
+		void RotateCamera(float pitch = 0.f, float yaw = 0.f, float roll = 0.f) override;
 	private:
 		void RecalculateProjection();
 		void RecalculateProjectionView();
@@ -48,18 +48,18 @@ namespace Crimson {
 		glm::mat4 m_Projection;
 		glm::mat4 m_ProjectionView;
 
-		glm::vec3 m_Position = { 0,0,0 }, m_ViewDirection = { 0,0,1 };
+		glm::vec3 m_Position = { 0.f,0.f,0.f }, m_ViewDirection = { 0.f,0.f,1.f };
 		//m_Viewdirection is the location we are looking at (it is the vector multiplied with rotation matrix)
-		glm::vec3 Up = { 0,1,0 } , RightVector;//we get right vector by getting the cross product of m_ViewDirection and Up vectors
+		glm::vec3 Up = { 0.f,1.f,0.f } , RightVector;//we get right vector by getting the cross product of m_ViewDirection and Up vectors
 
 		float m_verticalFOV = 45.f;
-		float m_PerspectiveNear = 0.1;
-		float m_PerspectiveFar = 1000;
+		float m_PerspectiveNear = 0.1f;
+		float m_PerspectiveFar = 1000.f;
 		
-		float m_AspectRatio = 1.0;
-		float m_pitch=0, m_yaw=0, m_roll=0;
+		float m_AspectRatio = 1.0f;
+		float m_pitch=0.f, m_yaw=0.f, m_roll=0.f;
 		//camera parameters
-		float m_movespeed = 30;
-		glm::vec2 OldMousePos = { 0,0};
+		float m_movespeed = 30.f;
+		glm::vec2 OldMousePos = { 0.f,0.f};
 	};
 }

@@ -41,7 +41,7 @@ namespace Crimson {
 
 		Renderer::Init(); // this sets the renderer-api in reality ... does not initialize the 2d and 3d renderer
 
-		m_ImGuiLayer = new ImGuiLayer(); // layers get deleted in layer stack destructor
+		m_ImGuiLayer = ImGuiLayer::Create(); // layers get deleted in layer stack destructor
 		PushOverlay(m_ImGuiLayer);
 	}
 
@@ -113,43 +113,30 @@ namespace Crimson {
 	{
 		while (m_Running) 
 		{
-
 			float time = GetTime(); 
 			s_TimeStep = time - m_LastFrameTime;
 			m_LastFrameTime = time;
-
 			if (!m_Minimized)
 			{
-
 				{
 					CN_PROFILE_SCOPE("Layer OnUpdates")
-
-
-						// we can use range based for loop because we implimented begin and end
-						for (const auto& layer : m_LayerStack)
-						{
-							layer->OnUpdate(s_TimeStep);
-						}
-					
+					// we can use range based for loop because we implimented begin and end
+					for (const auto& layer : m_LayerStack)
+					{
+						layer->OnUpdate(s_TimeStep);
+					}
 				}
-
-
 				m_ImGuiLayer->Begin();
 				{
 					CN_PROFILE_SCOPE("LayerStack OnImGuiRender")
-
-						for (const auto& layer : m_LayerStack)
-						{
-							layer->OnImGuiRender();
-						}
+					for (const auto& layer : m_LayerStack)
+					{
+						layer->OnImGuiRender();
+					}
 				}
 				m_ImGuiLayer->End();
-
-
 			}
-
 			m_Window->OnUpdate();
-
 			}
 		}
 	}

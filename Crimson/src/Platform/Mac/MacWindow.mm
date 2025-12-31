@@ -36,7 +36,12 @@ namespace Crimson {
         // tell glfw to not create an OpenGL context
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
-        m_Window = glfwCreateWindow((int)attribs.Width, (int)attribs.Height, m_Data.Title.c_str(), nullptr, nullptr);
+		CN_CORE_INFO("Creating window {0} ({1}, {2})", attribs.Title, attribs.Width, attribs.Height);
+		{
+			CN_PROFILE_SCOPE("glfwCreateWindow")
+        	m_Window = glfwCreateWindow((int)attribs.Width, (int)attribs.Height, m_Data.Title.c_str(), nullptr, nullptr);
+		}
+		CN_CORE_ASSERT(m_Window, "Window Failed to be made!");
 
         // init metal context
         m_Context = MakeScope<MetalContext>(m_Window);

@@ -1,5 +1,5 @@
 #include "cnpch.h"
-#include "OpenGlShadows.h"
+#include "OpenGLShadows.h"
 #include "glad/glad.h"
 #include "Crimson/Renderer/FoliageRenderer.h"
 #include "Crimson/Renderer/Terrain.h"

@@ -6,8 +6,6 @@
 #include "Crimson/Scene/Scene.h"
 
 namespace Crimson {
-	class Camera;
-	//class LoadMesh;
 	struct SubMesh;
 	class Shadows;
 	class Renderer3D

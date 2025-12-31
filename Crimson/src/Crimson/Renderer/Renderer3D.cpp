@@ -392,8 +392,8 @@ namespace Crimson {
 
 	void Renderer3D::SetTransperancy(float val)
 	{
-		m_data->shader->Bind();//you need to bind this other wise nothing will be rendererd
-		m_data->shader->SetFloat("Transperancy", val);//for now assign to 10 :)
+		m_data->shader->Bind();// need to bind this other wise nothing will be rendererd
+		m_data->shader->SetFloat("Transperancy", val);
 	}
 
 	Ref<Shader>& Renderer3D::GetFoliageInstancedShader()

@@ -164,6 +164,8 @@ if(WIN32)
 
 elseif(APPLE)
     target_compile_definitions(Crimson PUBLIC CN_PLATFORM_MACOS GLFW_INCLUDE_NONE)
+    target_compile_options(Crimson PRIVATE "-fobjc-arc")
+
     
     find_library(COCOA_LIB Cocoa)
     find_library(IOKIT_LIB IOKit)

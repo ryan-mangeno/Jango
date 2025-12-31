@@ -15,6 +15,8 @@ namespace Crimson {
 			return nullptr;
 		case GraphicsAPI::OpenGL:
 			return std::make_shared<OpenGLShader>(path);
+		case GraphicsAPI::Metal:
+			return nullptr;
 		default:
 			return nullptr;
 		}
@@ -27,6 +29,8 @@ namespace Crimson {
 			return nullptr;
 		case GraphicsAPI::OpenGL:
 			return std::make_shared<OpenGLShader>(vertexshader, fragmentshader, name);
+		case GraphicsAPI::Metal:
+			return nullptr;
 		default:
 			return nullptr;
 		}
