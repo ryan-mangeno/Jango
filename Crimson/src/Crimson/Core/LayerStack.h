@@ -45,7 +45,7 @@ namespace Crimson {
 
 		// we keep a iterator offset since iterators can be invalidated when pushing
 		// and erasing elements from container  and also reallocations
-		unsigned int m_LayerIteratorOffset;
+		uint32_t m_LayerIteratorOffset;
 	};
 
 }

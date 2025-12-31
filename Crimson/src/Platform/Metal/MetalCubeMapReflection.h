@@ -13,12 +13,12 @@ namespace Crimson {
 		virtual void RenderToCubeMap(Scene& scene) override;
 		virtual void Bind(int slot) override;
 		virtual void UnBind() override;
-		virtual unsigned int GetTexture_ID() override;
+		virtual uint32_t GetTexture_ID() override;
 		virtual void SetCubeMapResolution(float width, float height) override;
 		void SwitchToFace(int n);
 
 	private:
-		unsigned int tex_id, framebuffer_id,depth_id;
+		uint32_t tex_id, framebuffer_id,depth_id;
 		Ref<Shader> shader;
 		float cubemap_width;
 		float cubemap_height;

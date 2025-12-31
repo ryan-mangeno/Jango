@@ -1,211 +1,198 @@
 #include "cnpch.h"
 #include "MetalSSAO.h"
-#include "glad/glad.h"
-#include "Crimson/Renderer/Terrain.h"
+
+#include "Platform/Metal/MetalContext.h"
+#include "Platform/Util/Util.h"
+#include "Platform/Metal/MetalRendererAPI.h"
+#include "Crimson/Renderer/Renderer3D.h" 
+
+#import <Metal/Metal.h>
+#include <random>
+#include <glm/gtc/type_ptr.hpp>
 
 namespace Crimson {
-	MetalSSAO::MetalSSAO(int width, int height)
-	{
-		CN_PROFILE_FUNCTION()
 
-		SSAOShader = Shader::Create("Crimson_Editor/Assets/Shaders/GLSL/SSAO.glsl");
-		GbufferPosition = Shader::Create("Crimson_Editor/Assets/Shaders/GLSL/GBuffer.glsl");
-		GbufferPosition_Terrain = Shader::Create("Crimson_Editor/Assets/Shaders/GLSL/GBufferTerrain.glsl");
-		GbufferPositionInstanced = Shader::Create("Crimson_Editor/Assets/Shaders/GLSL/GBufferInstanced.glsl");
-		SSAOShader_Terrain = Shader::Create("Crimson_Editor/Assets/Shaders/GLSL/SSAO_Terrain.glsl");
-		SSAOblurShader = Shader::Create("Crimson_Editor/Assets/Shaders/GLSL/SSAO_Blur.glsl");
-		CreateSSAOTexture(width,height);
-	}
+	inline id<MTLTexture> ToMetal(void* handle) { return (__bridge id<MTLTexture>)handle; }
 
-	MetalSSAO::~MetalSSAO()
-	{
-	}
+    MetalSSAO::MetalSSAO(int width, int height)
+    {
+        CN_PROFILE_FUNCTION();
 
-	void MetalSSAO::CaptureScene(Scene& scene , Camera& cam)
-	{
+        // load shaders
+        m_SSAOShader = Shader::Create("Crimson_Editor/Assets/Shaders/Metal/SSAO.metal");
+        m_SSAOBlurShader = Shader::Create("Crimson_Editor/Assets/Shaders/Metal/SSAO_Blur.metal");
 
-		CN_PROFILE_FUNCTION()
+        // create textures & kernel
+        CreateSSAOTexture(width, height);
+    }
 
-		glm::vec2 viewport_size = RenderCommand::GetViewportSize();
+    MetalSSAO::~MetalSSAO()
+    {
+        // ARC handles cleanup
+    }
 
-		//generating random samples, random floats will be [0, 1)
-		std::uniform_real_distribution<float> RandomFloats(0.0f, 1.0f);
-		std::random_device rd;
-		std::default_random_engine generator(rd());
+    void MetalSSAO::SetSSAO_TextureDimension(int width, int height)
+    {
+        // Simply re create the textures at the new resolution
+        CreateSSAOTexture(width, height);
+    }
 
-		for (int i = 0; i < RANDOM_SAMPLES_SIZE; i++)
-		{
-			samples[i] = glm::vec3(
-				RandomFloats(generator) * 2.0f - 1.0f,
-				RandomFloats(generator) * 2.0f - 1.0f,
-				RandomFloats(generator)
-			);
-			samples[i] = glm::normalize(samples[i]);
-			samples[i] *= RandomFloats(generator);
+    void MetalSSAO::CreateSSAOTexture(int width, int height)
+    {
+        CN_PROFILE_FUNCTION();
 
-			float scale = static_cast<float>(i) / RANDOM_SAMPLES_SIZE;
-			float val = 0.1 * scale * scale + (1.0 - 0.1) * scale * scale;
-			samples[i] *= val;
-		}
+        m_width = width;
+        m_height = height;
 
+        id<MTLDevice> device = (__bridge id<MTLDevice>)MetalRendererAPI::GetDevice();
 
-		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, SSAOframebuffer_id);
-		glViewport(0, 0, m_width, m_height);
+        // create SSAO Raw Texture (R8Unorm)
+        MTLTextureDescriptor* ssaoDesc = [MTLTextureDescriptor texture2DDescriptorWithPixelFormat:MTLPixelFormatR8Unorm 
+                                                                                            width:width 
+                                                                                           height:height 
+                                                                                        mipmapped:NO];
+        ssaoDesc.usage = MTLTextureUsageRenderTarget | MTLTextureUsageShaderRead;
+        m_SSAORawTexture = (__bridge_retained void*)[device newTextureWithDescriptor:ssaoDesc];
 
-		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, SSAOdepth_id);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, SSAOtexture_id, 0);
+        // create SSAO Blur Texture (Output)
+        m_SSAOBlurTexture = (__bridge_retained void*)[device newTextureWithDescriptor:ssaoDesc];
 
-		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-			CN_CORE_ERROR("SSAO Framebuffer Failed"); 
+        // gen Kernel (Random Samples)
+        std::uniform_real_distribution<float> RandomFloats(0.0f, 1.0f);
+        std::default_random_engine generator;
+        
+        for (int i = 0; i < RANDOM_SAMPLES_SIZE; i++)
+        {
+            glm::vec3 sample(
+                RandomFloats(generator) * 2.0f - 1.0f,
+                RandomFloats(generator) * 2.0f - 1.0f,
+                RandomFloats(generator)
+            );
+            sample = glm::normalize(sample);
+            sample *= RandomFloats(generator);
 
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		
-		SSAOShader->Bind();
-		SSAOShader->SetFloat("ScreenWidth", viewport_size.x);
-		SSAOShader->SetFloat("ScreenHeight", viewport_size.y);
-		SSAOShader->SetMat4("u_ProjectionView", cam.GetProjectionView());		
-		SSAOShader->SetFloat3Array("Samples", &samples[0].x, RANDOM_SAMPLES_SIZE);
-		SSAOShader->SetMat4("u_projection", cam.GetProjectionMatrix());
-		SSAOShader->SetInt("noisetex", NOISE_SLOT);
-		SSAOShader->SetInt("depthBuffer", SCENE_DEPTH_SLOT);
-		SSAOShader->SetInt("gNormal", G_NORMAL_TEXTURE_SLOT);
-		SSAOShader->SetFloat3("u_CamPos", cam.GetCameraPosition());
+            float scale = static_cast<float>(i) / RANDOM_SAMPLES_SIZE;
+            float val = 0.1f * scale * scale + (1.0f - 0.1f) * scale * scale; // Lerp
+            sample *= val;
+            
+            m_Samples[i] = sample;
+        }
 
-		RenderQuad();
-	
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, SSAOblur_id, 0);
-		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-			CN_CORE_ERROR("SSAO Blur Frame Buffer Failed");
+        // generate Noise Texture (4x4 Rotation Vectors)
+        std::vector<glm::vec3> noiseData;
+        for (int i = 0; i < 16; i++)
+        {
+            noiseData.push_back(glm::vec3(
+                RandomFloats(generator) * 2.0f - 1.0f, 
+                RandomFloats(generator) * 2.0f - 1.0f, 
+                0.0f
+            ));
+        }
 
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		
-		SSAOblurShader->Bind();
-		SSAOblurShader->SetInt("SSAOtex", SSAO_SLOT);
-		SSAOblurShader->SetMat4("u_ProjectionView", cam.GetProjectionView());
-		SSAOblurShader->SetInt("alpha_texture", ROUGHNESS_SLOT);//for foliage if the isFoliage flag is set to 1 then render the foliage with the help of opacity texture
-		
-		RenderQuad();
+        MTLTextureDescriptor* noiseDesc = [MTLTextureDescriptor texture2DDescriptorWithPixelFormat:MTLPixelFormatRGBA32Float 
+                                                                                             width:4 
+                                                                                            height:4 
+                                                                                         mipmapped:NO];
+        id<MTLTexture> noiseTex = [device newTextureWithDescriptor:noiseDesc];
+        [noiseTex replaceRegion:MTLRegionMake2D(0, 0, 4, 4) 
+                    mipmapLevel:0 
+                      withBytes:noiseData.data() 
+                    bytesPerRow:4 * sizeof(glm::vec3)]; // 12 or 16 bytes depending on padding? Metal usually expects 16 for float3/4
+        
+        // NOTE: glm::vec3 is 12 bytes, but Metal RGBA32Float expects 16 bytes per pixel
+        // It's safer to use glm::vec4 for texture uploads to avoid alignment issues
+        // For now, assuming handle packing, but keep this in mind if noise looks skewed
+        
+        m_NoiseTexture = (__bridge_retained void*)noiseTex;
+    }
 
-		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glViewport(0, 0, viewport_size.x, viewport_size.y);
-	}
-	void MetalSSAO::CreateSSAOTexture(int width, int height)
-	{
+    void MetalSSAO::CaptureScene(Scene& scene, Camera& cam)
+    {
+        CN_PROFILE_FUNCTION();
 
-		CN_PROFILE_FUNCTION()
+        id<MTLCommandBuffer> cmdBuffer = (__bridge id<MTLCommandBuffer>)MetalRendererAPI::GetCurrentCommandBuffer();
+        if (!cmdBuffer) return;
 
-		m_width = width;
-		m_height = height;
-		glm::vec2 size = RenderCommand::GetViewportSize();
+        // PASS 1: SSAO GENERATION (Raw)
+        {
+            MTLRenderPassDescriptor* pass = [MTLRenderPassDescriptor renderPassDescriptor];
+            pass.colorAttachments[0].texture = ToMetal(m_SSAORawTexture);
+            pass.colorAttachments[0].loadAction = MTLLoadActionClear;
+            pass.colorAttachments[0].storeAction = MTLStoreActionStore;
+            pass.colorAttachments[0].clearColor = MTLClearColorMake(0,0,0,1);
 
-		// ssao frame buffer and texture creation
-		glCreateFramebuffers(1, &SSAOframebuffer_id);
-		glCreateTextures(GL_TEXTURE_2D, 1, &SSAOtexture_id);
-		glBindTexture(GL_TEXTURE_2D, SSAOtexture_id);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_R8, m_width, m_height, 0, GL_RED, GL_UNSIGNED_BYTE, nullptr);
+            id<MTLRenderCommandEncoder> encoder = [cmdBuffer renderCommandEncoderWithDescriptor:pass];
+            encoder.label = @"SSAO Generation Pass";
 
-		glGenerateMipmap(GL_TEXTURE_2D);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+            // Bind Pipeline
+            m_SSAOShader->Bind(); 
 
+            // Bind Textures
+            // NOTE: You must retrieve the G-Buffer textures from Renderer3D or Scene
+            // Since they are void*, we cast them using ToMetal()
+            
+            // Slot 0: G-Position
+            // [encoder setFragmentTexture:ToMetal(Renderer3D::GetGPositionTexture()) atIndex:0]; 
+            
+            // Slot 1: G-Normal
+            // [encoder setFragmentTexture:ToMetal(Renderer3D::GetGNormalTexture()) atIndex:1];
 
-		// ssao blur creation
-		glCreateTextures(GL_TEXTURE_2D, 1, &SSAOblur_id);
-		glBindTexture(GL_TEXTURE_2D, SSAOblur_id);
+            // Slot 2: Noise
+            [encoder setFragmentTexture:ToMetal(m_NoiseTexture) atIndex:2];
+            
+            // Slot 3: Depth (If needed by your shader logic)
+            // [encoder setFragmentTexture:ToMetal(Renderer3D::GetDepthTexture()) atIndex:3];
 
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_R8, m_width, m_height, 0, GL_RED, GL_UNSIGNED_BYTE, nullptr);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+            // Send Uniforms
+            // MetalShader::Set* functions write to a CPU buffer, 
+            // but for arrays/structs often cleaner to send bytes directly here for specialized passes.
+            
+            // Send Kernel Samples (Index 0 in Fragment Buffer)
+            [encoder setFragmentBytes:m_Samples length:sizeof(m_Samples) atIndex:0];
 
+            // Send Projection Matrix (Index 1 in Fragment Buffer)
+            glm::mat4 proj = cam.GetProjectionMatrix();
+            [encoder setFragmentBytes:&proj length:sizeof(glm::mat4) atIndex:1];
 
-		// ssao depth buffer gen
-		glGenRenderbuffers(1, &SSAOdepth_id);
-		glBindRenderbuffer(GL_RENDERBUFFER, SSAOdepth_id);
-		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, m_width, m_height);
+            // Send View Matrix (Index 2)
+            glm::mat4 view = cam.GetViewMatrix();
+            [encoder setFragmentBytes:&view length:sizeof(glm::mat4) atIndex:2];
+            
+            // Render Fullscreen Quad
+            RenderQuad();
 
-		GLenum buffers[] = { GL_COLOR_ATTACHMENT0 };
-		glDrawBuffers(1, buffers);
+            [encoder endEncoding];
+        }
 
+        // PASS 2: SSAO BLUR
+        {
+            MTLRenderPassDescriptor* blurPass = [MTLRenderPassDescriptor renderPassDescriptor];
+            blurPass.colorAttachments[0].texture = ToMetal(m_SSAOBlurTexture);
+            blurPass.colorAttachments[0].loadAction = MTLLoadActionClear;
+            blurPass.colorAttachments[0].storeAction = MTLStoreActionStore;
 
-		// noise texture creation
-		std::uniform_real_distribution<float> RandomFloats(0.0f, 1.0f);
-		std::default_random_engine generator; 
+            id<MTLRenderCommandEncoder> encoder = [cmdBuffer renderCommandEncoderWithDescriptor:blurPass];
+            encoder.label = @"SSAO Blur Pass";
 
-		std::vector<glm::vec3> noisetexture;
-		for (int i = 0; i < 16; i++)
-		{
-			noisetexture.push_back(glm::vec3(RandomFloats(generator) * 2.0f - 1.0f, RandomFloats(generator) * 2.0f - 1.0f, 0.0f));
-		}
-		glCreateTextures(GL_TEXTURE_2D, 1, &noisetex_id);
-		glBindTexture(GL_TEXTURE_2D, noisetex_id);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, 4, 4, 0, GL_RGB, GL_FLOAT, &noisetexture[0]);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+            m_SSAOBlurShader->Bind();
 
-		glBindTextureUnit(NOISE_SLOT, noisetex_id);
-		glBindTextureUnit(SSAO_BLUR_SLOT, SSAOblur_id);
-		glBindTextureUnit(SSAO_SLOT, SSAOtexture_id);
-	}
-	void MetalSSAO::RenderScene(Scene& scene , Ref<Shader>& current_shader)
-	{
-		
-	}
+            // Bind Raw SSAO as Input
+            [encoder setFragmentTexture:ToMetal(m_SSAORawTexture) atIndex:0];
 
-	void MetalSSAO::RenderQuad()
-	{
+            RenderQuad();
 
-		CN_PROFILE_FUNCTION()
+            [encoder endEncoding];
+        }
+    }
 
-		glDisable(GL_CULL_FACE);
-		glDepthMask(GL_FALSE);
+    void MetalSSAO::RenderQuad()
+    {
+        // Vertex-less rendering: The shader generates coordinates from vertex_id
+        id<MTLRenderCommandEncoder> encoder = (__bridge id<MTLRenderCommandEncoder>)MetalRendererAPI::GetCurrentEncoder();
+        [encoder drawPrimitives:MTLPrimitiveTypeTriangle vertexStart:0 vertexCount:3];
+    }
 
-		//auto inv = glm::inverse(proj * glm::mat4(glm::mat3(view)));//get inverse of projection view to convert cannonical view to world space
-		static glm::vec4 data[] = 
-		{
-			glm::vec4(-1,-1,0,1),glm::vec4(0,0,0,0),
-			glm::vec4(1,-1,0,1),glm::vec4(1,0,0,0),
-			glm::vec4(1,1,0,1),glm::vec4(1,1,0,0),
-			glm::vec4(-1,1,0,1),glm::vec4(0,1,0,0)
-		};
-
-		Ref<VertexArray> vao = VertexArray::Create();
-		Ref<VertexBuffer> vb = VertexBuffer::Create(&data[0].x, sizeof(data));
-
-		static uint32_t i_data[] = { 0,1,2,0,2,3 };
-		Ref<IndexBuffer> ib = IndexBuffer::Create(i_data, sizeof(i_data));
-
-		Ref<BufferLayout> bl = std::make_shared<BufferLayout>(); //buffer layout
-		bl->push("position", ShaderDataType::Float4);
-		bl->push("coordinate", ShaderDataType::Float4);
-
-		vao->AddBuffer(bl, vb);
-		vao->SetIndexBuffer(ib);
-
-		RenderCommand::DrawIndex(*vao, GL_TRIANGLES);
-
-		glDepthMask(GL_TRUE);
-		glEnable(GL_CULL_FACE);
-		glCullFace(GL_BACK);
-	}
-	void MetalSSAO::RenderTerrain(Scene& scene, Ref<Shader>& current_shader1, Ref<Shader>& current_shader2)
-	{			
-		GbufferPositionInstanced->Bind();
-		//Pass a alpha texture in the fragment shader to remove the depth values from the pixels that masked by alpha texture
-		GbufferPositionInstanced->SetInt("u_Alpha", ROUGHNESS_SLOT);//'2' is the slot for roughness map (alpha, roughness , AO in RGB) I have explicitely defined it for now
-		GbufferPositionInstanced->SetMat4("u_Model", Terrain::m_terrainModelMat);
-		GbufferPositionInstanced->SetMat4("u_View", scene.GetCamera()->GetViewMatrix());
-		GbufferPositionInstanced->SetMat4("u_Projection", scene.GetCamera()->GetProjectionMatrix());
-		GbufferPositionInstanced->SetInt("Noise", PERLIN_NOISE_TEXTURE_SLOT);
-		GbufferPositionInstanced->SetFloat("u_Time", Terrain::time);
-		glCullFace(GL_BACK);
-	}
+    // Unused in this pass
+    void MetalSSAO::RenderScene(Scene& scene, Ref<Shader>& current_shader) {}
+    void MetalSSAO::RenderTerrain(Scene& scene, Ref<Shader>& current_shader1, Ref<Shader>& current_shader2) {}
 }

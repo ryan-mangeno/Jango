@@ -10,7 +10,7 @@ namespace Crimson {
 
 		void InitBloom() override;
 		void Update(TimeStep ts) override;
-		void GetFinalImage(const unsigned int& img, const glm::vec2& dimension) override { m_Dimension = dimension; }
+		void GetFinalImage(const uint32_t& img, const glm::vec2& dimension) override { m_Dimension = dimension; }
 		void RenderBloomTexture() override { DownSample(); UpSample(); };
 		void RenderForFBO() override { RenderQuad(); }
 		void RenderRotatedForFBO() override { RenderRotatedQuad(); }
@@ -25,8 +25,8 @@ namespace Crimson {
 
 		void ExtractImageBrightParts();
 	private:
-		unsigned int m_FBO;
-		unsigned int m_InputImage,m_BrightImage;
+		uint32_t m_FBO;
+		uint32_t m_InputImage,m_BrightImage;
 
 		glm::vec2 m_Dimension = {0,0}, m_ScreenDimension;//note Screen dimension will not change as it is the dimension with which every thing is being rendered
 		Ref<Shader> m_DownSampleShader;

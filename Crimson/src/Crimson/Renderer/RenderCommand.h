@@ -12,7 +12,7 @@ namespace Crimson {
 		{
 			s_RendererAPI->Init(); 
 		}
-		inline static void SetViewport(unsigned int Width, unsigned int Height)
+		inline static void SetViewport(uint32_t Width, uint32_t Height)
 		{
 			s_RendererAPI->SetViewPort(Width, Height);
 		}
@@ -24,7 +24,7 @@ namespace Crimson {
 		{
 			s_RendererAPI->Clear();
 		}
-		inline static void Draw(VertexArray& vertexarray, unsigned int renderingMode = 0, size_t count = 0, int first = 0)
+		inline static void Draw(VertexArray& vertexarray, uint32_t renderingMode = 0, size_t count = 0, int first = 0)
 		{
 			if (vertexarray.GetIndexBuffer())
 			{
@@ -35,7 +35,7 @@ namespace Crimson {
 				s_RendererAPI->DrawArrays(vertexarray, count, renderingMode, first);
 			}
 		}
-		inline static void DrawIndex(VertexArray& vertexarray, unsigned int renderingMode) 
+		inline static void DrawIndex(VertexArray& vertexarray, uint32_t renderingMode) 
 		{
 			s_RendererAPI->DrawIndex(vertexarray, renderingMode);
 		}
@@ -43,7 +43,7 @@ namespace Crimson {
 		{
 			s_RendererAPI->DrawArrays(vertexarray, count, first);
 		}
-		inline static void DrawArrays(VertexArray& vertexarray, size_t count, unsigned int renderingMode, int first = 0)
+		inline static void DrawArrays(VertexArray& vertexarray, size_t count, uint32_t renderingMode, int first = 0)
 		{
 			s_RendererAPI->DrawArrays(vertexarray, count, renderingMode, first);
 		}

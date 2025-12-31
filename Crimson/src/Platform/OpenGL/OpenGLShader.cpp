@@ -13,7 +13,7 @@ namespace Crimson {
 		: m_Name(name)
 	{
 
-		unsigned int vs = glCreateShader(GL_VERTEX_SHADER);
+		uint32_t vs = glCreateShader(GL_VERTEX_SHADER);
 		const char* chr = vertexshader.c_str();
 		glShaderSource(vs, 1, &chr, nullptr);
 		glCompileShader(vs);
@@ -32,7 +32,7 @@ namespace Crimson {
 
 		}
 
-		unsigned int fs = glCreateShader(GL_FRAGMENT_SHADER);
+		uint32_t fs = glCreateShader(GL_FRAGMENT_SHADER);
 		const char* chr1 = fragmentshader.c_str();
 		glShaderSource(fs, 1, &chr1, nullptr);
 		glCompileShader(fs);
@@ -68,13 +68,13 @@ namespace Crimson {
 		m_Shaders = ParseFile(path);
 		if (m_Shaders.ComputeShader != "")
 		{
-			unsigned int cs = CompileShader(m_Shaders.ComputeShader, GL_COMPUTE_SHADER);
+			uint32_t cs = CompileShader(m_Shaders.ComputeShader, GL_COMPUTE_SHADER);
 			glAttachShader(m_ID, cs);
 		}
 		else
 		{
-			unsigned int vs = CompileShader(m_Shaders.VertexShader, GL_VERTEX_SHADER);
-			unsigned int fs = CompileShader(m_Shaders.Fragmentshader, GL_FRAGMENT_SHADER);
+			uint32_t vs = CompileShader(m_Shaders.VertexShader, GL_VERTEX_SHADER);
+			uint32_t fs = CompileShader(m_Shaders.Fragmentshader, GL_FRAGMENT_SHADER);
 
 			glAttachShader(m_ID, vs);
 			glAttachShader(m_ID, fs);
@@ -82,19 +82,19 @@ namespace Crimson {
 
 		if (m_Shaders.GeometryShader != "")// all optional shaders must be done in this manner
 		{
-			unsigned int gs = CompileShader(m_Shaders.GeometryShader, GL_GEOMETRY_SHADER);
+			uint32_t gs = CompileShader(m_Shaders.GeometryShader, GL_GEOMETRY_SHADER);
 			glAttachShader(m_ID, gs);
 		}
 
 		if (m_Shaders.TessellationControlShader != "")
 		{
-			unsigned int tcs = CompileShader(m_Shaders.TessellationControlShader, GL_TESS_CONTROL_SHADER);
+			uint32_t tcs = CompileShader(m_Shaders.TessellationControlShader, GL_TESS_CONTROL_SHADER);
 			glAttachShader(m_ID, tcs);
 		}
 
 		if (m_Shaders.TessellationEvaluationShader != "")
 		{
-			unsigned int tes = CompileShader(m_Shaders.TessellationEvaluationShader, GL_TESS_EVALUATION_SHADER);
+			uint32_t tes = CompileShader(m_Shaders.TessellationEvaluationShader, GL_TESS_EVALUATION_SHADER);
 			glAttachShader(m_ID, tes);
 		}
 
@@ -109,9 +109,9 @@ namespace Crimson {
 		glDeleteProgram(m_ID);
 	}
 
-	unsigned int OpenGLShader::CompileShader(std::string& Shader, unsigned int type)
+	uint32_t OpenGLShader::CompileShader(std::string& Shader, uint32_t type)
 	{
-		unsigned int program = glCreateShader(type);
+		uint32_t program = glCreateShader(type);
 		const char* chr = Shader.c_str();
 		int length = Shader.size();
 		glShaderSource(program, 1, &chr, nullptr);

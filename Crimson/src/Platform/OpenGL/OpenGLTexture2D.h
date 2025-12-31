@@ -6,20 +6,20 @@ namespace Crimson {
 	{
 	public:
 		OpenGLTexture2D(const std::string& path, bool bUse16BitTexture);
-		OpenGLTexture2D(const unsigned int Width = 1, const unsigned int Height = 1, unsigned int data = 0xffffffff);
+		OpenGLTexture2D(const uint32_t Width = 1, const uint32_t Height = 1, uint32_t data = 0xffffffff);
 		virtual ~OpenGLTexture2D();
-		unsigned int GetWidth() const override { return m_Width; }
-		unsigned int GetHeight() const override { return m_Height; }
-		unsigned int GetChannels() override { return channels; }
+		uint32_t GetWidth() const override { return m_Width; }
+		uint32_t GetHeight() const override { return m_Height; }
+		uint32_t GetChannels() override { return channels; }
 		virtual void Bind(int slot)const override;
 		virtual void UnBind()const override;
-		unsigned int GetID() const override { return m_Renderid; }
+		uint32_t GetID() const override { return m_Renderid; }
 		unsigned short* GetTexture() override { return pixel_data_16; }//will not work as pixel_data is deleted
 	private:
 		 int m_Width;
 		 int m_Height;
 		 int channels;
-		unsigned int m_Renderid;
+		uint32_t m_Renderid;
 		unsigned short* resized_image_16 = nullptr;
 		unsigned short* pixel_data_16 = nullptr;
 		unsigned char* resized_image_8 = nullptr;

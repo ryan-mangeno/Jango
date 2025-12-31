@@ -129,13 +129,13 @@ namespace Crimson
 	void LoadMesh::ProcessNode(aiNode* Node, const aiScene* scene)
 	{
 		m_GlobalTransform *= AssimpToGlmMatrix(Node->mTransformation);
-		for (unsigned int i = 0; i < Node->mNumMeshes; i++)
+		for (uint32_t i = 0; i < Node->mNumMeshes; i++)
 		{
 			aiMesh* mesh = scene->mMeshes[Node->mMeshes[i]];
 			m_Mesh.push_back(mesh);
 		}
 
-		for (unsigned int i = 0; i < Node->mNumChildren; i++)
+		for (uint32_t i = 0; i < Node->mNumChildren; i++)
 		{
 			ProcessNode(Node->mChildren[i], scene);
 		}
@@ -158,7 +158,7 @@ namespace Crimson
 
 
 
-			for (unsigned int k = 0; k < m_Mesh[i]->mNumVertices; k++)
+			for (uint32_t k = 0; k < m_Mesh[i]->mNumVertices; k++)
 			{
 
 				const aiVector3D& aivertice = m_Mesh[i]->mVertices[k];
@@ -203,7 +203,7 @@ namespace Crimson
 
 			m_SubMeshes[MaterialIdx].NumIndices = m_Mesh[i]->mNumFaces * static_cast<uint32_t>(3);
 			
-			for (unsigned int j = 0; j < m_Mesh[i]->mNumFaces; j++) 
+			for (uint32_t j = 0; j < m_Mesh[i]->mNumFaces; j++) 
 			{
 				const aiFace& face = m_Mesh[i]->mFaces[j];
 				m_SubMeshes[MaterialIdx].Indices.emplace_back(face.mIndices[0]);
@@ -218,13 +218,13 @@ namespace Crimson
 	}
 	void LoadMesh::ProcessMaterials(const aiScene* scene)//get all the materials in a scene
 	{
-		const unsigned int NumMaterials = scene->mNumMaterials;
+		const uint32_t NumMaterials = scene->mNumMaterials;
 		m_SubMeshes.resize(NumMaterials);
 
 		const std::string relative_path = "Assets/Textures/MeshTextures/";
 		auto GetTexturePath = [&](const aiMaterial* material, aiTextureType type) -> const std::string
 		{
-			unsigned int x = material->GetTextureCount(type);
+			uint32_t x = material->GetTextureCount(type);
 			if (x > 0)
 			{
 				aiString str;
@@ -235,7 +235,7 @@ namespace Crimson
 			}
 			return std::string("");
 		};
-		for (unsigned int i = 0; i < NumMaterials; i++)
+		for (uint32_t i = 0; i < NumMaterials; i++)
 		{
 			const aiMaterial* scene_material = scene->mMaterials[i];
 			const std::string& materialName = m_ObjectName + std::string("_") + std::string(scene_material->GetName().C_Str());
@@ -279,7 +279,7 @@ namespace Crimson
 
 			// Create and set vertex buffer
 			m_VertexBuffer = VertexBuffer::Create(&buffer[0].Position.x, sizeof(VertexAttributes) * m_SubMeshes[k].Vertices.size());
-			m_IndexBuffer = IndexBuffer::Create(m_SubMeshes[k].Indices.data(), m_SubMeshes[k].Indices.size() * sizeof(unsigned int));
+			m_IndexBuffer = IndexBuffer::Create(m_SubMeshes[k].Indices.data(), m_SubMeshes[k].Indices.size() * sizeof(uint32_t));
 
 
 			m_BufferLayout = std::make_shared<BufferLayout>();

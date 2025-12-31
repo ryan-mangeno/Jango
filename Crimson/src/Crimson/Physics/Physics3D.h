@@ -43,7 +43,7 @@ namespace Crimson {
 		static void AddSphereCollider(PhysicsComponent& physics_component);
 		static void AddCapsuleCollider(PhysicsComponent& physics_component);
 		static void AddPlaneCollider(PhysicsComponent& physics_component);
-		static void AddMeshCollider(const std::vector<glm::vec3>& Vertices, const std::vector<unsigned int>& indices, const glm::vec3& scaling, PhysicsComponent& physics_component);
+		static void AddMeshCollider(const std::vector<glm::vec3>& Vertices, const std::vector<uint32_t>& indices, const glm::vec3& scaling, PhysicsComponent& physics_component);
 		static void AddHeightFieldCollider(const std::vector<int>& HeightValues, int width, int height, float spacing, const glm::mat4& transform);
 		static void DebugPhysicsColliders();
 		static void AddForce(PhysicsComponent& physics_component);// physicsComponent has all the parameters required for physics simulation

@@ -11,7 +11,7 @@ namespace Crimson {
 			bool SwapChainTarget = false;
 
 			FrameBufferSpecification() = default;
-			FrameBufferSpecification(unsigned int width, unsigned int height)
+			FrameBufferSpecification(uint32_t width, uint32_t height)
 				: viewport(width, height)
 			{
 			}
@@ -23,9 +23,9 @@ namespace Crimson {
 		inline virtual const FrameBufferSpecification& GetSpecification() = 0;
 		virtual void Bind()=0;
 		virtual void UnBind()=0;
-		inline virtual unsigned int GetSceneTextureID() = 0;
-		inline virtual unsigned int GetDepthTextureID() = 0;
-		virtual void Resize(unsigned int width, unsigned int height) = 0;
+		inline virtual uint32_t GetSceneTextureID() = 0;
+		inline virtual uint32_t GetDepthTextureID() = 0;
+		virtual void Resize(uint32_t width, uint32_t height) = 0;
 		virtual void ClearFrameBuffer() = 0;
 		virtual void BindFramebufferTexture(int slot) = 0;
 		virtual void BindFramebufferDepthTexture(int slot) = 0;

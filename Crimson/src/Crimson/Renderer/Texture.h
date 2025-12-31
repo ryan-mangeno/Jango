@@ -9,9 +9,9 @@ namespace Crimson {
 		uint64_t uuid;
 		Texture() = default;
 		virtual ~Texture() = default;
-		virtual unsigned int GetWidth() const = 0;
-		virtual unsigned int GetHeight() const = 0;
-		virtual unsigned int GetID() const = 0;
+		virtual uint32_t GetWidth() const = 0;
+		virtual uint32_t GetHeight() const = 0;
+		virtual uint32_t GetID() const = 0;
 		virtual void Bind(int slot) const = 0;
 	};
 	class Texture2D :public Texture {
@@ -20,9 +20,9 @@ namespace Crimson {
 		static bool ValidateTexture(const std::string& path);
 		virtual void UnBind()const = 0;
 		virtual unsigned short* GetTexture() = 0;
-		virtual unsigned int GetChannels() = 0;
+		virtual uint32_t GetChannels() = 0;
 		static Ref<Texture2D> Create(const std::string& path, bool bUse16BitTexture = false);
-		static Ref<Texture2D> Create(const unsigned int Width, const unsigned int Height, unsigned int);
+		static Ref<Texture2D> Create(const uint32_t Width, const uint32_t Height, uint32_t);
 	};
 	class Texture2DArray : public Texture {
 	public:

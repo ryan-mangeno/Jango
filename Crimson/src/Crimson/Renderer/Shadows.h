@@ -14,7 +14,7 @@ namespace Crimson {
 
 		virtual void PassShadowUniforms(Camera& cam, Ref<Shader> rendering_shader) = 0;
 		virtual void SetShadowMapResolution(const float& width, float height) = 0;
-		virtual unsigned int GetDepth_ID(int index) = 0;
+		virtual uint32_t GetDepth_ID(int index) = 0;
 		static Ref<Shadows> Create(float width, float height);
 		static Ref<Shadows> Create();//creates a texture map of 2048x2048 resolution
 	public:

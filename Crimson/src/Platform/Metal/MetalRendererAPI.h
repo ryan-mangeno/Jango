@@ -11,15 +11,15 @@ namespace Crimson {
         ~MetalRendererAPI();
 
         virtual void Init() override;
-        virtual void SetViewPort(unsigned int Width, unsigned int Height) override;
+        virtual void SetViewPort(uint32_t Width, uint32_t Height) override;
         virtual glm::vec2 GetViewportSize() override;
 
         virtual void ClearColor(const glm::vec4& color) override;
         virtual void Clear() override;
 
-        virtual void DrawIndex(VertexArray& vertexArray, unsigned int renderingMode = 0) override;
+        virtual void DrawIndex(VertexArray& vertexArray, uint32_t renderingMode = 0) override;
         virtual void DrawArrays(VertexArray& vertexArray, size_t count, int first = 0) override;
-        virtual void DrawArrays(VertexArray& vertexArray, size_t count, unsigned int renderingMode, int first) override;
+        virtual void DrawArrays(VertexArray& vertexArray, size_t count, uint32_t renderingMode, int first) override;
         
         virtual void DrawInstancedArrays(VertexArray& vertexArray, size_t count, size_t instanceCount, int first = 0) override;
         
@@ -37,6 +37,8 @@ namespace Crimson {
         inline static void* GetCurrentEncoder() { return s_CurrentEncoder; }
         // id<MTLCommandBuffer>
         inline static void* GetCurrentCommandBuffer() { return s_CurrentCommandBuffer; }
+        // id<MTLCommandQueue>
+        inline static void* GetCommandQueue() { return s_CommandQueue; }
         
         // This usually needs to be called by your Window/Swapchain system to end the frame
         void EndEncoding(); 

@@ -1,9 +1,9 @@
 #include "cnpch.h"
-#include "MetalAntialiasing.h"
-#include "Crimson/Platform/Metal/MetalContext.h"
-#include "Crimson/Renderer/RenderCommand.h" // For GetViewportSize
 
-// Metal Imports
+#include "MetalAntialiasing.h"
+#include "MetalContext.h"
+#include "MetalRendererAPI.h"
+
 #import <Metal/Metal.h>
 #import <QuartzCore/CAMetalLayer.h>
 
@@ -36,7 +36,7 @@ namespace Crimson
         m_Height = height;
 
         MetalData* data = (MetalData*)m_MetalData;
-        data->device = (__bridge id<MTLDevice>)MetalContext::GetDevice();
+        data->device = (__bridge id<MTLDevice>)MetalRendererAPI::GetDevice();
 
         MTLTextureDescriptor* desc = [MTLTextureDescriptor texture2DDescriptorWithPixelFormat:MTLPixelFormatRGBA16Float
                                                                                         width:width
@@ -81,7 +81,7 @@ namespace Crimson
             Init((int)screenSize.x, (int)screenSize.y);
         }
 
-        id<MTLCommandQueue> queue = (__bridge id<MTLCommandQueue>)MetalContext::GetCommandQueue();
+        id<MTLCommandQueue> queue = (__bridge id<MTLCommandQueue>)MetalRendererAPI::GetCommandQueue();
         id<MTLCommandBuffer> commandBuffer = [queue commandBuffer];
         commandBuffer.label = @"TAA Pass";
 

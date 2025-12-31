@@ -1,23 +1,20 @@
 #!/bin/bash
+set -e
 
 BUILD_DIR="build"
+ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 
-if [ ! -d "$BUILD_DIR" ]; then
-    mkdir "$BUILD_DIR"
+echo "Generating Stubs ..."
+python3 "$ROOT_DIR/scripts/generate_backend_stubs.py"
+
+echo "Configuring build"
+
+if [ -d "$BUILD_DIR" ]; then
+    rm -rf "$BUILD_DIR"
 fi
 
-cd "$BUILD_DIR"
+cd $ROOT_DIR
+cmake -B build -DCMAKE_BUILD_TYPE=Debug
 
-BREW_PREFIX=$(brew --prefix)
-
-cmake .. -G "Unix Makefiles" \
-    -DCMAKE_BUILD_TYPE=Debug \
-    -DCMAKE_PREFIX_PATH="$BREW_PREFIX"
-
-if [ $? -eq 0 ]; then
-    echo "Generation successful."
-    echo "Run: cmake --build build -j 1"
-else
-    echo "Generation failed."
-    exit 1
-fi
+echo "Generation successful."
+echo "Run: cmake --build build -j 4"

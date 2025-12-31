@@ -162,7 +162,7 @@ namespace Crimson {
 	void Physics3D::AddPlaneCollider(PhysicsComponent& physics_component)
 	{
 	}
-	void Physics3D::AddMeshCollider(const std::vector<glm::vec3>& vertices, const std::vector<unsigned int>& indices, const glm::vec3& scaling, PhysicsComponent& physics_component)
+	void Physics3D::AddMeshCollider(const std::vector<glm::vec3>& vertices, const std::vector<uint32_t>& indices, const glm::vec3& scaling, PhysicsComponent& physics_component)
 	{
 		m_defaultMaterial = m_physics->createMaterial(physics_component.m_StaticFriction, physics_component.m_DynamicFriction, physics_component.m_Restitution);
 		physx::PxTransform localTm(*(physx::PxMat44*)glm::value_ptr(physics_component.m_transform));
@@ -176,7 +176,7 @@ namespace Crimson {
 			triMeshDesc.points.stride = sizeof(glm::vec3);
 			triMeshDesc.triangles.count = indices.size() / 3;  // Ensure the triangles are counted correctly
 			triMeshDesc.triangles.data = &indices[0];
-			triMeshDesc.triangles.stride = 3 * sizeof(unsigned int);
+			triMeshDesc.triangles.stride = 3 * sizeof(uint32_t);
 
 			physx::PxCookingParams cookingParams(m_physics->getTolerancesScale());
 

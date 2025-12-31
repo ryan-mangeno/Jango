@@ -1,324 +1,247 @@
 #include "cnpch.h"
+
 #include "MetalShader.h"
-#include "glad/glad.h"
-#include "glm/gtc/type_ptr.hpp"
+#include "MetalContext.h"
+#include "MetalRendererAPI.h"
+
+#import <Metal/Metal.h>
+#include <fstream>
+#include <filesystem>
+
+#include <glm/gtc/type_ptr.hpp>
 
 namespace Crimson {
 
+    static std::string ExtractName(const std::string& filepath)
+    {
+        return std::filesystem::path(filepath).stem().string();
+    }
 
-	Shaders MetalShader::m_Shaders; 
+    MetalShader::MetalShader(const std::string& filepath)
+        : m_FilePath(filepath), m_Name(ExtractName(filepath))
+    {
+        ShaderSources sources = ParseFile(filepath);
+        Compile(sources);
+    }
 
-	//not adding geometry shader feature here as this different shader technique is not used for now
-	MetalShader::MetalShader(const std::string& vertexshader, const std::string& fragmentshader, const std::string& name)
-		: m_Name(name)
-	{
+    MetalShader::MetalShader(const std::string& name, const std::string& vertexSrc, const std::string& fragmentSrc)
+        : m_Name(name)
+    {
+        ShaderSources sources;
+        sources.VertexSource = vertexSrc;
+        sources.FragmentSource = fragmentSrc;
+        Compile(sources);
+    }
 
-		unsigned int vs = glCreateShader(GL_VERTEX_SHADER);
-		const char* chr = vertexshader.c_str();
-		glShaderSource(vs, 1, &chr, nullptr);
-		glCompileShader(vs);
-		{
-			int id = -1; 
-			glGetShaderiv(vs, GL_COMPILE_STATUS, &id);
-			if (id == GL_FALSE)//if the shader code is not successfully compiled
-			{
-				int length = -1;
-				glGetShaderiv(vs, GL_INFO_LOG_LENGTH, &length);
-				char* message = new char[length];
-				glGetShaderInfoLog(vs, length, &length, message);
-				CN_CORE_ERROR(message);
-				delete []message;
-			}
+    MetalShader::~MetalShader()
+    {
+        // arc handles Metal object release
+        m_Pipeline = nullptr;
+    }
 
-		}
+    // COMPILATION & REFLECTION
+    void MetalShader::Compile(const ShaderSources& sources)
+    {
+        id<MTLDevice> device = (__bridge id<MTLDevice>)MetalRendererAPI::GetDevice();
+        NSError* error = nil;
 
-		unsigned int fs = glCreateShader(GL_FRAGMENT_SHADER);
-		const char* chr1 = fragmentshader.c_str();
-		glShaderSource(fs, 1, &chr1, nullptr);
-		glCompileShader(fs);
+        // combine sources into one MSL string 
+        std::string fullSource = sources.VertexSource + "\n" + sources.FragmentSource;
+        if (sources.VertexSource.empty() && sources.FragmentSource.empty()) {
+            // Fallback for when ParseFile returns empty (e.g. single file without #shader tags)
+            std::ifstream stream(m_FilePath);
+            std::stringstream buffer;
+            buffer << stream.rdbuf();
+            fullSource = buffer.str();
+        }
 
-		int id = -1;
-		glGetShaderiv(fs, GL_COMPILE_STATUS, &id);
-		if (id)
-		{
-			int length;
-			glGetShaderiv(fs, GL_INFO_LOG_LENGTH, &length);
-			char* message = new char[length];
-			glGetShaderInfoLog(fs, length, &length, message);
-			CN_CORE_ERROR(message);
-			delete []message;
-		}
+        NSString* nsSource = [NSString stringWithUTF8String:fullSource.c_str()];
+        
+        // compile lib
+        id<MTLLibrary> library = [device newLibraryWithSource:nsSource options:nil error:&error];
+        if (!library) {
+            CN_CORE_ERROR("Metal Shader Compilation Failure ({0}):\n{1}", m_Name, [error.localizedDescription UTF8String]);
+            return;
+        }
 
-		m_ID = glCreateProgram();
-		glAttachShader(m_ID, vs);
-		glAttachShader(m_ID, fs);
-		glLinkProgram(m_ID);
-		glValidateProgram(m_ID);
+        // pipeline desc
+        // assume standard entry point names "vertex_main" and "fragment_main"
+        // must ensure.metal shaders use these function names
+        id<MTLFunction> vertFunc = [library newFunctionWithName:@"vertex_main"];
+        id<MTLFunction> fragFunc = [library newFunctionWithName:@"fragment_main"];
+        
+        if (!vertFunc || !fragFunc) {
+            CN_CORE_ERROR("Could not find 'vertex_main' or 'fragment_main' in shader: {0}", m_Name);
+            return;
+        }
 
-		glUseProgram(m_ID);
-	}
+        MTLRenderPipelineDescriptor* pipelineDesc = [[MTLRenderPipelineDescriptor alloc] init];
+        pipelineDesc.vertexFunction = vertFunc;
+        pipelineDesc.fragmentFunction = fragFunc;
+        
+        // setup standard attachments , has to match with Renderer/Swapchain
+        pipelineDesc.colorAttachments[0].pixelFormat = MTLPixelFormatBGRA8Unorm; // standard screen fmt
+        pipelineDesc.colorAttachments[0].blendingEnabled = YES;
+        pipelineDesc.colorAttachments[0].sourceRGBBlendFactor = MTLBlendFactorSourceAlpha;
+        pipelineDesc.colorAttachments[0].destinationRGBBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
+        pipelineDesc.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
 
-	MetalShader::MetalShader(const std::string& path)
-	{
+        // create pipeline state with reflection
+        MTLRenderPipelineReflection* reflection = nil;
+        id<MTLRenderPipelineState> pso = [device newRenderPipelineStateWithDescriptor:pipelineDesc 
+                                                                             options:MTLPipelineOptionBufferTypeInfo 
+                                                                          reflection:&reflection 
+                                                                               error:&error];
 
-		m_Name = std::filesystem::path(path).stem().string();
+        if (!pso) {
+            CN_CORE_ERROR("Pipeline Creation Failed ({0}): {1}", m_Name, [error.localizedDescription UTF8String]);
+            return;
+        }
 
-		m_ID = glCreateProgram();
+        m_Pipeline = (__bridge_retained void*)pso;
 
-		m_Shaders = ParseFile(path);
-		if (m_Shaders.ComputeShader != "")
-		{
-			unsigned int cs = CompileShader(m_Shaders.ComputeShader, GL_COMPUTE_SHADER);
-			glAttachShader(m_ID, cs);
-		}
-		else
-		{
-			unsigned int vs = CompileShader(m_Shaders.VertexShader, GL_VERTEX_SHADER);
-			unsigned int fs = CompileShader(m_Shaders.Fragmentshader, GL_FRAGMENT_SHADER);
+        // building uniform map
+        m_UniformMap.clear();
 
-			glAttachShader(m_ID, vs);
-			glAttachShader(m_ID, fs);
-		}
+        // Helper lambda to parse arguments
+        auto parseArgs = [&](NSArray<MTLArgument*>* args, int stage) {
+            for (MTLArgument* arg in args) {
+                if (arg.type == MTLArgumentTypeBuffer) {
+                    // found a struct (Uniform Buffer)
+                    // only support one uniform buffer per stage for simplicity (Buffer Index 0 or 1)
+                    size_t bufferSize = arg.bufferDataSize;
+                    
+                    if (stage == 0) m_VSUniformBuffer.resize(bufferSize); // Vertex
+                    else            m_FSUniformBuffer.resize(bufferSize); // Fragment
+                    
+                    // Iterate members of the struct
+                    for (MTLStructMember* member in arg.bufferStructType.members) {
+                        UniformInfo info;
+                        info.Stage = stage;
+                        info.Offset = member.offset;
+                        info.Size = 0; // Can be inferred if needed
+                        
+                        // Map "u_ViewProjection" -> Offset 0
+                        std::string name = [member.name UTF8String];
+                        m_UniformMap[name] = info;
+                    }
+                }
+            }
+        };
 
-		if (m_Shaders.GeometryShader != "")// all optional shaders must be done in this manner
-		{
-			unsigned int gs = CompileShader(m_Shaders.GeometryShader, GL_GEOMETRY_SHADER);
-			glAttachShader(m_ID, gs);
-		}
+        parseArgs(reflection.vertexArguments, 0);   // Stage 0 = Vertex
+        parseArgs(reflection.fragmentArguments, 1); // Stage 1 = Fragment
+    }
+    // BINDING
+    void MetalShader::Bind() const
+    {
+        // get encoder
+        // metal context must track the active render encoder for the current frame
+        id<MTLRenderCommandEncoder> encoder = (__bridge id<MTLRenderCommandEncoder>)MetalRendererAPI::GetCurrentEncoder();
+        if (!encoder) return;
 
-		if (m_Shaders.TessellationControlShader != "")
-		{
-			unsigned int tcs = CompileShader(m_Shaders.TessellationControlShader, GL_TESS_CONTROL_SHADER);
-			glAttachShader(m_ID, tcs);
-		}
+        // set pipeline
+        [encoder setRenderPipelineState:(__bridge id<MTLRenderPipelineState>)m_Pipeline];
 
-		if (m_Shaders.TessellationEvaluationShader != "")
-		{
-			unsigned int tes = CompileShader(m_Shaders.TessellationEvaluationShader, GL_TESS_EVALUATION_SHADER);
-			glAttachShader(m_ID, tes);
-		}
+        // upload Uniforms (Vertex)
+        if (!m_VSUniformBuffer.empty()) {
+            [encoder setVertexBytes:m_VSUniformBuffer.data() 
+                             length:m_VSUniformBuffer.size() 
+                            atIndex:1]; // convention: Index 1 is Uniforms
+        }
 
-		glLinkProgram(m_ID);
-		glValidateProgram(m_ID);
+        // upload uniforms (Fragment)
+        if (!m_FSUniformBuffer.empty()) {
+            [encoder setFragmentBytes:m_FSUniformBuffer.data() 
+                               length:m_FSUniformBuffer.size() 
+                              atIndex:1]; // convention: Index 1 is Uniforms
+        }
+    }
 
-		glUseProgram(m_ID);
-	}
+    void MetalShader::UnBind() const
+    {
+        // Metal doesn't really "Unbind", we just stop encoding or bind something else
+    }
 
-	MetalShader::~MetalShader()
-	{
-		glDeleteProgram(m_ID);
-	}
+    // UNIFORM SETTERS (Write to CPU Buffer)
+    void MetalShader::SetUniformData(const std::string& name, const void* data, size_t size) const
+    {
+        auto it = m_UniformMap.find(name);
+        if (it != m_UniformMap.end()) 
+        {
+            const UniformInfo& info = it->second;
+            std::vector<uint8_t>& buffer = (info.Stage == 0) ? m_VSUniformBuffer : m_FSUniformBuffer;
+            
+            // Safety check
+            if (info.Offset + size <= buffer.size()) {
+                memcpy(&buffer[info.Offset], data, size);
+            }
+        }
+    }
 
-	unsigned int MetalShader::CompileShader(std::string& Shader, unsigned int type)
-	{
-		unsigned int program = glCreateShader(type);
-		const char* chr = Shader.c_str();
-		int length = Shader.size();
-		glShaderSource(program, 1, &chr, nullptr);
-		glCompileShader(program);
+    void MetalShader::SetMat4(const std::string& str, const glm::mat4& val, size_t count) const {
+        SetUniformData(str, glm::value_ptr(val), sizeof(glm::mat4));
+    }
+    void MetalShader::SetInt(const std::string& str, const int& val) const {
+        SetUniformData(str, &val, sizeof(int));
+    }
+    void MetalShader::SetFloat(const std::string& str, const float& val) const {
+        SetUniformData(str, &val, sizeof(float));
+    }
+    void MetalShader::SetFloat3(const std::string& str, const glm::vec3& val) const {
+        SetUniformData(str, glm::value_ptr(val), sizeof(glm::vec3));
+    }
+    void MetalShader::SetFloat4(const std::string& str, const glm::vec4& val) const {
+        SetUniformData(str, glm::value_ptr(val), sizeof(glm::vec4));
+    }
+    
+    // Arrays (Simplification: Just copy assuming packed layout)
+    void MetalShader::SetIntArray(const std::string& str, const size_t size, const void* pointer) const {
+        SetUniformData(str, pointer, sizeof(int) * size);
+    }
+    void MetalShader::SetFloatArray(const std::string& str, float& val, size_t count) const {
+        SetUniformData(str, &val, sizeof(float) * count);
+    }
+    void MetalShader::SetFloat3Array(const std::string& str, const float* pointer, size_t count) const {
+        SetUniformData(str, pointer, sizeof(glm::vec3) * count);
+    }
+    void MetalShader::SetFloat4Array(const std::string& str, const float* pointer, size_t count) const {
+        SetUniformData(str, pointer, sizeof(glm::vec4) * count);
+    }
 
-		int id = -1;
-		glGetShaderiv(program, GL_COMPILE_STATUS, &id);
-		if (id == GL_FALSE)//if the shader code is not successfully compiled
-		{
-			int length = -1;
-			glGetShaderiv(program, GL_INFO_LOG_LENGTH, &length);
-			char* message = new char[length];
-			glGetShaderInfoLog(program, length, &length, message);
-			CN_CORE_ERROR(message);
-			delete []message;
-		}
+    // PARSER (Legacy support for split files)
+    ShaderSources MetalShader::ParseFile(const std::string& path)
+    {
+        std::ifstream stream(path);
+        if (!stream) {
+            CN_CORE_ERROR("Shader File Not Found: {0}", path);
+            return {};
+        }
 
-		return program;
-	}
+        std::string line;
+        std::stringstream ss[3]; // 0=Vertex, 1=Frag, 2=Compute
+        int index = -1;
 
-	Shaders MetalShader::ParseFile(const std::string& path)
-	{
-		enum type 
-		{
-			VERTEX_SHADER, 
-			FRAGMENT_SHADER, 
-			GEOMETRY_SHADER, 
-			TESS_CONTROL_SHADER, 
-			TESS_EVALUATION_SHADER, 
-			COMPUTE_SHADER
-		};
+        // default to Vertex if no tag found (for single file MSL)
+        bool tagFound = false;
 
-		std::ifstream stream(path);
-		if (!stream)
-		{
-			CN_CORE_ERROR("Shader File Not Found: ", path);
-		}
-
-		std::string ShaderCode("");
-		std::string Shader[6] = { "", "", "", "", "", ""};//as for now there are 6 shader types
-		int index = -1;
-
-		while (std::getline(stream, ShaderCode))
-		{
-			if (ShaderCode.find("#shader vertex") != std::string::npos)
-			{
-				index = type::VERTEX_SHADER;
-			}
-
-			else if (ShaderCode.find("#shader fragment") != std::string::npos)
-			{
-				index = type::FRAGMENT_SHADER;
-			}
-
-			else if (ShaderCode.find("#shader geometry") != std::string::npos)
-			{
-				index = type::GEOMETRY_SHADER;
-			}
-
-			else if (ShaderCode.find("#shader tessellation control") != std::string::npos)
-			{
-				index = type::TESS_CONTROL_SHADER;
-			}
-
-			else if (ShaderCode.find("#shader tessellation evaluation") != std::string::npos)
-			{
-				index = type::TESS_EVALUATION_SHADER;
-			}
-
-			else if (ShaderCode.find("#shader compute") != std::string::npos)
-			{
-				index = type::COMPUTE_SHADER;
-			}
-
-			else
-			{
-				CN_CORE_ASSERT( (index >= 0 && index < 6) , "Invalid Shader");
-				Shader[index].append(ShaderCode + "\n");
-			}
-		}
-
-		return { Shader[0], Shader[1], Shader[2], Shader[3], Shader[4], Shader[5] };
-	}
-
-	void MetalShader::Bind() const
-	{
-		glUseProgram(m_ID);
-	}
-
-	void MetalShader::UnBind() const
-	{
-		glUseProgram(0);
-	}
-
-	void MetalShader::SetMat4(const std::string& str, const glm::mat4& UniformMat4, size_t count) const
-	{
-		UploadUniformMat4(str, UniformMat4, count);
-	}
-
-	void MetalShader::SetInt(const std::string& str, const int& UniformInt) const
-	{
-		UploadUniformInt(str, UniformInt);
-	}
-
-	void MetalShader::SetFloat(const std::string& str, const float& UniformFloat) const
-	{
-		UpladUniformFloat(str, UniformFloat);
-	}
-
-	void MetalShader::SetFloatArray(const std::string& str, float& UniformFloatArr, size_t count) const
-	{
-		UpladUniformFloatArray(str, count, UniformFloatArr);
-	}
-
-	void MetalShader::SetFloat4(const std::string& str, const glm::vec4& UniformFloat4) const
-	{
-		UpladUniformFloat4(str, UniformFloat4);
-	}
-
-	void MetalShader::SetFloat3(const std::string& str, const glm::vec3& UniformFloat3) const
-	{
-		UpladUniformFloat3(str, UniformFloat3);
-	}
-
-	void MetalShader::SetFloat3Array(const std::string& str, const float* pointer, size_t count) const
-	{
-		UpladUniformFloat3Array(str, pointer, count);
-	}
-
-	void MetalShader::SetFloat4Array(const std::string& str, const float* arr, size_t count) const
-	{
-		UpladUniformFloat4Array(str, arr, count);
-	}
-
-	void MetalShader::SetIntArray(const std::string& str, const size_t size, const void* pointer) const
-	{
-		UploadIntArray(str, size, pointer);
-	}
-
-	void MetalShader::UploadUniformMat4(const std::string& str, const glm::mat4& UniformMat4, size_t count) const
-	{
-		uint32_t location = glGetUniformLocation(m_ID, str.c_str());
-		glUniformMatrix4fv(location, count, false, glm::value_ptr(UniformMat4));
-
-	}
-
-	void MetalShader::UploadUniformInt(const std::string& str, const int& UniformInt) const
-	{
-		uint32_t location = glGetUniformLocation(m_ID, str.c_str());
-		glUniform1i(location, UniformInt);
-	}
-
-	void MetalShader::UploadIntArray(const std::string& str, const size_t size, const void* pointer) const
-	{
-		uint32_t location = glGetUniformLocation(m_ID, str.c_str());
-		glUniform1iv(location, size, (const GLint*)pointer);
-	}
-
-	void MetalShader::UpladUniformFloat(const std::string& str, const float& UniformFloat) const
-	{
-		uint32_t location = glGetUniformLocation(m_ID, str.c_str());
-		glUniform1f(location, UniformFloat);
-	}
-
-	void MetalShader::UpladUniformFloatArray(const std::string& str, size_t count, float& UniformFloatArr) const
-	{
-		uint32_t location = glGetUniformLocation(m_ID, str.c_str());
-		glUniform1fv(location, count, &UniformFloatArr);
-	}
-
-	void MetalShader::UpladUniformFloat4(const std::string& str, const glm::vec4& UniformFloat4) const
-	{
-		uint32_t location = glGetUniformLocation(m_ID, &str[0]);
-		glUniform4f(location, UniformFloat4.r, UniformFloat4.g, UniformFloat4.b, UniformFloat4.a);
-	}
-	void MetalShader::UpladUniformFloat3(const std::string& str, const glm::vec3& UniformFloat3) const
-	{
-		uint32_t location = glGetUniformLocation(m_ID, str.c_str());
-		glUniform3f(location, UniformFloat3.x, UniformFloat3.y, UniformFloat3.z);
-	}
-	void MetalShader::UpladUniformFloat3Array(const std::string& str, const float* pointer, size_t count) const 
-	{
-		uint32_t location = glGetUniformLocation(m_ID, str.c_str());
-		glUniform3fv(location, count, (const float*)pointer);
-	}
-	void MetalShader::UpladUniformFloat4Array(const std::string& str, const float* pointer, size_t count) const
-	{
-		uint32_t location = glGetUniformLocation(m_ID, str.c_str());
-		glUniform4fv(location, count, (const float*)pointer);
-	}
+        while (getline(stream, line))
+        {
+            if (line.find("#shader vertex") != std::string::npos) {
+                index = 0; tagFound = true;
+            }
+            else if (line.find("#shader fragment") != std::string::npos) {
+                index = 1; tagFound = true;
+            }
+            else if (line.find("#shader compute") != std::string::npos) {
+                index = 2; tagFound = true;
+            }
+            else {
+                if (index != -1) ss[index] << line << '\n';
+                else if (!tagFound) ss[0] << line << '\n'; // Dump everything to Vertex src if no tags
+            }
+        }
+        
+        return { ss[0].str(), ss[1].str(), ss[2].str() };
+    }
 }
-
-// not needed right now
-// 	int MetalShader::GetUniform(const std::string& name)
-// 	{
-// 
-// 		CN_PROFILE_FUNCTION()
-// 
-// 		if (m_UniformCache.find(name) != m_UniformCache.end())
-// 			return m_UniformCache[name];
-// 
-// 		int loc = glGetUniformLocation(m_RendererID, name.c_str());
-// 		if (loc == -1) {
-// 			CN_CORE_ERROR("Uniform ( {0} ) does not exist!", name)
-// 		}
-// 		else {
-// 			m_UniformCache[name] = loc;
-// 		}
-// 		return loc;
-// 	}

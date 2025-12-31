@@ -73,7 +73,7 @@ namespace Crimson {
 		std::vector<glm::vec3> Tangent;
 		std::vector<glm::vec3> BiTangent;
 		std::vector<glm::vec2> TexCoord;
-		std::vector<unsigned int> Indices;
+		std::vector<uint32_t> Indices;
 		Ref<VertexArray> VertexArray;
 		uint64_t MaterialID;
 		uint32_t NumVertices;

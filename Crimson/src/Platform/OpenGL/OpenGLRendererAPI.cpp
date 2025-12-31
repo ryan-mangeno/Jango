@@ -22,7 +22,7 @@ namespace Crimson {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	}
 
-	void OpenGLRendererAPI::DrawIndex(VertexArray& vertexarray, unsigned int renderingMode)
+	void OpenGLRendererAPI::DrawIndex(VertexArray& vertexarray, uint32_t renderingMode)
 	{
 
 		renderingMode == GL_LINE ? glPolygonMode(GL_FRONT_AND_BACK, GL_LINE) : glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -38,7 +38,7 @@ namespace Crimson {
 		glDrawArrays(GL_TRIANGLES, first, count);
 	}
 
-	void OpenGLRendererAPI::DrawArrays(VertexArray& vertexarray, size_t count, unsigned int renderingMode, int first)
+	void OpenGLRendererAPI::DrawArrays(VertexArray& vertexarray, size_t count, uint32_t renderingMode, int first)
 	{
 		renderingMode == GL_LINE ? glPolygonMode( GL_FRONT_AND_BACK, GL_LINE ) : glPolygonMode( GL_FRONT_AND_BACK, GL_FILL);
 
@@ -115,7 +115,7 @@ namespace Crimson {
 		glCullFace(GL_BACK);
 		glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
 	}
-	void OpenGLRendererAPI::SetViewPort(unsigned int Width, unsigned int Height)
+	void OpenGLRendererAPI::SetViewPort(uint32_t Width, uint32_t Height)
 	{
 		glViewport(0, 0, Width, Height);
 	}

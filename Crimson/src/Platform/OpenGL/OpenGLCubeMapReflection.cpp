@@ -136,7 +136,7 @@ namespace Crimson {
 		glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 	}
 
-	unsigned int OpenGLCubeMapReflection::GetTexture_ID()
+	uint32_t OpenGLCubeMapReflection::GetTexture_ID()
 	{
 		return tex_id;
 	}

@@ -16,8 +16,8 @@ namespace Crimson {
 		glm::vec4 Position;
 		glm::vec2 TextureCoordinate;
 		glm::vec4 Color;
-		unsigned int TextureSlotindex = 0;//serves as an index to the array of texture slot which is passed as an uniform in init()
-		VertexAttributes(glm::vec4 Position, glm::vec2 TextureCoordinate, glm::vec4 Color = { 1,1,1,1 }, unsigned int TextureSlotindex = 0)
+		uint32_t TextureSlotindex = 0;//serves as an index to the array of texture slot which is passed as an uniform in init()
+		VertexAttributes(glm::vec4 Position, glm::vec2 TextureCoordinate, glm::vec4 Color = { 1,1,1,1 }, uint32_t TextureSlotindex = 0)
 		{
 			this->Position = Position;
 			this->TextureCoordinate = TextureCoordinate;
@@ -54,7 +54,7 @@ namespace Crimson {
 
 		std::vector< VertexAttributes> Quad;
 		std::vector<LineAttributes> Line;
-		std::vector<unsigned int> index;
+		std::vector<uint32_t> index;
 		uint32_t m_VertexCounter = 0;
 		uint32_t m_LineVertCounter = 0;
 	};
@@ -96,7 +96,7 @@ namespace Crimson {
 		m_data->index.resize(m_data->NumIndices);
 
 		int offset = 0;
-		for (unsigned int i = 0; i < m_data->NumIndices; i += 6)
+		for (uint32_t i = 0; i < m_data->NumIndices; i += 6)
 		{
 			m_data->index[i] = offset;
 			m_data->index[i + 1] = offset + 1;
@@ -126,7 +126,7 @@ namespace Crimson {
 
 		m_data->Linevao->AddBuffer(Linebl, m_data->Linevb);
 
-		Ref<IndexBuffer> ib(IndexBuffer::Create(&m_data->index[0], sizeof(unsigned int) * m_data->NumIndices));
+		Ref<IndexBuffer> ib(IndexBuffer::Create(&m_data->index[0], sizeof(uint32_t) * m_data->NumIndices));
 		m_data->vao->AddBuffer(bl, m_data->vb);
 		m_data->vao->SetIndexBuffer(ib);
 
@@ -135,7 +135,7 @@ namespace Crimson {
 		m_data->Lineshader = (Shader::Create("Crimson_Editor/Assets/Shaders/GLSL/Line.glsl"));
 		m_data->shader = (Shader::Create("Crimson_Editor/Assets/Shaders/GLSL/Composite2D.glsl"));//texture shader
 
-		unsigned int TextureIDindex[] = { 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31 };
+		uint32_t TextureIDindex[] = { 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31 };
 
 		m_data->shader->SetIntArray("u_Texture", sizeof(TextureIDindex), TextureIDindex);//pass the the array of texture slots
 		//which will be used to render textures in batch renderer
@@ -207,7 +207,7 @@ namespace Crimson {
 		m_data->m_VertexCounter += 4;
 	}
 
-	void Renderer2D::DrawQuad(const glm::vec3& pos, const glm::vec3& scale, Ref<Texture2D> tex, unsigned int index, const float angle)
+	void Renderer2D::DrawQuad(const glm::vec3& pos, const glm::vec3& scale, Ref<Texture2D> tex, uint32_t index, const float angle)
 	{
 		if (m_data->m_VertexCounter >= m_data->NumVertices)
 			NextBatch();
@@ -249,7 +249,7 @@ namespace Crimson {
 		k = k % 10;
 	}
 
-	void Renderer2D::DrawSubTexturedQuad(const glm::vec3& pos, const glm::vec3& scale, Ref<SubTexture2D> tex, unsigned int index, const float angle)
+	void Renderer2D::DrawSubTexturedQuad(const glm::vec3& pos, const glm::vec3& scale, Ref<SubTexture2D> tex, uint32_t index, const float angle)
 	{
 		if (m_data->m_VertexCounter >= m_data->NumVertices)
 			NextBatch();
@@ -342,7 +342,7 @@ namespace Crimson {
 // 		uint32_t TexIndex;
 // 
 // 		QuadVertex() = default;
-// 		QuadVertex(glm::vec3 Position, glm::vec2 TexCoord, glm::vec4 Color = { 1.0f , 1.0f , 1.0f , 1.0f }, unsigned int TexIndex = 0)
+// 		QuadVertex(glm::vec3 Position, glm::vec2 TexCoord, glm::vec4 Color = { 1.0f , 1.0f , 1.0f , 1.0f }, uint32_t TexIndex = 0)
 // 			: Position(Position), Color(Color), TexCoord(TexCoord), TexIndex(TexIndex)
 // 		{
 // 		}
@@ -743,7 +743,7 @@ namespace Crimson {
 // 
 // 
 // 
-// 	void Renderer2D::DrawSubTexturedQuad(const glm::vec3& position, const glm::vec2& size, Ref<SubTexture2D> texture, unsigned int index, const float rotation)
+// 	void Renderer2D::DrawSubTexturedQuad(const glm::vec3& position, const glm::vec2& size, Ref<SubTexture2D> texture, uint32_t index, const float rotation)
 // 	{
 // 		if (s_Storage.QuadVertexCount >= s_Storage.maxVerts)
 // 			NextBatch();

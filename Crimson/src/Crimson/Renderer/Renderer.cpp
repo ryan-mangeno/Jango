@@ -12,7 +12,7 @@ namespace Crimson {
 	{
 		RenderCommand::Init();
 	}
-	void Renderer::WindowResize(unsigned int Width, unsigned int Height)
+	void Renderer::WindowResize(uint32_t Width, uint32_t Height)
 	{
 		RenderCommand::SetViewport(Width, Height);
 	}

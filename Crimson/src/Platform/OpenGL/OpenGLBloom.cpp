@@ -62,7 +62,7 @@ namespace Crimson {
 
 			m_MipLevels.push_back(mip);
 		}
-		unsigned int attachments[1] = { GL_COLOR_ATTACHMENT0 };
+		uint32_t attachments[1] = { GL_COLOR_ATTACHMENT0 };
 		glDrawBuffers(1, attachments);
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);

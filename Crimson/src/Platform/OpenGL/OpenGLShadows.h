@@ -16,14 +16,14 @@ namespace Crimson {
 		void RenderFoliageShadows(LoadMesh* mesh, uint32_t bufferID, int numMeshes, const glm::vec3& LightPosition, Camera& cam) override;
 		void SetShadowMapResolution(const float& width, float height) override;
 		void PassShadowUniforms(Camera& cam, Ref<Shader> rendering_shader) override;
-		virtual unsigned int GetDepth_ID(int index) override { return depth_id[index]; }
+		virtual uint32_t GetDepth_ID(int index) override { return depth_id[index]; }
 		void CreateShdowMap();
 		
 	private:
 		void PrepareShadowProjectionMatrix(Camera& camera,const glm::vec3& LightPosition);
 
 	private:
-		unsigned int depth_id[MAX_CASCADES],framebuffer_id;//max 4 cascades
+		uint32_t depth_id[MAX_CASCADES],framebuffer_id;//max 4 cascades
 		float m_width, m_height;
 		Ref<Shader> shadow_shader, terrain_shadowShader, shadow_shaderInstanced;
 		std::vector<glm::mat4> m_ShadowProjection;

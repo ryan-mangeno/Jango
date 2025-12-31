@@ -30,7 +30,6 @@ namespace Crimson {
 
 	public:
 		OpenGLWater(const glm::vec3& dims, const glm::vec4& water_color, const glm::vec2& screen_size);
-		~OpenGLWater() = default;
 
 		virtual void SetWaterParameters(const glm::vec3& dims, const glm::vec4& water_color) override;
 		virtual void RenderWater(Camera& cam, const glm::vec2& screen_size) override;

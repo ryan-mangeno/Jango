@@ -48,8 +48,8 @@ namespace Crimson {
 				* Tree, * Tree1, * Tree2, * Tree3, * Tree4, * Tree5, * TreeDead,
 				* Bush1, * Bush2, * Rock1, * Rock2, * Flower1, * Flower2,
 				* Freddy;
-			static unsigned int m_Scene_tex_id;
-			static unsigned int m_Scene_depth_id;
+			static uint32_t m_Scene_tex_id;
+			static uint32_t m_Scene_depth_id;
 			Ref<FrameBuffer> framebuffer;
 			std::unordered_map<size_t, ScriptableEntity*> m_scriptsMap;
 			static float foliage_dist, num_foliage;

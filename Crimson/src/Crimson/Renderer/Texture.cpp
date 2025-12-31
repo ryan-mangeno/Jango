@@ -3,8 +3,12 @@
 #include "stb_image.h"
 #include "RendererAPI.h"
 #include "Crimson/Core/ResourceManager.h"
+
 #include "Platform/OpenGL/OpenGLTexture2D.h"
 #include "Platform/OpenGL/OpenGLTexture2DArray.h"
+
+#include "Platform/Metal/MetalTexture2D.h"
+#include "Platform/Metal/MetalTexture2DArray.h"
 
 namespace Crimson {
 	bool Texture2D::ValidateTexture(const std::string& path)
@@ -35,12 +39,13 @@ namespace Crimson {
 				if (ResourceManager::allTextures.find(ID) == ResourceManager::allTextures.end())// load a texture only once
 				{
 					CN_CORE_INFO("Making Instance ...");
-					instance = MakeRef<OpenGLTexture2D>(path, bUse16BitTexture);
+					instance = Texture2D::Create(path, bUse16BitTexture);
 					CN_CORE_INFO("Made Instance ...");
 					ResourceManager::allTextures[instance->uuid] = instance;
 				}
-				else
+				else {
 					instance = std::dynamic_pointer_cast<Texture2D>(ResourceManager::allTextures[ID]); //dynamic_pointer_cast helps to give a shared ptr of derived type casting from base
+				}
 				return instance;
 			case GraphicsAPI::Metal:
 				return nullptr;
@@ -48,7 +53,7 @@ namespace Crimson {
 				return nullptr;
 		}
 	}
-	Ref<Texture2D> Texture2D::Create(const unsigned int Width, const unsigned int Height, const unsigned int data)
+	Ref<Texture2D> Texture2D::Create(const uint32_t Width, const uint32_t Height, const uint32_t data)
 	{
 		switch (RendererAPI::GetAPI()) 
 		{
@@ -57,7 +62,7 @@ namespace Crimson {
 			case GraphicsAPI::OpenGL:
 				return MakeRef<OpenGLTexture2D>(Width, Height, data);
 			case GraphicsAPI::Metal:
-				return nullptr;
+				return MakeRef<MetalTexture2D>(Width, Height, data);;
 			default:
 				return nullptr;
 		}
@@ -69,9 +74,9 @@ namespace Crimson {
 			case GraphicsAPI::None:
 				return nullptr;
 			case GraphicsAPI::OpenGL:
-				return std::make_shared<OpenGLTexture2DArray>(paths, numMaterials, numChannels, bUse16BitTexture);
+				return MakeRef<OpenGLTexture2DArray>(paths, numMaterials, numChannels, bUse16BitTexture);
 			case GraphicsAPI::Metal:
-				return nullptr;
+				return MakeRef<MetalTexture2DArray>(paths, numMaterials, numChannels, bUse16BitTexture);
 			default:
 				return nullptr;
 		}

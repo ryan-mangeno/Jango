@@ -1,5 +1,6 @@
 #include "cnpch.h"
-#include "Platform/Metal/MetalContext.h"
+#include "MetalContext.h"
+#include "MetalRendererAPI.h"
 
 #define GLFW_EXPOSE_NATIVE_COCOA
 #include <GLFW/glfw3.h>
@@ -22,8 +23,9 @@ namespace Crimson {
 
         // create the GPU Device
         // equivalent to "creating a context" in OpenGL
-        id<MTLDevice> device = MTLCreateSystemDefaultDevice();
+        id<MTLDevice> device = (__bridge id<MTLDevice>)MetalRendererAPI::GetDevice();
         CN_CORE_ASSERT(device, "Metal is not supported on this system!");
+
 
         //  get native window
         NSWindow* nswin = glfwGetCocoaWindow(m_WindowHandle);

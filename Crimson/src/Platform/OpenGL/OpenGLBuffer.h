@@ -23,7 +23,7 @@ namespace Crimson {
 		virtual void SetData(uint32_t size, const void* data) override;
 		virtual void* MapBuffer(uint32_t size) override;
 	private:
-		unsigned int m_RendererID;
+		uint32_t m_RendererID;
 	};
 
 	// 	// --------------------------------------------------------------------
@@ -42,6 +42,6 @@ namespace Crimson {
 
 	private:
 		uint32_t m_Elements;
-		unsigned int m_RendererID;
+		uint32_t m_RendererID;
 	};
 }

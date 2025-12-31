@@ -83,6 +83,20 @@ file(GLOB_RECURSE CRIMSON_SRC
 file(GLOB_RECURSE PLATFORM_SOURCES "Crimson/src/Platform/*")
 list(REMOVE_ITEM CRIMSON_SRC ${PLATFORM_SOURCES})
 
+if(APPLE)      
+    set(PLATFORM_STUB_DIR "Crimson/src/Platform/Stubs/OpenGL")  # include OpenGL stubs
+elseif(WIN32)          
+    set(PLATFORM_STUB_DIR "Crimson/src/Platform/Stubs/Metal")   # include Metal stubs
+endif()
+
+
+file(GLOB_RECURSE PLATFORM_STUBS_SRC
+    "${PLATFORM_STUB_DIR}/*.cpp"
+    "${PLATFORM_STUB_DIR}/*.h"
+)
+
+list(APPEND CRIMSON_SRC ${PLATFORM_STUBS_SRC})
+
 
 # Add Platform Specific Sources
 if(WIN32)
@@ -102,9 +116,6 @@ elseif(APPLE)
         "Crimson/src/Platform/Metal/*.h" 
         "Crimson/src/Platform/Metal/*.cpp" 
         "Crimson/src/Platform/Metal/*.mm"
-
-        "Crimson/src/Platform/OpenGL/*.h"
-        "Crimson/src/Platform/OpenGL/*.cpp" # temporary while mac support is worked on
     )
     list(APPEND CRIMSON_SRC ${MAC_SRC})
         

@@ -1,31 +1,45 @@
 #pragma once
-#include "Crimson.h"
+
+#include "Crimson/Renderer/SSAO.h"
+#include "Crimson/Renderer/Shader.h"
+#include <vector>
+
 #define RANDOM_SAMPLES_SIZE 64
+
 namespace Crimson {
-	class MetalSSAO
-	{
 
-	public:
+    class MetalSSAO : public SSAO
+    {
+    public:
+        MetalSSAO(int width, int height);
+        virtual ~MetalSSAO();
 
-		MetalSSAO(int width, int height);
-		~MetalSSAO();
+        virtual void SetSSAO_TextureDimension(int width, int height) override;
+        virtual void CreateSSAOTexture(int width, int height) override;
+        virtual void CaptureScene(Scene& scene, Camera& cam) override;
+        
+        virtual void* GetSSAOTextureID() override { return m_SSAOBlurTexture; }
 
-		inline void SetSSAO_TextureDimension(int width, int height) { m_width = width, m_height = height; }
-		void CaptureScene(Scene& scene , Camera& cam);
-		unsigned int GetSSAOid() { return SSAOblur_id; }
-		void CreateSSAOTexture(int width, int height);
+    private:
+        void GenerateKernel();
+        void CreateNoiseTexture();
+        void RenderQuad();
 
-	private:
-		void RenderScene(Scene& scene , Ref<Shader>& current_shader);// This will be changed later
-		void RenderTerrain(Scene& scene, Ref<Shader>& current_shader1, Ref<Shader>& current_shader2);// This will be changed later
-		void RenderQuad();
-		int m_width=2048, m_height=2048;
-		unsigned int SSAOframebuffer_id,SSAOtexture_id,GBufferPos_id , SSAOdepth_id , SSAOblur_id, depth_id;
-		unsigned int noisetex_id;
-		Ref<Shader> SSAOShader,GbufferPosition, GbufferPosition_Terrain, GbufferPositionInstanced, SSAOblurShader;//temporary
-		Ref<Shader> SSAOShader_Terrain;
-		Ref<FrameBuffer> framebuffer;
-		glm::vec3 samples[RANDOM_SAMPLES_SIZE];
-		//Camera cam;
-	};
+        void RenderScene(Scene& scene , Ref<Shader>& current_shader);
+		void RenderTerrain(Scene& scene, Ref<Shader>& current_shader1, Ref<Shader>& current_shader2);
+
+        int m_width, m_height;
+
+        void* m_GBufferPosTexture = nullptr;   // Type: id<MTLTexture> (RGBA16Float - World Positions)
+        void* m_GBufferDepthTexture = nullptr; // Type: id<MTLTexture> (Depth32Float - Depth Buffer)
+        void* m_SSAORawTexture = nullptr;      // Type: id<MTLTexture> (R8Unorm - Noisy Occlusion)
+        void* m_SSAOBlurTexture = nullptr;     // Type: id<MTLTexture> (R8Unorm - Final Blurred Result)
+        void* m_NoiseTexture = nullptr;        // Type: id<MTLTexture> (RGBA32Float - 4x4 Rotation Noise)
+
+        Ref<Shader> m_SSAOShader;
+        Ref<Shader> m_SSAOBlurShader;
+        Ref<Shader> m_GBufferPositionInstanced;
+
+        glm::vec3 m_Samples[RANDOM_SAMPLES_SIZE];
+    };
 }

@@ -16,11 +16,11 @@ namespace Crimson {
 
 		const Ref<IndexBuffer>& GetIndexBuffer() const override { return m_IndexBuffer; }
 		const std::vector<Ref<VertexBuffer>>& GetVertexBuffers() override { return m_VertexBuffer; }
-		unsigned int GetVertexArrayID() override { return m_RendererID; }
+		uint32_t GetVertexArrayID() override { return m_RendererID; }
 	private:
 		std::vector<Ref<VertexBuffer>> m_VertexBuffer;
 		Ref<IndexBuffer> m_IndexBuffer;
-		unsigned int m_RendererID;
+		uint32_t m_RendererID;
 	};
 
 

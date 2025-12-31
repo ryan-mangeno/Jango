@@ -35,17 +35,17 @@ namespace Crimson {
 
 		for (int i = 0; i < RANDOM_SAMPLES_SIZE; i++)
 		{
-			samples[i] = glm::vec3(
+			m_Samples[i] = glm::vec3(
 				RandomFloats(generator) * 2.0f - 1.0f,
 				RandomFloats(generator) * 2.0f - 1.0f,
 				RandomFloats(generator)
 			);
-			samples[i] = glm::normalize(samples[i]);
-			samples[i] *= RandomFloats(generator);
+			m_Samples[i] = glm::normalize(m_Samples[i]);
+			m_Samples[i] *= RandomFloats(generator);
 
 			float scale = static_cast<float>(i) / RANDOM_SAMPLES_SIZE;
 			float val = 0.1 * scale * scale + (1.0 - 0.1) * scale * scale;
-			samples[i] *= val;
+			m_Samples[i] *= val;
 		}
 
 
@@ -64,7 +64,7 @@ namespace Crimson {
 		SSAOShader->SetFloat("ScreenWidth", viewport_size.x);
 		SSAOShader->SetFloat("ScreenHeight", viewport_size.y);
 		SSAOShader->SetMat4("u_ProjectionView", cam.GetProjectionView());		
-		SSAOShader->SetFloat3Array("Samples", &samples[0].x, RANDOM_SAMPLES_SIZE);
+		SSAOShader->SetFloat3Array("Samples", &m_Samples[0].x, RANDOM_SAMPLES_SIZE);
 		SSAOShader->SetMat4("u_projection", cam.GetProjectionMatrix());
 		SSAOShader->SetInt("noisetex", NOISE_SLOT);
 		SSAOShader->SetInt("depthBuffer", SCENE_DEPTH_SLOT);

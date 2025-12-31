@@ -7,17 +7,17 @@ namespace Crimson {
 	public:
 		MetalTexture2DArray(const std::vector<std::string>& paths, int numMaterials, int numChannels, bool bUse16BitTexture );
 		~MetalTexture2DArray();
-		unsigned int GetWidth() const override { return m_Width; }
-		unsigned int GetHeight() const override { return m_Height; }
+		uint32_t GetWidth() const override { return m_Width; }
+		uint32_t GetHeight() const override { return m_Height; }
 		virtual void Bind(int slot) const override;
 		virtual void UnBind() const override;
-		unsigned int GetID() const override { return m_RendererID; }
+		uint32_t GetID() const override { return m_RendererID; }
 	
 	private:
 		int m_Width;
 		int m_Height;
 		int channels;
-		unsigned int m_RendererID;
+		uint32_t m_RendererID;
 		unsigned short* resized_image_16 = nullptr;
 		unsigned short* pixel_data_16 = nullptr;
 		unsigned char* resized_image_8 = nullptr;

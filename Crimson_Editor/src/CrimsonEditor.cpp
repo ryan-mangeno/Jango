@@ -31,9 +31,9 @@ LoadMesh* mesh;
 
 	CN_CORE_INFO("Creating FrameBuffers ...");
 	glm::vec2 viewportSize = RenderCommand::GetViewportSize();
-	m_FrameBuffer = FrameBuffer::Create({ (unsigned int)viewportSize.x,(unsigned int)viewportSize .y});//create a frame buffer object
-	m_FrameBuffer2 = FrameBuffer::Create({ (unsigned int)viewportSize.x,(unsigned int)viewportSize.y });
-	m_FrameBuffer3 = FrameBuffer::Create({ (unsigned int)viewportSize.x,(unsigned int)viewportSize.y });
+	m_FrameBuffer = FrameBuffer::Create({ (uint32_t)viewportSize.x,(uint32_t)viewportSize .y});//create a frame buffer object
+	m_FrameBuffer2 = FrameBuffer::Create({ (uint32_t)viewportSize.x,(uint32_t)viewportSize.y });
+	m_FrameBuffer3 = FrameBuffer::Create({ (uint32_t)viewportSize.x,(uint32_t)viewportSize.y });
 
 	CN_CORE_INFO("Frame Buffers and SubTextures Created : CrimsonEditor()")
 
@@ -282,7 +282,7 @@ void CrimsonEditor::OnImGuiRender()
 	ImGui::DragInt("Cascade Level", &Shadows::Cascade_level, 1, 0, 100);
 	ImGui::DragFloat("lamda", &Shadows::m_lamda, 0.00001, 0, 1,"%8f");
 	ImGui::Text("SSAO MAP");
-	ImGui::Image(Renderer3D::ssao_id, ImVec2(512, 512), { 0,1 }, {1,0});	
+	ImGui::Image((ImTextureID)Renderer3D::ssao_id, ImVec2(512, 512), { 0,1 }, {1,0});	
 	ImGui::Text("Normal map");
 	ImGui::Image(DefferedRenderer::GetBuffers(0), ImVec2(512, 512), { 0, 1 }, { 1,0 });
 	ImGui::Text("Velocity Buffer For TAA");

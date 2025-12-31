@@ -63,7 +63,7 @@ namespace Crimson {
 		m_Elements.push_back(new BufferElements(name, type));
 		Stride += GetSize(type);
 	}
-	unsigned int BufferLayout::GetSize(ShaderDataType type)
+	uint32_t BufferLayout::GetSize(ShaderDataType type)
 	{
 		switch (type) {
 		case ShaderDataType::Float: 	return sizeof(float);

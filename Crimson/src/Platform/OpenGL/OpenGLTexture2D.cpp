@@ -18,7 +18,7 @@ namespace Crimson {
 	}
 	
 	//data is defaulted to a color, can be used as a texture or base color also
-	OpenGLTexture2D::OpenGLTexture2D(const unsigned int Width, const unsigned int Height, unsigned int data)
+	OpenGLTexture2D::OpenGLTexture2D(const uint32_t Width, const uint32_t Height, uint32_t data)
 		:m_Height(Height), m_Width(Width), channels(0)
 	{
 

@@ -8,7 +8,6 @@
 #include "Crimson/Renderer/Material.h"
 #include "../CustomScript.h"
 #include "Crimson/Core/ResourceManager.h"
-#include "Platform/Util/util.h"
 
 using namespace Crimson;
 std::string texture_path = "Assets/Textures/Test.png";

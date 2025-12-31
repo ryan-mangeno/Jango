@@ -3,6 +3,7 @@
 #include "Renderer.h"
 
 #include "Platform/OpenGL/OpenGLShader.h"
+#include "Platform/Metal/MetalShader.h"
 
 namespace Crimson {
 
@@ -14,9 +15,9 @@ namespace Crimson {
 		case GraphicsAPI::None:
 			return nullptr;
 		case GraphicsAPI::OpenGL:
-			return std::make_shared<OpenGLShader>(path);
+			return MakeRef<OpenGLShader>(path);
 		case GraphicsAPI::Metal:
-			return nullptr;
+			return MakeRef<MetalShader>(path);
 		default:
 			return nullptr;
 		}
@@ -28,9 +29,9 @@ namespace Crimson {
 		case GraphicsAPI::None:
 			return nullptr;
 		case GraphicsAPI::OpenGL:
-			return std::make_shared<OpenGLShader>(vertexshader, fragmentshader, name);
+			return MakeRef<OpenGLShader>(vertexshader, fragmentshader, name);
 		case GraphicsAPI::Metal:
-			return nullptr;
+			return MakeRef<MetalShader>(vertexshader, fragmentshader, name);
 		default:
 			return nullptr;
 		}

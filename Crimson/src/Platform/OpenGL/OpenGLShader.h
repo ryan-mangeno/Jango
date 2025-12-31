@@ -29,7 +29,7 @@ namespace Crimson {
 		OpenGLShader(const std::string& path);
 		~OpenGLShader();
 
-		unsigned int CompileShader(std::string&, unsigned int);
+		uint32_t CompileShader(std::string&, uint32_t);
 		Shaders ParseFile(const std::string& path);
 
 		virtual void Bind() const override;
@@ -62,7 +62,7 @@ namespace Crimson {
 		//void UpladUniformFloat2(const std::string& str, const glm::vec3& UniformFloat2); // need to make
 		//void UpladUniformFloat2Array(const std::string& str, const float* pointer, size_t count);
 
-		unsigned int m_ID;
+		uint32_t m_ID;
 		std::string m_Name;
 		static Shaders m_Shaders;
 	};

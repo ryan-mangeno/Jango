@@ -22,7 +22,7 @@ namespace Crimson {
     {
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
     }
-    void OpenGLFrameBuffer::Resize(unsigned int width, unsigned int height)
+    void OpenGLFrameBuffer::Resize(uint32_t width, uint32_t height)
     {
         Specification.viewport = { width, height };
         invalidate(Specification);

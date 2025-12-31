@@ -8,13 +8,14 @@
 #include "glad/glad.h"
 #include "Crimson/Renderer/Shadows.h"
 #include "Crimson/Scene/PointLight.h"
-#include "Platform/OpenGL/OpenGLSSAO.h" //temporary testing purpose
 #include "Crimson/Renderer/Terrain.h"
 #include "Crimson/Renderer/SkyRenderer.h"
+#include "Crimson/Renderer/SSAO.h"
 #include "Crimson/Renderer/DeferredRenderer.h"
 #include "Crimson/Renderer/Antialiasing.h"
 #include "Material.h"
 #include "Crimson/Core/ResourceManager.h"
+#include "Platform/Util/Util.h"
 
 
 namespace Crimson {
@@ -26,9 +27,10 @@ namespace Crimson {
 	glm::vec3 Renderer3D::m_SunColor = { 1,1,1 };
 	float Renderer3D::m_SunIntensity = 1.0f;
 
-	unsigned int Renderer3D::depth_id[4];
+	uint32_t Renderer3D::depth_id[4];
 	int Renderer3D::index = 0;
-	unsigned int Renderer3D::ssao_id = 0;
+	void* Renderer3D::ssao_id = nullptr;
+	
 	struct VertexAttributes {
 		//glm::vec3 Position;
 		glm::vec4 Position;
@@ -36,16 +38,16 @@ namespace Crimson {
 		glm::vec3 Normal;
 		glm::vec3 Tangent;
 		glm::vec3 BiNormal;
-		unsigned int Material_index = 0;//serves as an index to the array of texture slot which is passed as an uniform in init()
-		VertexAttributes(const glm::vec4& Position, const glm::vec2& TextureCoordinate, const glm::vec3& normal = { 0,0,0 }, const glm::vec3& Tangent = { 0,0,0 }, const glm::vec3& BiNormal = { 0,0,0 }, unsigned int Material_index = 0)
+		uint32_t Material_index = 0;//serves as an index to the array of texture slot which is passed as an uniform in init()
+		VertexAttributes(const glm::vec4& Position, const glm::vec2& TextureCoordinate, const glm::vec3& normal = { 0,0,0 }, const glm::vec3& Tangent = { 0,0,0 }, const glm::vec3& BiNormal = { 0,0,0 }, uint32_t Material_index = 0)
 			: Position(Position), TextureCoordinate(TextureCoordinate), Material_index(Material_index), Normal(normal), Tangent(Tangent), BiNormal(BiNormal)
 		{
 		}
 	};
 
 	struct Renderer3DStorage {
-		Ref<OpenGLSSAO> ssao;
-		Ref<Antialiasing> taa; //temporal antialiasing
+		Ref<SSAO> ssao;
+		Ref<Antialiasing> taa; 
 		Ref<Shadows> shadow_map;
 		Ref<CubeMapReflection> reflection;
 		Ref<Shader> shader, foliage_shader, foliageShader_instanced;
@@ -67,18 +69,18 @@ namespace Crimson {
 		DefferedRenderer::GetDeferredPassShader()->Bind();
 		DefferedRenderer::GetDeferredPassShader()->SetInt("SSAO", SSAO_BLUR_SLOT);
 
-		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-				//Loading cube map so that it can act as an environment light
+		
+		
+		//Loading cube map so that it can act as an environment light
 		m_data->reflection = CubeMapReflection::Create();
 		m_data->taa = Antialiasing::Create(width, height);
-		m_data->ssao = std::make_shared<OpenGLSSAO>(width / 2, height / 2);
+		m_data->ssao = SSAO::Create(width / 2, height / 2);
 		m_data->shadow_map = Shadows::Create(2048 * 2.0, 2048 * 2.0);//create a 2048x2048 shadow map
 		for (int i = 0; i < 4; i++)
 		{
 			depth_id[i] = m_data->shadow_map->GetDepth_ID(i);
 		}
-		ssao_id = m_data->ssao->GetSSAOid();
-		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		ssao_id = m_data->ssao->GetSSAOTextureID();
 
 		SetSunLightDirection({ 3,5,2 });
 	}

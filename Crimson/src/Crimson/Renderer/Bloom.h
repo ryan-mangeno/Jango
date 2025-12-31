@@ -5,7 +5,7 @@ namespace Crimson
 {
 	struct TextureMip {
 		glm::vec2 dimension;
-		unsigned int texture;
+		uint32_t texture;
 
 		TextureMip()
 			: dimension(0.0f, 0.0f), texture(0)
@@ -20,7 +20,7 @@ namespace Crimson
 
 		virtual void InitBloom() = 0;
 		virtual void Update(TimeStep ts)= 0;
-		virtual void GetFinalImage(const unsigned int& img, const glm::vec2& dimension) = 0;
+		virtual void GetFinalImage(const uint32_t& img, const glm::vec2& dimension) = 0;
 		virtual void RenderBloomTexture() = 0;
 		virtual void RenderForFBO() = 0;
 		virtual void RenderRotatedForFBO() = 0;

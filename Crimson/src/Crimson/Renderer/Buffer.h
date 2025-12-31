@@ -104,7 +104,7 @@ namespace Crimson {
 
 		virtual const std::vector<std::shared_ptr<VertexBuffer>>& GetVertexBuffers() = 0;
 		virtual const std::shared_ptr<IndexBuffer>& GetIndexBuffer() const = 0;
-		virtual unsigned int GetVertexArrayID() = 0;
+		virtual uint32_t GetVertexArrayID() = 0;
 		static Ref<VertexArray> Create();
 	};
 
