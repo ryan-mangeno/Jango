@@ -12,10 +12,8 @@ namespace Crimson {
 		:m_Height(0), m_Width(0), channels(0)
 	{
 		uuid = UUID(path);
-		if (bUse16BitTexture)
-			Create16BitTexture(path);
-		else
-			Create8BitsTexture(path);
+		if (bUse16BitTexture) Create16BitTexture(path);
+		else 			      Create8BitsTexture(path);
 	}
 	
 	//data is defaulted to a color, can be used as a texture or base color also

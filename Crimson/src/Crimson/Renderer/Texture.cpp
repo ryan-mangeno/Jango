@@ -30,6 +30,9 @@ namespace Crimson {
 	{
 		Ref<Texture2D> instance;
 		uint64_t ID = 0;
+
+		CN_CORE_TRACE("Creating texture: {}", path);
+		
 		switch (RendererAPI::GetAPI()) 
 		{
 			case GraphicsAPI::None:
@@ -38,17 +41,24 @@ namespace Crimson {
 				ID = UUID(path);
 				if (ResourceManager::allTextures.find(ID) == ResourceManager::allTextures.end())// load a texture only once
 				{
-					CN_CORE_INFO("Making Instance ...");
-					instance = Texture2D::Create(path, bUse16BitTexture);
-					CN_CORE_INFO("Made Instance ...");
-					//ResourceManager::allTextures[instance->uuid] = instance;
+					instance = MakeRef<OpenGLTexture2D>(path, bUse16BitTexture);
+					ResourceManager::allTextures[instance->uuid] = instance;
 				}
 				else {
-					instance = std::dynamic_pointer_cast<Texture2D>(ResourceManager::allTextures[ID]); //dynamic_pointer_cast helps to give a shared ptr of derived type casting from base
+					instance = std::dynamic_pointer_cast<OpenGLTexture2D>(ResourceManager::allTextures[ID]); //dynamic_pointer_cast helps to give a shared ptr of derived type casting from base
 				}
 				return instance;
 			case GraphicsAPI::Metal:
-				return nullptr;
+				ID = UUID(path);
+				if (ResourceManager::allTextures.find(ID) == ResourceManager::allTextures.end())// load a texture only once
+				{
+					instance = MakeRef<MetalTexture2D>(path, bUse16BitTexture);
+					ResourceManager::allTextures[instance->uuid] = instance;
+				}
+				else {
+					instance = std::dynamic_pointer_cast<MetalTexture2D>(ResourceManager::allTextures[ID]); //dynamic_pointer_cast helps to give a shared ptr of derived type casting from base
+				}
+				return instance;
 			default:
 				return nullptr;
 		}
