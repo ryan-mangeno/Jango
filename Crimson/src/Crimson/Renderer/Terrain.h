@@ -46,12 +46,11 @@ namespace Crimson
 		inline void BindWaterRefractionFBO() const { m_Water->BindRefractionFBO(); }
 		inline void UnBindWaterRefractionFBO() const { m_Water->UnbindRefractionFBO(); }
 
-		inline uint32_t GetWaterReflectionFBO() const { return m_Water->GetReflectionFboID(); }
+		inline PlatformGPUHandle GetWaterReflectionTexture() const { return m_Water->GetReflectionTextureHandle().ToPlatform(); }
 		inline const glm::uvec2& GetWaterReflectionViewport() const { return m_Water->GetReflectionViewport(); }
-		inline uint32_t GetWaterRefractionFBO() const { return m_Water->GetRefractionFboID(); }
+		
+		inline PlatformGPUHandle GetWaterRefractionTexture() const { return m_Water->GetRefractionTextureHandle().ToPlatform(); }
 		inline const glm::uvec2& GetWaterRefractionViewport() const { return m_Water->GetRefractionViewport(); }
-
-
 
 		void RenderTerrain(Camera& cam, bool withWater);
 		void RenderWater(Camera& cam);

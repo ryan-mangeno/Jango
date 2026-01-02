@@ -154,7 +154,8 @@ void CrimsonEditor::OnUpdate(TimeStep ts)
 
 	m_scene->m_Fog->RenderFog(*m_scene->GetCamera(), RenderCommand::GetViewportSize());
 
-	m_scene->m_Bloom->GetFinalImage(m_FrameBuffer2->GetSceneTextureID(), RenderCommand::GetViewportSize());
+	// todo / to fix
+	m_scene->m_Bloom->GetFinalImage(0 /*m_FrameBuffer2->GetSceneTextureRef()*/, RenderCommand::GetViewportSize());
 	m_scene->m_Bloom->RenderBloomTexture();
 	m_scene->m_Bloom->Update(ts);
 	
@@ -197,7 +198,7 @@ void CrimsonEditor::OnImGuiRender()
 		m_camera.OnResize(Size.x, Size.y);
 	}
 
-	ImGui::Image((m_FrameBuffer->GetSceneTextureID()), *(ImVec2*)&m_ViewportSize);
+	ImGui::Image(ImTextureID(m_FrameBuffer->GetSceneTextureRef()), *(ImVec2*)&m_ViewportSize);
 
 	if (SceneHierarchyPannel::m_selected_entity) //gizmo logics
 	{
@@ -293,9 +294,9 @@ void CrimsonEditor::OnImGuiRender()
 	ImGui::Text("Density Map");
 	ImGui::Image(Foliage::m_DensityMapID, ImVec2(512, 512), { 0, 1 }, { 1,0 });
 	ImGui::Text("Water Reflection Map");
-	ImGui::Image(m_scene->m_Terrain->GetWaterReflectionFBO(), ImVec2(512, 512), { 0, 1 }, { 1,0 });
+	ImGui::Image((ImTextureID)m_scene->m_Terrain->GetWaterReflectionTexture(), ImVec2(512, 512), { 0, 1 }, { 1,0 });
 	ImGui::Text("Water Refraction Map");
-	ImGui::Image(m_scene->m_Terrain->GetWaterRefractionFBO(), ImVec2(512, 512), { 0, 1 }, { 1,0 });
+	ImGui::Image((ImTextureID)m_scene->m_Terrain->GetWaterRefractionTexture(), ImVec2(512, 512), { 0, 1 }, { 1,0 });
 
 	ImGui::End();
 

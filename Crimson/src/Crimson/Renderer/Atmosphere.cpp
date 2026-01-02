@@ -36,6 +36,7 @@ namespace Crimson {
 	{
 
 		CN_PROFILE_FUNCTION()
+		CN_CORE_TRACE("Initializing Atmosphere");
 
 		atmosphere_shader = Shader::Create("Crimson_Editor/Assets/Shaders/GLSL/Atmosphere.glsl");
 
@@ -43,6 +44,7 @@ namespace Crimson {
 			"Assets/Textures/Sky_Gradient_Textures/ViewZenith_Gradient.png", "Assets/Textures/Sky_Gradient_Textures/SunView_Gradient.png"};
 		skyGradients = Texture2DArray::Create(gradientTex_paths);
 
+		CN_CORE_INFO("--- Initialized Atmosphere ---");
 	}
 	void Atmosphere::RenderQuad(const glm::mat4& view, const glm::mat4& proj)
 	{

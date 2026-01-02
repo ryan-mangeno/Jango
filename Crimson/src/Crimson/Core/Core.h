@@ -65,7 +65,6 @@
 #define TERRAIN_MASK_TEXTURE_SLOT 27
 
 namespace Crimson {
-
 	template<typename T>
 	using Scope = std::unique_ptr<T>;
 

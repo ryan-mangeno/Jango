@@ -11,16 +11,16 @@ namespace Crimson {
 
         virtual ~MetalTexture2D();
         
-        uint32_t GetWidth() const override { return m_Width; }
-        uint32_t GetHeight() const override { return m_Height; }
-        uint32_t GetChannels() override { return channels; }
+        virtual uint32_t GetWidth() const override { return m_Width; }
+        virtual uint32_t GetHeight() const override { return m_Height; }
+        virtual uint32_t GetChannels() const override { return channels; }
         
         virtual void Bind(uint32_t slot) const override;
         virtual void UnBind() const override;
         
-        // In Metal, we don't use int IDs, but we keep this for API compatibility.
-        // If you need the texture for ImGui, use GetTexturePointer() below.
-        uint32_t GetID() const override { return m_Renderid; }
+        // In Metal, we don't use int IDs, but we keep this for API compatibility
+        // If you need the texture for ImGui, use GetTexturePointer() below
+        virtual GPUHandle GetHandle() const override { return GPUHandle(m_Texture); }
         
         // Returns the raw Metal id<MTLTexture> cast to void*
         void* GetTexturePointer() const { return m_Texture; }
@@ -31,7 +31,6 @@ namespace Crimson {
         int m_Width;
         int m_Height;
         int channels;
-        uint32_t m_Renderid = 0; // Unused in Metal, placeholder
         
         // --- Metal Resource ---
         void* m_Texture = nullptr; // id<MTLTexture>
@@ -60,7 +59,7 @@ namespace Crimson {
 
         virtual uint32_t GetWidth() const override { return m_Width; }
         virtual uint32_t GetHeight() const override { return m_Height; }
-        virtual uint32_t GetID() const override { return 0; } // Not used in Metal
+        virtual GPUHandle GetHandle() const override { return GPUHandle(m_Texture); } 
 
         void* GetMetalTexture() const { return m_Texture; }
 

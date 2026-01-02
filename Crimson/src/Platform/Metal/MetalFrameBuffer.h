@@ -7,8 +7,8 @@ namespace Crimson {
 	public:
 		MetalFrameBuffer(const FrameBufferSpecification& spec);
 		~MetalFrameBuffer();
-		inline virtual uint32_t GetSceneTextureID() override { return m_SceneTexture; }
-		inline virtual uint32_t GetDepthTextureID() override { return m_DepthTexture; }
+		inline virtual GPUHandle GetSceneTextureHandle() override { return GPUHandle(m_SceneTexture); } // to fix 
+		inline virtual GPUHandle GetDepthTextureHandle() override { return GPUHandle(m_DepthTexture); } // to fix
 		inline virtual const FrameBufferSpecification& GetSpecification() override { return Specification; }
 		virtual void Bind() override;
 		virtual void UnBind() override;
@@ -17,8 +17,14 @@ namespace Crimson {
 		virtual void BindFramebufferTexture(int slot) override;
 		virtual void BindFramebufferDepthTexture(int slot) override;
 	private:
-		uint32_t m_RenderID=0,m_SceneTexture=0,m_DepthTexture=0;
+	
+		void* m_Texture; // id<MTLTexture>
+		void* m_SceneTexture; // id<MTLTexture>
+		void* m_DepthTexture; // id<MTLTexture>
+		void* m_RenderID; // id<MTLTexture>
+
 		FrameBufferSpecification Specification;
+		
 	private:
 		void invalidate(const FrameBufferSpecification& spec);
 	};

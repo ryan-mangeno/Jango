@@ -2,6 +2,7 @@
 #include "FrameBuffer.h"
 #include "RendererAPI.h"
 #include "Platform/OpenGL/OpenGLFrameBuffer.h"
+#include "Platform/Metal/MetalFrameBuffer.h"
 
 namespace Crimson {
     Ref<FrameBuffer> FrameBuffer::Create(const FrameBufferSpecification& spec)
@@ -11,9 +12,9 @@ namespace Crimson {
 		case GraphicsAPI::None:
 			return nullptr;
 		case GraphicsAPI::Metal:
-			return nullptr;
+			return MakeRef<MetalFrameBuffer>(spec);
 		case GraphicsAPI::OpenGL:
-			return std::make_shared<OpenGLFrameBuffer>(spec);
+			return MakeRef<OpenGLFrameBuffer>(spec);
 		default:
 			return nullptr;
 		}

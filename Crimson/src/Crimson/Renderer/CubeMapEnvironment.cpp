@@ -107,10 +107,11 @@ namespace Crimson {
         CN_CORE_INFO("--- CubeMapEnv Shaders Created ---");
 
         Ref<Texture2D> hdrTexture = Texture2D::Create(path); 
-        if (!hdrTexture) 
-        {
+        if (!hdrTexture) {
             CN_CORE_ERROR("HDR Map Failed to Load!");
             return;
+        } else {
+            CN_CORE_TRACE("HDR Map Loaded");
         }
 
         EditorCamera camera;

@@ -1,9 +1,12 @@
 #include "cnpch.h"
 #include "BVH.h"
 #include "Crimson/Core/Core.h"
-#include <glad/glad.h>
 #include "Crimson/Core/ResourceManager.h"
+#include "Crimson/Renderer/GPUHandle.h"
+
 #include <GLFW/glfw3.h>
+#include <glad/glad.h>
+
 
 constexpr uint32_t NUM_BINS = 200;
 
@@ -108,9 +111,10 @@ namespace Crimson
 			Ref<Texture2D> RoughnessTexture = Texture2D::Create(ResourceManager::allMaterials[sub_mesh.MaterialID]->GetRoughnessPath());
 
 			//Enabling bindless textures causes render-doc to crash so disable them
-			uint64_t AlbedoHandle = glGetTextureHandleARB(AlbedoTexture->GetID()); //get a handle from the gpu
+			uint64_t AlbedoHandle = glGetTextureHandleARB(0/*AlbedoTexture->GetHandle().ToPlatform()*/); //get a handle from the gpu to fix / todo
+
 			glMakeTextureHandleResidentARB(AlbedoHandle); //load the texture into gpu memory using the handle
-			uint64_t RoughnessHandle = glGetTextureHandleARB(RoughnessTexture->GetID());
+			uint64_t RoughnessHandle = glGetTextureHandleARB(0/*RoughnessTexture->GetHandle().ToPlatform()*/); // to fix / todo
 			if(AlbedoHandle!=RoughnessHandle)
 			{
 				glMakeTextureHandleResidentARB(RoughnessHandle);

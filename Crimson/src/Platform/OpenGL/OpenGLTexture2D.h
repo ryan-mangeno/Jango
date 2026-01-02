@@ -8,12 +8,12 @@ namespace Crimson {
 		OpenGLTexture2D(const std::string& path, bool bUse16BitTexture);
 		OpenGLTexture2D(const uint32_t Width = 1, const uint32_t Height = 1, const uint32_t data = 0xffffffff);
 		virtual ~OpenGLTexture2D();
-		uint32_t GetWidth() const override { return m_Width; }
-		uint32_t GetHeight() const override { return m_Height; }
-		uint32_t GetChannels() override { return channels; }
+		virtual uint32_t GetWidth() const override { return m_Width; }
+		virtual uint32_t GetHeight() const override { return m_Height; }
+		virtual uint32_t GetChannels() const override { return channels; }
 		virtual void Bind(uint32_t slot) const override;
 		virtual void UnBind() const override;
-		uint32_t GetID() const override { return m_Renderid; }
+		virtual GPUHandle GetHandle() const override { return GPUHandle(m_Renderid); }
 		unsigned short* GetTexture() override { return pixel_data_16; }//will not work as pixel_data is deleted
 	private:
 		 int m_Width;
@@ -41,7 +41,7 @@ namespace Crimson {
 
         virtual uint32_t GetWidth() const override { return m_Width; }
         virtual uint32_t GetHeight() const override { return m_Height; }
-        virtual uint32_t GetID() const override { return m_RendererID; }
+        virtual GPUHandle GetHandle() const override { return GPUHandle(m_RendererID); }
         
         inline virtual void Bind(uint32_t slot) const override {}; // todo
         inline virtual void UnBind() const override {}; // todo

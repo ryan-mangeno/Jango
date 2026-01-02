@@ -2,11 +2,10 @@
 
 #include <Crimson.h>
 
+#include "GPUHandle.h"
+
 
 namespace Crimson{
-
-
-
 	class Water
 	{
 	public:
@@ -25,20 +24,15 @@ namespace Crimson{
 
 		virtual float GetHeight() const = 0;
 
-		inline virtual uint32_t GetReflectionFboID() const = 0;
+		inline virtual GPUHandle GetReflectionTextureHandle() const = 0;
 		inline virtual const glm::uvec2& GetReflectionViewport() const = 0;
 		inline virtual void BindReflectionFBO() const = 0;
 		inline virtual void UnbindReflectionFBO() const = 0;
 
-		inline virtual uint32_t GetRefractionFboID() const = 0;
+		inline virtual GPUHandle GetRefractionTextureHandle() const = 0;
 		inline virtual const glm::uvec2& GetRefractionViewport() const = 0;
 		inline virtual void BindRefractionFBO() const = 0;
 		inline virtual void UnbindRefractionFBO() const = 0;
-
-
 	};
-
-
-
 
 }

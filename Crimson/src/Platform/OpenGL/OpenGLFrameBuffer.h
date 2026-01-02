@@ -1,5 +1,6 @@
 #pragma once
 #include "Crimson/Renderer/FrameBuffer.h"
+#include "Crimson/Renderer/GPUHandle.h"
 
 namespace Crimson {
 	class OpenGLFrameBuffer : public FrameBuffer
@@ -7,8 +8,8 @@ namespace Crimson {
 	public:
 		OpenGLFrameBuffer(const FrameBufferSpecification& spec);
 		~OpenGLFrameBuffer();
-		inline virtual uint32_t GetSceneTextureID() override { return m_SceneTexture; }
-		inline virtual uint32_t GetDepthTextureID() override { return m_DepthTexture; }
+		inline virtual GPUHandle GetSceneTextureHandle() override { return GPUHandle(m_SceneTexture); }
+		inline virtual GPUHandle GetDepthTextureHandle() override { return GPUHandle(m_DepthTexture); }
 		inline virtual const FrameBufferSpecification& GetSpecification() override { return Specification; }
 		virtual void Bind() override;
 		virtual void UnBind() override;

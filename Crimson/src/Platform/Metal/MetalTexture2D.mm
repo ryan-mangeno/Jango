@@ -1,6 +1,7 @@
 #include "cnpch.h"
 #include "MetalTexture2D.h"
 #include "MetalRendererAPI.h" 
+#include "Crimson/Core/UUID.h"
 
 #import <Metal/Metal.h>
 #include "stb_image.h"
@@ -11,7 +12,7 @@ namespace Crimson {
     MetalTexture2D::MetalTexture2D(const std::string& path, bool bUse16BitTexture)
         : m_Height(0), m_Width(0), channels(0)
     {
-        // uuid = UUID(path); // Uncomment if UUID system is active
+        uuid = UUID(path); 
         if (bUse16BitTexture) Create16BitTexture(path);
         else                  Create8BitsTexture(path);
     }
@@ -36,8 +37,6 @@ namespace Crimson {
                    bytesPerRow:4 * m_Width];
 
         m_Texture = (__bridge_retained void*)texture;
-        // Cast pointer address to int for ID compatibility (not ideal, but satisfies interface)
-        m_Renderid = (uint32_t)(uintptr_t)m_Texture; 
     }
 
     MetalTexture2D::~MetalTexture2D()
@@ -111,7 +110,7 @@ namespace Crimson {
         stbi_set_flip_vertically_on_load(1);
         
         // FORCE 4 CHANNELS (RGBA)
-        // Metal does NOT support RGB8 (3 channels). We ask STB to convert to 4 immediately
+        // Metal does NOT support RGB8 (3 channels) convert to 4 immediately
         int desired_channels = 4; 
         pixel_data_8 = stbi_load(path.c_str(), &m_Width, &m_Height, &channels, desired_channels);
 
@@ -160,7 +159,7 @@ namespace Crimson {
         
         [texture replaceRegion:MTLRegionMake2D(0, 0, 1, 1) 
                    mipmapLevel:0 
-                     withBytes:&whiteData 
+                   withBytes:&whiteData 
                    bytesPerRow:4];
                    
         m_Texture = (__bridge_retained void*)texture;

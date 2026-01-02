@@ -2,6 +2,7 @@
 
 
 #include "Crimson/Renderer/Water.h"
+#include "Crimson/Renderer/GPUHandle.h"
 #include "MetalFrameBuffer.h"
 
 namespace Crimson {
@@ -37,12 +38,12 @@ namespace Crimson {
 
 		virtual float GetHeight() const override { return m_dims.y; };
 
-		inline virtual uint32_t GetReflectionFboID() const override { return m_Fbo1->GetSceneTextureID(); }
+		inline virtual GPUHandle GetReflectionTextureHandle() const override { return m_Fbo1->GetSceneTextureHandle(); }
 		inline virtual const glm::uvec2& GetReflectionViewport() const override { return m_Fbo1->GetSpecification().viewport; }
 		inline virtual void BindReflectionFBO() const override { m_Fbo1->Bind(); }
 		inline virtual void UnbindReflectionFBO() const override { m_Fbo1->UnBind(); }
 
-		inline virtual uint32_t GetRefractionFboID() const override { return m_Fbo2->GetSceneTextureID(); }
+		inline virtual GPUHandle GetRefractionTextureHandle() const override { return m_Fbo2->GetSceneTextureHandle(); }
 		inline virtual const glm::uvec2& GetRefractionViewport() const override { return m_Fbo2->GetSpecification().viewport; }
 		inline virtual void BindRefractionFBO() const override { m_Fbo2->Bind(); }
 		inline virtual void UnbindRefractionFBO() const override { m_Fbo2->UnBind(); }

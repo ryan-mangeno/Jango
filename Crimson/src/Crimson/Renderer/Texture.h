@@ -1,7 +1,9 @@
 #pragma once
 
 #include <string>
+
 #include "Crimson/Core/Core.h"
+#include "GPUHandle.h"
 
 namespace Crimson {
 
@@ -23,7 +25,7 @@ namespace Crimson {
 		virtual ~Texture() = default;
 		virtual uint32_t GetWidth() const = 0;
 		virtual uint32_t GetHeight() const = 0;
-		virtual uint32_t GetID() const = 0;
+		virtual GPUHandle GetHandle() const = 0;
 		virtual void Bind(uint32_t slot) const = 0;
 		virtual void UnBind() const = 0;
 	};
@@ -32,7 +34,7 @@ namespace Crimson {
 
 		static bool ValidateTexture(const std::string& path);
 		virtual unsigned short* GetTexture() = 0;
-		virtual uint32_t GetChannels() = 0;
+		virtual uint32_t GetChannels() const = 0;
 		static Ref<Texture2D> Create(const std::string& path, bool bUse16BitTexture = false);
 		static Ref<Texture2D> Create(const uint32_t Width, const uint32_t Height, const uint32_t data);
 

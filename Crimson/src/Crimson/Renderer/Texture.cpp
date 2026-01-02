@@ -15,13 +15,11 @@ namespace Crimson {
 	{
 		int channels = 0;
 		int height = 0, width = 0;
+
 		stbi_uc* pixel_data = stbi_load(path.c_str(), &width, &height, &channels, 0);
-		if (pixel_data == nullptr)
-		{
+		if (pixel_data == nullptr) {
 			return false;
-		}
-		else
-		{
+		} else {
 			stbi_image_free(pixel_data);
 			return true;
 		}
@@ -39,23 +37,19 @@ namespace Crimson {
 				return nullptr;
 			case GraphicsAPI::OpenGL:
 				ID = UUID(path);
-				if (ResourceManager::allTextures.find(ID) == ResourceManager::allTextures.end())// load a texture only once
-				{
+				if (ResourceManager::allTextures.find(ID) == ResourceManager::allTextures.end()) {
 					instance = MakeRef<OpenGLTexture2D>(path, bUse16BitTexture);
 					ResourceManager::allTextures[instance->uuid] = instance;
-				}
-				else {
+				} else {
 					instance = std::dynamic_pointer_cast<OpenGLTexture2D>(ResourceManager::allTextures[ID]); //dynamic_pointer_cast helps to give a shared ptr of derived type casting from base
 				}
 				return instance;
 			case GraphicsAPI::Metal:
 				ID = UUID(path);
-				if (ResourceManager::allTextures.find(ID) == ResourceManager::allTextures.end())// load a texture only once
-				{
+				if (ResourceManager::allTextures.find(ID) == ResourceManager::allTextures.end()) /* load a texture only once */ {
 					instance = MakeRef<MetalTexture2D>(path, bUse16BitTexture);
 					ResourceManager::allTextures[instance->uuid] = instance;
-				}
-				else {
+				} else {
 					instance = std::dynamic_pointer_cast<MetalTexture2D>(ResourceManager::allTextures[ID]); //dynamic_pointer_cast helps to give a shared ptr of derived type casting from base
 				}
 				return instance;

@@ -11,7 +11,7 @@ namespace Crimson {
 		uint32_t GetHeight() const override { return m_Height; }
 		virtual void Bind(uint32_t slot) const override;
 		virtual void UnBind() const override;
-		uint32_t GetID() const override { return m_RendererID; }
+		virtual GPUHandle GetHandle() const override { return GPUHandle(m_RendererID); }
 	
 	private:
 		int m_Width;
