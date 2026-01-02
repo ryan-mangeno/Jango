@@ -1,36 +1,56 @@
 #pragma once
 #include "Crimson/Core/Core.h"
 #include "Crimson/Renderer/Texture.h"
-namespace Crimson {
-	class MetalTexture2D :public Texture2D
-	{
-	public:
-		MetalTexture2D(const std::string& path, bool bUse16BitTexture);
-		MetalTexture2D(const uint32_t Width = 1, const uint32_t Height = 1, const uint32_t data = 0xffffffff);
 
-		virtual ~MetalTexture2D();
-		uint32_t GetWidth() const override { return m_Width; }
-		uint32_t GetHeight() const override { return m_Height; }
-		uint32_t GetChannels() override { return channels; }
-		virtual void Bind(uint32_t slot)const override;
-		virtual void UnBind()const override;
-		uint32_t GetID() const override { return m_Renderid; }
-		unsigned short* GetTexture() override { return pixel_data_16; }//will not work as pixel_data is deleted
-	private:
-		 int m_Width;
-		 int m_Height;
-		 int channels;
-		uint32_t m_Renderid;
-		unsigned short* resized_image_16 = nullptr;
-		unsigned short* pixel_data_16 = nullptr;
-		unsigned char* resized_image_8 = nullptr;
-		unsigned char* pixel_data_8 = nullptr;
-	private:
-		void Resize_Image(const float& width, const float& height, bool bUse16BitTexture = false);
-		void Create16BitTexture(const std::string& path);
-		void Create8BitsTexture(const std::string& path);
-		void CreateWhiteTexture();
-	};
+namespace Crimson {
+    class MetalTexture2D : public Texture2D
+    {
+    public:
+        MetalTexture2D(const std::string& path, bool bUse16BitTexture);
+        MetalTexture2D(const uint32_t Width = 1, const uint32_t Height = 1, const uint32_t data = 0xffffffff);
+
+        virtual ~MetalTexture2D();
+        
+        uint32_t GetWidth() const override { return m_Width; }
+        uint32_t GetHeight() const override { return m_Height; }
+        uint32_t GetChannels() override { return channels; }
+        
+        virtual void Bind(uint32_t slot) const override;
+        virtual void UnBind() const override;
+        
+        // In Metal, we don't use int IDs, but we keep this for API compatibility.
+        // If you need the texture for ImGui, use GetTexturePointer() below.
+        uint32_t GetID() const override { return m_Renderid; }
+        
+        // Returns the raw Metal id<MTLTexture> cast to void*
+        void* GetTexturePointer() const { return m_Texture; }
+
+        unsigned short* GetTexture() override { return pixel_data_16; }
+
+    private:
+        int m_Width;
+        int m_Height;
+        int channels;
+        uint32_t m_Renderid = 0; // Unused in Metal, placeholder
+        
+        // --- Metal Resource ---
+        void* m_Texture = nullptr; // id<MTLTexture>
+
+        // CPU Buffers
+        unsigned short* resized_image_16 = nullptr;
+        unsigned short* pixel_data_16 = nullptr;
+        unsigned char* resized_image_8 = nullptr;
+        unsigned char* pixel_data_8 = nullptr;
+
+    private:
+        void Resize_Image(const float& width, const float& height, bool bUse16BitTexture = false);
+        void Create16BitTexture(const std::string& path);
+        void Create8BitsTexture(const std::string& path);
+        void CreateWhiteTexture();
+        
+        // Helper to generate mipmaps using a BlitEncoder
+        void GenerateMipmaps();
+    };
 
 	class MetalTextureCube : public TextureCube
     {
