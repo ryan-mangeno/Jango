@@ -26,19 +26,19 @@ namespace Crimson {
 		uint32_t m_RendererID;
 	};
 
-	// 	// --------------------------------------------------------------------
-	// 	//							Index Buffer
-	// 	// --------------------------------------------------------------------
+	//--------------------------------------------------------------------
+	//						Index Buffer
+	//--------------------------------------------------------------------
 	class OpenGLIndexBuffer :public IndexBuffer {
 	public:
 
 		OpenGLIndexBuffer(const uint32_t* data, uint32_t size);
 		~OpenGLIndexBuffer();
 
-		void Bind() const override;
-		void UnBind() const override;
+		virtual void Bind() const override;
+		virtual void UnBind() const override;
 
-		inline uint32_t GetCount() override { return m_Elements; }
+		virtual inline uint32_t GetCount() const override { return m_Elements; }
 
 	private:
 		uint32_t m_Elements;

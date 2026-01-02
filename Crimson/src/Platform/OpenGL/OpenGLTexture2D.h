@@ -6,13 +6,13 @@ namespace Crimson {
 	{
 	public:
 		OpenGLTexture2D(const std::string& path, bool bUse16BitTexture);
-		OpenGLTexture2D(const uint32_t Width = 1, const uint32_t Height = 1, uint32_t data = 0xffffffff);
+		OpenGLTexture2D(const uint32_t Width = 1, const uint32_t Height = 1, const uint32_t data = 0xffffffff);
 		virtual ~OpenGLTexture2D();
 		uint32_t GetWidth() const override { return m_Width; }
 		uint32_t GetHeight() const override { return m_Height; }
 		uint32_t GetChannels() override { return channels; }
-		virtual void Bind(int slot)const override;
-		virtual void UnBind()const override;
+		virtual void Bind(uint32_t slot) const override;
+		virtual void UnBind() const override;
 		uint32_t GetID() const override { return m_Renderid; }
 		unsigned short* GetTexture() override { return pixel_data_16; }//will not work as pixel_data is deleted
 	private:
@@ -32,4 +32,28 @@ namespace Crimson {
 
 
 	};
+
+	class OpenGLTextureCube : public TextureCube
+    {
+    public:
+        OpenGLTextureCube(uint32_t width, uint32_t height, ImageFormat format);
+        virtual ~OpenGLTextureCube();
+
+        virtual uint32_t GetWidth() const override { return m_Width; }
+        virtual uint32_t GetHeight() const override { return m_Height; }
+        virtual uint32_t GetID() const override { return m_RendererID; }
+        
+        inline virtual void Bind(uint32_t slot) const override {}; // todo
+        inline virtual void UnBind() const override {}; // todo
+
+        virtual void GenerateMips() override;
+        inline bool operator==(const Texture& other) const
+        {
+            return m_RendererID == ((OpenGLTextureCube&)other).m_RendererID;
+        }
+    private:
+        uint32_t m_Width, m_Height;
+        uint32_t m_RendererID;
+        uint32_t m_InternalFormat, m_DataFormat;
+    };
 }

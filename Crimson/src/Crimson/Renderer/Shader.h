@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Crimson/Core/Core.h"
+
 #include <string>
 #include <unordered_map>
 
@@ -15,15 +17,15 @@ namespace Crimson {
 		virtual void Bind() const = 0;
 		virtual void UnBind() const = 0;
 
-		virtual void SetMat4(const std::string& str, const glm::mat4& UniformMat4, size_t count = 1) const = 0;
-		virtual void SetInt(const std::string& str, const int& UniformInt) const = 0;
-		virtual void SetIntArray(const std::string& str, const size_t size, const void* pointer) const = 0;
-		virtual void SetFloat(const std::string& str, const float& UniformFloat) const = 0;
-		virtual void SetFloatArray(const std::string& str, float& UniformFloat, size_t count) const = 0;
-		virtual void SetFloat4(const std::string& str, const glm::vec4& UniformFloat4) const = 0;
-		virtual void SetFloat3(const std::string& str, const glm::vec3& UniformFloat4) const = 0;
-		virtual void SetFloat3Array(const std::string& str, const float* arr, size_t count) const = 0;
-		virtual void SetFloat4Array(const std::string& str, const float* arr, size_t count) const = 0;
+		virtual void SetMat4(const std::string& str, const glm::mat4& UniformMat4, size_t count = 1) = 0;
+		virtual void SetInt(const std::string& str, const int& UniformInt) = 0;
+		virtual void SetIntArray(const std::string& str, const size_t size, const void* pointer) = 0;
+		virtual void SetFloat(const std::string& str, const float& UniformFloat) = 0;
+		virtual void SetFloatArray(const std::string& str, float& UniformFloat, size_t count) = 0;
+		virtual void SetFloat4(const std::string& str, const glm::vec4& UniformFloat4) = 0;
+		virtual void SetFloat3(const std::string& str, const glm::vec3& UniformFloat4) = 0;
+		virtual void SetFloat3Array(const std::string& str, const float* arr, size_t count) = 0;
+		virtual void SetFloat4Array(const std::string& str, const float* arr, size_t count) = 0;
 
 		static Ref<Shader> Create(const std::string& path);
 		static Ref<Shader> Create(const std::string&, const std::string&, const std::string& name);

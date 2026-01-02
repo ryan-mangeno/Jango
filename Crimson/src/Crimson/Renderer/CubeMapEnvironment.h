@@ -1,25 +1,42 @@
 #pragma once
+
 #include "Crimson/Renderer/Buffer.h"
 #include "Crimson/Renderer/Shader.h"
 #include "Crimson/Renderer/RenderCommand.h"
+#include "Crimson/Renderer/Texture.h"
+#include "Crimson/Renderer/FrameBuffer.h"
 
 namespace Crimson {
-	class CubeMapEnvironment {
-	public:
-		static void Init(const std::string& path);
-		static void RenderCubeMap(const glm::mat4& view, const glm::mat4& proj, const glm::vec3& view_dir);
-		static void RenderQuad(const glm::mat4& view, const glm::mat4& proj);//used for cube-maps (direction is passed in 2nd slot)
-		static void RenderQuad();//used for 2D-Textures (Texture-coordinate is passed in 2nd slot)
-	private:
-		static uint32_t irradiance_map_id, tex_id;
-		static uint32_t framebuffer_id, framebuffer_id2;
-		static uint32_t hdrMapID;
-		static uint32_t renderBuffer_id;
-		static uint32_t captureRes;
-		static Ref<Shader> Cube_Shader, irradiance_shader, equirectangularToCube_shader, prefilterShader, BRDFSumShader;
-	private:
+
+    class CubeMapEnvironment {
+    public:
+        static void Init(const std::string& path);
+        static void RenderCubeMap(const glm::mat4& view, const glm::mat4& proj, const glm::vec3& view_dir);
+        
+        static void RenderQuad(const glm::mat4& view, const glm::mat4& proj);
+        static void RenderQuad(); 
+
+    private:
 		static void SwitchToFace(int n, float& pitch, float& yaw);
-		static void ConstructIrradianceMap(const glm::mat4& proj);
-		static void CreateSpecularMap(const glm::mat4& proj,glm::mat4*);
-	};
+        static void RenderUnitCube(); 
+        static void ConstructIrradianceMap(const glm::mat4& proj);
+        static void CreateSpecularMap(const glm::mat4& proj, glm::mat4* viewDirs);
+
+    private:
+        static Ref<TextureCube> m_EnvironmentMap;
+        static Ref<TextureCube> m_IrradianceMap;
+        static Ref<TextureCube> m_PrefilterMap;
+        static Ref<Texture2D> m_BRDFLUT;
+        
+        static Ref<FrameBuffer> m_CaptureFramebuffer;
+        static Ref<VertexArray> m_CubeVAO;
+
+        static uint32_t captureRes;
+        
+        static Ref<Shader> Cube_Shader;
+        static Ref<Shader> equirectangularToCube_shader;
+        static Ref<Shader> irradiance_shader;
+        static Ref<Shader> prefilterShader;
+        static Ref<Shader> BRDFSumShader;
+    };
 }

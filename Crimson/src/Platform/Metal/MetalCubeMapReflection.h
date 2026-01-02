@@ -11,7 +11,7 @@ namespace Crimson {
 		~MetalCubeMapReflection();
 		void CreateCubeMapTexture();
 		virtual void RenderToCubeMap(Scene& scene) override;
-		virtual void Bind(int slot) override;
+		virtual void Bind(uint32_t slot) override;
 		virtual void UnBind() override;
 		virtual uint32_t GetTexture_ID() override;
 		virtual void SetCubeMapResolution(float width, float height) override;

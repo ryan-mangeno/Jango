@@ -15,9 +15,9 @@ namespace Crimson {
 	{
 		switch (RendererAPI::GetAPI())
 		{
-		case GraphicsAPI::None:			CN_CORE_ASSERT(false, "RendererAPI: None not supported currently!"); return nullptr;
+		case GraphicsAPI::None:				CN_CORE_ASSERT(false, "RendererAPI: None not supported currently!"); return nullptr;
 		case GraphicsAPI::Metal:			return nullptr;
-		case GraphicsAPI::OpenGL:			return   MakeRef<OpenGLVertexBuffer>(vertices, size);
+		case GraphicsAPI::OpenGL:			return MakeRef<OpenGLVertexBuffer>(vertices, size);
 		}
 
 		CN_CORE_ASSERT(false, "Unknown RendererAPI!");
@@ -29,9 +29,9 @@ namespace Crimson {
 	{
 		switch (RendererAPI::GetAPI())
 		{
-		case GraphicsAPI::None:			CN_CORE_ASSERT(false, "RendererAPI: None not supported currently!"); return nullptr;
+		case GraphicsAPI::None:				CN_CORE_ASSERT(false, "RendererAPI: None not supported currently!"); return nullptr;
 		case GraphicsAPI::Metal:			return nullptr;
-		case GraphicsAPI::OpenGL:			return   MakeRef<OpenGLVertexBuffer>(size, type);
+		case GraphicsAPI::OpenGL:			return MakeRef<OpenGLVertexBuffer>(size, type);
 		}
 
 		CN_CORE_ASSERT(false, "Unknown RendererAPI!");
@@ -39,7 +39,7 @@ namespace Crimson {
 	}
 
 
-	/// ////////////////////////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////////////////////
 
 
 	Ref<IndexBuffer> IndexBuffer::Create(const uint32_t* indices, uint32_t size)
@@ -61,27 +61,7 @@ namespace Crimson {
 	void BufferLayout::push(std::string name, ShaderDataType type)
 	{
 		m_Elements.push_back(new BufferElements(name, type));
-		Stride += GetSize(type);
-	}
-	uint32_t BufferLayout::GetSize(ShaderDataType type)
-	{
-		switch (type) {
-		case ShaderDataType::Float: 	return sizeof(float);
-		case ShaderDataType::Float2: 	return sizeof(float) * 2;
-		case ShaderDataType::Float3: 	return sizeof(float) * 3;
-		case ShaderDataType::Float4: 	return sizeof(float) * 4;
-		case ShaderDataType::Int: 		return sizeof(int);
-		case ShaderDataType::Int2: 		return sizeof(int) * 2;
-		case ShaderDataType::Int3: 		return sizeof(int) * 3;
-		case ShaderDataType::Int4: 		return sizeof(int) * 4;
-		case ShaderDataType::Mat2: 		return sizeof(float) * 2 * 2;
-		case ShaderDataType::Mat3: 		return sizeof(float) * 3 * 3;
-		case ShaderDataType::Mat4: 		return sizeof(float) * 4 * 4;
-		default:
-			CN_CORE_ERROR("Unidentfied Type");
-			return 0;
-		}
-
+		Stride += ShaderDataTypeSize(type);
 	}
 
 	/////////////////////////////////////////////////////////////////////////

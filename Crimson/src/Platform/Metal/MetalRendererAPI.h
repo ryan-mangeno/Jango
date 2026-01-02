@@ -23,7 +23,6 @@ namespace Crimson {
         
         virtual void DrawInstancedArrays(VertexArray& vertexArray, size_t count, size_t instanceCount, int first = 0) override;
         
-        // Indirect calls
         virtual void DrawArraysIndirect(VertexArray& vertexArray, uint32_t indirectBufferID) override;
         virtual void DrawElementsIndirect(VertexArray& vertexArray, uint32_t indirectBufferID) override;
         virtual void DrawElementsIndirect(VertexArray& vertexArray, DrawElementsIndirectCommand& indirectCommand) override;
@@ -31,16 +30,12 @@ namespace Crimson {
         virtual void DrawLine(VertexArray& vertexArray, uint32_t count) override;
 
         // Metal Accessors, 
-        // must cast to id<MTLDevice> to keep C++ happy
-        inline static void* GetDevice() { return s_Device; }
-        // same for this ... must cast to id<MTLRenderCommandEncoder> 
-        inline static void* GetCurrentEncoder() { return s_CurrentEncoder; }
-        // id<MTLCommandBuffer>
-        inline static void* GetCurrentCommandBuffer() { return s_CurrentCommandBuffer; }
-        // id<MTLCommandQueue>
-        inline static void* GetCommandQueue() { return s_CommandQueue; }
+        inline static void* GetDevice() { return s_Device; }                             // id<MTLDevice>
+        inline static void* GetCurrentEncoder() { return s_CurrentEncoder; }             // id<MTLRenderCommandEncoder> 
+        inline static void* GetCurrentCommandBuffer() { return s_CurrentCommandBuffer; } // id<MTLCommandBuffer>
+        inline static void* GetCommandQueue() { return s_CommandQueue; }                 // id<MTLCommandQueue>
         
-        // This usually needs to be called by your Window/Swapchain system to end the frame
+        // This usually needs to be called by Window/Swapchain system to end the frame
         void EndEncoding(); 
 
     private:
@@ -48,6 +43,7 @@ namespace Crimson {
         static void* s_CommandQueue; // id<MTLCommandQueue>
         static void* s_CurrentEncoder; // id<MTLRenderCommandEncoder>
         static void* s_CurrentCommandBuffer; // id<MTLCommandBuffer>
+        
         // Metal requires explicit depth state creation
         void* m_DepthStencilState; // id<MTLDepthStencilState>
         

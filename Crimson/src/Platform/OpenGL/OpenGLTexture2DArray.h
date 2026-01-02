@@ -9,7 +9,7 @@ namespace Crimson {
 		~OpenGLTexture2DArray();
 		uint32_t GetWidth() const override { return m_Width; }
 		uint32_t GetHeight() const override { return m_Height; }
-		virtual void Bind(int slot) const override;
+		virtual void Bind(uint32_t slot) const override;
 		virtual void UnBind() const override;
 		uint32_t GetID() const override { return m_RendererID; }
 	

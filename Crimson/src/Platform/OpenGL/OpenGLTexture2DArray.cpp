@@ -36,7 +36,7 @@ namespace Crimson {
 		glDeleteTextures(1, &m_RendererID);
 	}
 
-	void OpenGLTexture2DArray::Bind(int slot) const
+	void OpenGLTexture2DArray::Bind(uint32_t slot) const
 	{
 		// activates then binds tex and tex slot
 		glBindTextureUnit(slot, m_RendererID);

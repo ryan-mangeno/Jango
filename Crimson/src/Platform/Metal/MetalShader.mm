@@ -1,247 +1,325 @@
 #include "cnpch.h"
 
 #include "MetalShader.h"
-#include "MetalContext.h"
 #include "MetalRendererAPI.h"
+#include "Crimson/Core/Core.h" 
+#include "Crimson/Core/Log.h" 
 
 #import <Metal/Metal.h>
-#include <fstream>
-#include <filesystem>
-
-#include <glm/gtc/type_ptr.hpp>
 
 namespace Crimson {
 
-    static std::string ExtractName(const std::string& filepath)
-    {
-        return std::filesystem::path(filepath).stem().string();
+
+    static ShaderDataType MetalToCrimsonDataType(MTLDataType type) {
+        switch (type) {
+            case MTLDataTypeFloat:  return ShaderDataType::Float;
+            case MTLDataTypeFloat2: return ShaderDataType::Float2;
+            case MTLDataTypeFloat3: return ShaderDataType::Float3;
+            case MTLDataTypeFloat4: return ShaderDataType::Float4;
+            
+            case MTLDataTypeInt:    return ShaderDataType::Int;
+            case MTLDataTypeInt2:   return ShaderDataType::Int2;
+            case MTLDataTypeInt3:   return ShaderDataType::Int3;
+            case MTLDataTypeInt4:   return ShaderDataType::Int4;
+            
+            case MTLDataTypeFloat2x2:   return ShaderDataType::Mat2;
+            case MTLDataTypeFloat3x3:   return ShaderDataType::Mat3;
+            case MTLDataTypeFloat4x4:   return ShaderDataType::Mat4;
+            
+            case MTLDataTypeBool:   return ShaderDataType::Bool;
+            
+            default: 
+                CN_CORE_ERROR("MTLDataType not supported!");
+                return ShaderDataType::None;
+        }
+    }
+
+    static MTLVertexFormat CrimsonToMetalVertexFormat(ShaderDataType type) {
+        switch (type) {
+            case ShaderDataType::Float:   return MTLVertexFormatFloat;
+            case ShaderDataType::Float2:  return MTLVertexFormatFloat2;
+            case ShaderDataType::Float3:  return MTLVertexFormatFloat3;
+            case ShaderDataType::Float4:  return MTLVertexFormatFloat4;
+            
+            case ShaderDataType::Int:     return MTLVertexFormatInt;
+            case ShaderDataType::Int2:    return MTLVertexFormatInt2;
+            case ShaderDataType::Int3:    return MTLVertexFormatInt3;
+            case ShaderDataType::Int4:    return MTLVertexFormatInt4;
+            
+            // MATRICES (Must be Invalid)
+            // you cannot set a "Matrix" format on a single vertex attribute slot
+            // If you need instancing, you technically have to use 4 separate Float4 attributes
+            case ShaderDataType::Mat2:    return MTLVertexFormatInvalid; 
+            case ShaderDataType::Mat3:    return MTLVertexFormatInvalid; 
+            case ShaderDataType::Mat4:    return MTLVertexFormatInvalid;
+            
+            case ShaderDataType::Bool:    return MTLVertexFormatUChar; // 1 byte
+            
+            default: return MTLVertexFormatInvalid;
+        }
+    }
+
+    static MTLVertexFormat GetMetalFormatFromAttributeType(MTLDataType type) {
+            switch (type) {
+                case MTLDataTypeFloat:  return MTLVertexFormatFloat;
+                case MTLDataTypeFloat2: return MTLVertexFormatFloat2;
+                case MTLDataTypeFloat3: return MTLVertexFormatFloat3;
+                case MTLDataTypeFloat4: return MTLVertexFormatFloat4;
+                case MTLDataTypeInt:    return MTLVertexFormatInt;
+                case MTLDataTypeInt2:   return MTLVertexFormatInt2;
+                case MTLDataTypeInt3:   return MTLVertexFormatInt3;
+                case MTLDataTypeInt4:   return MTLVertexFormatInt4;
+                // fallback or others as needed
+                default: return MTLVertexFormatFloat4; 
+            }
+        }
+
+    // Get Size of Format (for calculating stride)
+    static uint32_t GetMetalFormatSize(MTLVertexFormat format) {
+        switch (format) {
+            case MTLVertexFormatFloat:  return 4;
+            case MTLVertexFormatFloat2: return 4 * 2;
+            case MTLVertexFormatFloat3: return 4 * 3;
+            case MTLVertexFormatFloat4: return 4 * 4;
+            case MTLVertexFormatInt:    return 4;
+            case MTLVertexFormatInt2:   return 4 * 2;
+            case MTLVertexFormatInt3:   return 4 * 3;
+            case MTLVertexFormatInt4:   return 4 * 4;
+            default: return 0;
+        }
+    }
+
+    std::string MetalShader::ParseFile(const std::string& filepath) {
+        std::string result;
+        std::ifstream in(filepath, std::ios::in | std::ios::binary);
+        if (in)
+        {
+            in.seekg(0, std::ios::end);
+            size_t size = in.tellg();
+            if (size != -1)
+            {
+                result.resize(size);
+                in.seekg(0, std::ios::beg);
+                in.read(&result[0], size);
+            }
+            else
+            {
+                CN_CORE_ERROR("Could not read file '{0}'", filepath);
+            }
+        }
+        else
+        {
+            CN_CORE_ERROR("Could not open file '{0}'", filepath);
+        }
+        return result;
     }
 
     MetalShader::MetalShader(const std::string& filepath)
-        : m_FilePath(filepath), m_Name(ExtractName(filepath))
-    {
-        ShaderSources sources = ParseFile(filepath);
-        Compile(sources);
+        : m_Name("") {
+        std::filesystem::path path(filepath);
+        m_Name = path.stem().string();
+
+        std::string source = ParseFile(filepath);
+        
+        CN_CORE_TRACE("Creating Shader: {0}", filepath.c_str());
+        Compile(source, source);
     }
+    
 
     MetalShader::MetalShader(const std::string& name, const std::string& vertexSrc, const std::string& fragmentSrc)
-        : m_Name(name)
-    {
-        ShaderSources sources;
-        sources.VertexSource = vertexSrc;
-        sources.FragmentSource = fragmentSrc;
-        Compile(sources);
+        : m_Name(name) {
+        Compile(vertexSrc, fragmentSrc);
     }
 
-    MetalShader::~MetalShader()
-    {
-        // arc handles Metal object release
-        m_Pipeline = nullptr;
+    MetalShader::~MetalShader() {
+        CFRelease(m_PipelineState);
+        m_PipelineState = nullptr;
     }
 
-    // COMPILATION & REFLECTION
-    void MetalShader::Compile(const ShaderSources& sources)
-    {
-        id<MTLDevice> device = (__bridge id<MTLDevice>)MetalRendererAPI::GetDevice();
+    void MetalShader::Compile(const std::string& vertexSrc, const std::string& fragmentSrc) {
         NSError* error = nil;
 
-        // combine sources into one MSL string 
-        std::string fullSource = sources.VertexSource + "\n" + sources.FragmentSource;
-        if (sources.VertexSource.empty() && sources.FragmentSource.empty()) {
-            // Fallback for when ParseFile returns empty (e.g. single file without #shader tags)
-            std::ifstream stream(m_FilePath);
-            std::stringstream buffer;
-            buffer << stream.rdbuf();
-            fullSource = buffer.str();
-        }
-
-        NSString* nsSource = [NSString stringWithUTF8String:fullSource.c_str()];
+        id<MTLDevice> mtlDevice = (__bridge id<MTLDevice>)MetalRendererAPI::GetDevice();
         
-        // compile lib
-        id<MTLLibrary> library = [device newLibraryWithSource:nsSource options:nil error:&error];
-        if (!library) {
-            CN_CORE_ERROR("Metal Shader Compilation Failure ({0}):\n{1}", m_Name, [error.localizedDescription UTF8String]);
+        NSString* nsVertSrc = [NSString stringWithUTF8String:vertexSrc.c_str()];
+        id<MTLLibrary> vertLib = [mtlDevice newLibraryWithSource:nsVertSrc options:nil error:&error];
+        if (error) {
+            CN_CORE_ERROR("Metal Vertex Shader Error: {0}", [[error localizedDescription] UTF8String]);
             return;
         }
 
-        // pipeline desc
-        // assume standard entry point names "vertex_main" and "fragment_main"
-        // must ensure.metal shaders use these function names
-        id<MTLFunction> vertFunc = [library newFunctionWithName:@"vertex_main"];
-        id<MTLFunction> fragFunc = [library newFunctionWithName:@"fragment_main"];
-        
+        NSString* nsFragSrc = [NSString stringWithUTF8String:fragmentSrc.c_str()];
+        id<MTLLibrary> fragLib = [mtlDevice newLibraryWithSource:nsFragSrc options:nil error:&error];
+        if (error) {
+            CN_CORE_ERROR("Metal Fragment Shader Error: {0}", [[error localizedDescription] UTF8String]);
+            return;
+        }
+
+        id<MTLFunction> vertFunc = [vertLib newFunctionWithName:@"vertex_main"];
+        id<MTLFunction> fragFunc = [fragLib newFunctionWithName:@"fragment_main"];
+
         if (!vertFunc || !fragFunc) {
-            CN_CORE_ERROR("Could not find 'vertex_main' or 'fragment_main' in shader: {0}", m_Name);
+            CN_CORE_ERROR("Could not find 'vertex_main' or 'fragment_main' in shader!");
             return;
         }
 
         MTLRenderPipelineDescriptor* pipelineDesc = [[MTLRenderPipelineDescriptor alloc] init];
         pipelineDesc.vertexFunction = vertFunc;
         pipelineDesc.fragmentFunction = fragFunc;
+
+        if (vertFunc.vertexAttributes.count > 0) {
+            MTLVertexDescriptor* vertDesc = [[MTLVertexDescriptor alloc] init];
+            
+            uint32_t currentOffset = 0;
+            
+            for (MTLVertexAttribute* attr in vertFunc.vertexAttributes) {
+                if (attr.active) {
+                    // get the idx ([[attribute(0)]])
+                    uint32_t index = attr.attributeIndex;
+
+                    // determine fmt dynamically
+                    MTLVertexFormat format = GetMetalFormatFromAttributeType(attr.attributeType);
+                    vertDesc.attributes[index].format = format;
+                    
+                    // set Offset & Buffer
+                    // pack them tightly for the Reflection PSO.
+                    // (Actual rendering might use a different layout, but this lets us compile)
+                    vertDesc.attributes[index].offset = currentOffset;
+                    vertDesc.attributes[index].bufferIndex = 0; 
+                    
+                    // advance Offset
+                    currentOffset += GetMetalFormatSize(format);
+                }
+            }
+            // set total stride
+            vertDesc.layouts[0].stride = currentOffset;
+            vertDesc.layouts[0].stepRate = 1;
+            vertDesc.layouts[0].stepFunction = MTLVertexStepFunctionPerVertex;
+            
+            pipelineDesc.vertexDescriptor = vertDesc;
+        }
         
-        // setup standard attachments , has to match with Renderer/Swapchain
-        pipelineDesc.colorAttachments[0].pixelFormat = MTLPixelFormatBGRA8Unorm; // standard screen fmt
-        pipelineDesc.colorAttachments[0].blendingEnabled = YES;
-        pipelineDesc.colorAttachments[0].sourceRGBBlendFactor = MTLBlendFactorSourceAlpha;
-        pipelineDesc.colorAttachments[0].destinationRGBBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
+        // must match FrameBuffer
+        pipelineDesc.colorAttachments[0].pixelFormat = MTLPixelFormatBGRA8Unorm; 
         pipelineDesc.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
 
-        // create pipeline state with reflection
+        // create state with Reflection
         MTLRenderPipelineReflection* reflection = nil;
-        id<MTLRenderPipelineState> pso = [device newRenderPipelineStateWithDescriptor:pipelineDesc 
-                                                                             options:MTLPipelineOptionBufferTypeInfo 
-                                                                          reflection:&reflection 
-                                                                               error:&error];
-
-        if (!pso) {
-            CN_CORE_ERROR("Pipeline Creation Failed ({0}): {1}", m_Name, [error.localizedDescription UTF8String]);
-            return;
+        id<MTLRenderPipelineState> pso = [mtlDevice newRenderPipelineStateWithDescriptor:pipelineDesc 
+                                                                                    options:MTLPipelineOptionBufferTypeInfo 
+                                                                                    reflection:&reflection 
+                                                                                    error:&error];
+        if (error) {
+            CN_CORE_ERROR("Metal PSO Creation Error: {0}", [[error localizedDescription] UTF8String]);
         }
+        
+        m_PipelineState = (void*)CFBridgingRetain(pso); // transfer ownership to C++
 
-        m_Pipeline = (__bridge_retained void*)pso;
-
-        // building uniform map
-        m_UniformMap.clear();
-
-        // Helper lambda to parse arguments
-        auto parseArgs = [&](NSArray<MTLArgument*>* args, int stage) {
-            for (MTLArgument* arg in args) {
-                if (arg.type == MTLArgumentTypeBuffer) {
-                    // found a struct (Uniform Buffer)
-                    // only support one uniform buffer per stage for simplicity (Buffer Index 0 or 1)
-                    size_t bufferSize = arg.bufferDataSize;
-                    
-                    if (stage == 0) m_VSUniformBuffer.resize(bufferSize); // Vertex
-                    else            m_FSUniformBuffer.resize(bufferSize); // Fragment
-                    
-                    // Iterate members of the struct
+        // Process reflection to build our uniform map
+        // we look at the arguments to find our uniforms struct
+        for (MTLArgument* arg in reflection.vertexArguments) {
+            if (arg.type == MTLArgumentTypeBuffer) {
+                // if this is the uniform buffer
+                // we iterate its members
+                if (arg.bufferDataType == MTLDataTypeStruct) {
                     for (MTLStructMember* member in arg.bufferStructType.members) {
-                        UniformInfo info;
-                        info.Stage = stage;
-                        info.Offset = member.offset;
-                        info.Size = 0; // Can be inferred if needed
                         
-                        // Map "u_ViewProjection" -> Offset 0
-                        std::string name = [member.name UTF8String];
-                        m_UniformMap[name] = info;
+                        uint32_t memb_size = ShaderDataTypeSize(MetalToCrimsonDataType(member.dataType));
+
+                        UniformInfo info;
+                        info.Name = [member.name UTF8String];
+                        info.Offset = (uint32_t)member.offset;
+                        info.Size = memb_size;
+                        info.BufferIndex = (uint32_t)arg.index;
+
+                        info.IsVertex = true;
+                        m_UniformMap[info.Name] = info;
+                        
+                        // resize buffer if needed
+                        if (m_VertexUniformBuffer.size() < info.Offset + memb_size)
+                            m_VertexUniformBuffer.resize(info.Offset + memb_size);
                     }
                 }
             }
-        };
-
-        parseArgs(reflection.vertexArguments, 0);   // Stage 0 = Vertex
-        parseArgs(reflection.fragmentArguments, 1); // Stage 1 = Fragment
-    }
-    // BINDING
-    void MetalShader::Bind() const
-    {
-        // get encoder
-        // metal context must track the active render encoder for the current frame
-        id<MTLRenderCommandEncoder> encoder = (__bridge id<MTLRenderCommandEncoder>)MetalRendererAPI::GetCurrentEncoder();
-        if (!encoder) return;
-
-        // set pipeline
-        [encoder setRenderPipelineState:(__bridge id<MTLRenderPipelineState>)m_Pipeline];
-
-        // upload Uniforms (Vertex)
-        if (!m_VSUniformBuffer.empty()) {
-            [encoder setVertexBytes:m_VSUniformBuffer.data() 
-                             length:m_VSUniformBuffer.size() 
-                            atIndex:1]; // convention: Index 1 is Uniforms
         }
 
-        // upload uniforms (Fragment)
-        if (!m_FSUniformBuffer.empty()) {
-            [encoder setFragmentBytes:m_FSUniformBuffer.data() 
-                               length:m_FSUniformBuffer.size() 
-                              atIndex:1]; // convention: Index 1 is Uniforms
-        }
-    }
+        for (MTLArgument* arg in reflection.fragmentArguments) {
+            if (arg.type == MTLArgumentTypeBuffer) {
+                if (arg.bufferDataType == MTLDataTypeStruct) {
+                    for (MTLStructMember* member in arg.bufferStructType.members) {
 
-    void MetalShader::UnBind() const
-    {
-        // Metal doesn't really "Unbind", we just stop encoding or bind something else
-    }
+                        uint32_t memb_size = ShaderDataTypeSize(MetalToCrimsonDataType(member.dataType));
 
-    // UNIFORM SETTERS (Write to CPU Buffer)
-    void MetalShader::SetUniformData(const std::string& name, const void* data, size_t size) const
-    {
-        auto it = m_UniformMap.find(name);
-        if (it != m_UniformMap.end()) 
-        {
-            const UniformInfo& info = it->second;
-            std::vector<uint8_t>& buffer = (info.Stage == 0) ? m_VSUniformBuffer : m_FSUniformBuffer;
-            
-            // Safety check
-            if (info.Offset + size <= buffer.size()) {
-                memcpy(&buffer[info.Offset], data, size);
+                        UniformInfo info;
+                        info.Name = [member.name UTF8String];
+                        info.Offset = (uint32_t)member.offset;
+                        info.Size = memb_size;
+                        info.BufferIndex = (uint32_t)arg.index;
+
+                        info.IsVertex = false;
+                        m_UniformMap[info.Name] = info;
+                        
+                        // resize buffer if needed
+                        if (m_FragmentUniformBuffer.size() < info.Offset + memb_size) {
+                            m_FragmentUniformBuffer.resize(info.Offset + memb_size);
+                        }
+                    }
+                }
             }
         }
     }
 
-    void MetalShader::SetMat4(const std::string& str, const glm::mat4& val, size_t count) const {
-        SetUniformData(str, glm::value_ptr(val), sizeof(glm::mat4));
+    void MetalShader::Bind() const {
+        // The encoder is needed to actually bind
+        // assume the Renderer calls [encoder setRenderPipelineState:m_PipelineState]
     }
-    void MetalShader::SetInt(const std::string& str, const int& val) const {
-        SetUniformData(str, &val, sizeof(int));
+
+    void MetalShader::UnBind() const {
+        // No op in Metal
     }
-    void MetalShader::SetFloat(const std::string& str, const float& val) const {
-        SetUniformData(str, &val, sizeof(float));
+
+    // The UploadUniforms() function will send it to GPU later
+    void MetalShader::SetFloat(const std::string& name, const float& value) {
+        SetUniform<float>(name, value);
     }
-    void MetalShader::SetFloat3(const std::string& str, const glm::vec3& val) const {
-        SetUniformData(str, glm::value_ptr(val), sizeof(glm::vec3));
+
+    void MetalShader::SetInt(const std::string& name, const int& value) {
+        SetUniform<int>(name, value);
     }
-    void MetalShader::SetFloat4(const std::string& str, const glm::vec4& val) const {
-        SetUniformData(str, glm::value_ptr(val), sizeof(glm::vec4));
+
+    void MetalShader::SetFloat3(const std::string& name, const glm::vec3& value) {
+        SetUniform<glm::vec3>(name, value);
     }
     
-    // Arrays (Simplification: Just copy assuming packed layout)
-    void MetalShader::SetIntArray(const std::string& str, const size_t size, const void* pointer) const {
-        SetUniformData(str, pointer, sizeof(int) * size);
-    }
-    void MetalShader::SetFloatArray(const std::string& str, float& val, size_t count) const {
-        SetUniformData(str, &val, sizeof(float) * count);
-    }
-    void MetalShader::SetFloat3Array(const std::string& str, const float* pointer, size_t count) const {
-        SetUniformData(str, pointer, sizeof(glm::vec3) * count);
-    }
-    void MetalShader::SetFloat4Array(const std::string& str, const float* pointer, size_t count) const {
-        SetUniformData(str, pointer, sizeof(glm::vec4) * count);
+    void MetalShader::SetFloat4(const std::string& name, const glm::vec4& value) {
+        SetUniform<glm::vec4>(name, value);
     }
 
-    // PARSER (Legacy support for split files)
-    ShaderSources MetalShader::ParseFile(const std::string& path)
-    {
-        std::ifstream stream(path);
-        if (!stream) {
-            CN_CORE_ERROR("Shader File Not Found: {0}", path);
-            return {};
-        }
+    void MetalShader::SetMat4(const std::string& name, const glm::mat4& value, size_t count) {
+        SetUniform<glm::mat4>(name, value);
+    }
+        
+    
+    void MetalShader::UploadUniforms(void* rawEncoder) {
+        id<MTLRenderCommandEncoder> encoder = (__bridge id<MTLRenderCommandEncoder>)rawEncoder;
 
-        std::string line;
-        std::stringstream ss[3]; // 0=Vertex, 1=Frag, 2=Compute
-        int index = -1;
+        // bind pipeline state
+        [encoder setRenderPipelineState:(__bridge id<MTLRenderPipelineState>)m_PipelineState];
 
-        // default to Vertex if no tag found (for single file MSL)
-        bool tagFound = false;
-
-        while (getline(stream, line))
-        {
-            if (line.find("#shader vertex") != std::string::npos) {
-                index = 0; tagFound = true;
-            }
-            else if (line.find("#shader fragment") != std::string::npos) {
-                index = 1; tagFound = true;
-            }
-            else if (line.find("#shader compute") != std::string::npos) {
-                index = 2; tagFound = true;
-            }
-            else {
-                if (index != -1) ss[index] << line << '\n';
-                else if (!tagFound) ss[0] << line << '\n'; // Dump everything to Vertex src if no tags
-            }
+        // send Bytes directly to GPU (Best for < 4KB data per frame)
+        // would typically hardcode the buffer index for uniforms
+        // or store it in the UniformInfo
+        if (!m_VertexUniformBuffer.empty()) {
+            [encoder setVertexBytes:m_VertexUniformBuffer.data() 
+                             length:m_VertexUniformBuffer.size() 
+                            atIndex:1]; // assuming index 1 is for Uniforms
         }
         
-        return { ss[0].str(), ss[1].str(), ss[2].str() };
+        if (!m_FragmentUniformBuffer.empty()) {
+            [encoder setFragmentBytes:m_FragmentUniformBuffer.data() 
+                               length:m_FragmentUniformBuffer.size() 
+                              atIndex:1];
+        }
     }
+
 }

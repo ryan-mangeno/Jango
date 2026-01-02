@@ -5,6 +5,8 @@
 #include "Crimson/Core/Log.h"
 #include "stb_image_resize.h"
 
+#import <Metal/Metal.h>
+
 
 namespace Crimson {
 
@@ -36,7 +38,7 @@ namespace Crimson {
 		glDeleteTextures(1, &m_RendererID);
 	}
 
-	void MetalTexture2DArray::Bind(int slot) const
+	void MetalTexture2DArray::Bind(uint32_t slot) const
 	{
 		// activates then binds tex and tex slot
 		glBindTextureUnit(slot, m_RendererID);
@@ -242,5 +244,4 @@ namespace Crimson {
 				glTextureSubImage3D(m_RendererID, 0, 0, 0, i, m_Width, m_Height, 1, GL_RGB, GL_UNSIGNED_BYTE, pixel_data_8);
 		}
 	}
-
 }

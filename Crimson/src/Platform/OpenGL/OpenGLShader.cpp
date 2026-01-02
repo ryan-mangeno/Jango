@@ -206,47 +206,47 @@ namespace Crimson {
 		glUseProgram(0);
 	}
 
-	void OpenGLShader::SetMat4(const std::string& str, const glm::mat4& UniformMat4, size_t count) const
+	void OpenGLShader::SetMat4(const std::string& str, const glm::mat4& UniformMat4, size_t count)
 	{
 		UploadUniformMat4(str, UniformMat4, count);
 	}
 
-	void OpenGLShader::SetInt(const std::string& str, const int& UniformInt) const
+	void OpenGLShader::SetInt(const std::string& str, const int& UniformInt)
 	{
 		UploadUniformInt(str, UniformInt);
 	}
 
-	void OpenGLShader::SetFloat(const std::string& str, const float& UniformFloat) const
+	void OpenGLShader::SetFloat(const std::string& str, const float& UniformFloat)
 	{
 		UpladUniformFloat(str, UniformFloat);
 	}
 
-	void OpenGLShader::SetFloatArray(const std::string& str, float& UniformFloatArr, size_t count) const
+	void OpenGLShader::SetFloatArray(const std::string& str, float& UniformFloatArr, size_t count)
 	{
 		UpladUniformFloatArray(str, count, UniformFloatArr);
 	}
 
-	void OpenGLShader::SetFloat4(const std::string& str, const glm::vec4& UniformFloat4) const
+	void OpenGLShader::SetFloat4(const std::string& str, const glm::vec4& UniformFloat4)
 	{
 		UpladUniformFloat4(str, UniformFloat4);
 	}
 
-	void OpenGLShader::SetFloat3(const std::string& str, const glm::vec3& UniformFloat3) const
+	void OpenGLShader::SetFloat3(const std::string& str, const glm::vec3& UniformFloat3)
 	{
 		UpladUniformFloat3(str, UniformFloat3);
 	}
 
-	void OpenGLShader::SetFloat3Array(const std::string& str, const float* pointer, size_t count) const
+	void OpenGLShader::SetFloat3Array(const std::string& str, const float* pointer, size_t count)
 	{
 		UpladUniformFloat3Array(str, pointer, count);
 	}
 
-	void OpenGLShader::SetFloat4Array(const std::string& str, const float* arr, size_t count) const
+	void OpenGLShader::SetFloat4Array(const std::string& str, const float* arr, size_t count)
 	{
 		UpladUniformFloat4Array(str, arr, count);
 	}
 
-	void OpenGLShader::SetIntArray(const std::string& str, const size_t size, const void* pointer) const
+	void OpenGLShader::SetIntArray(const std::string& str, const size_t size, const void* pointer)
 	{
 		UploadIntArray(str, size, pointer);
 	}
@@ -255,7 +255,6 @@ namespace Crimson {
 	{
 		uint32_t location = glGetUniformLocation(m_ID, str.c_str());
 		glUniformMatrix4fv(location, count, false, glm::value_ptr(UniformMat4));
-
 	}
 
 	void OpenGLShader::UploadUniformInt(const std::string& str, const int& UniformInt) const
@@ -303,22 +302,3 @@ namespace Crimson {
 		glUniform4fv(location, count, (const float*)pointer);
 	}
 }
-
-// not needed right now
-// 	int OpenGLShader::GetUniform(const std::string& name)
-// 	{
-// 
-// 		CN_PROFILE_FUNCTION()
-// 
-// 		if (m_UniformCache.find(name) != m_UniformCache.end())
-// 			return m_UniformCache[name];
-// 
-// 		int loc = glGetUniformLocation(m_RendererID, name.c_str());
-// 		if (loc == -1) {
-// 			CN_CORE_ERROR("Uniform ( {0} ) does not exist!", name)
-// 		}
-// 		else {
-// 			m_UniformCache[name] = loc;
-// 		}
-// 		return loc;
-// 	}

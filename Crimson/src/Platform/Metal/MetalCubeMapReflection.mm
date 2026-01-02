@@ -126,7 +126,7 @@ namespace Crimson {
 	
 	}
 
-	void MetalCubeMapReflection::Bind(int slot)
+	void MetalCubeMapReflection::Bind(uint32_t slot)
 	{
 		glBindTextureUnit(slot, tex_id);
 	}

@@ -76,14 +76,14 @@ namespace Crimson {
 
 	void Application::PushLayer(Layer* layer)
 	{
-		CN_CORE_INFO("Layer {0}, Pushed onto LayerStack", layer->GetName());
+		CN_CORE_TRACE("Layer {0}, Pushed onto LayerStack", layer->GetName());
 		m_LayerStack.PushLayer(layer);
 		layer->OnAttach();
 	}
 
 	void Application::PushOverlay(Layer* Overlay)
 	{
-		CN_CORE_INFO("Overlay {0}, Pushed onto LayerStack", Overlay->GetName());
+		CN_CORE_TRACE("Overlay {0}, Pushed onto LayerStack", Overlay->GetName());
 		m_LayerStack.PushOverlay(Overlay);
 		Overlay->OnAttach();
 	}

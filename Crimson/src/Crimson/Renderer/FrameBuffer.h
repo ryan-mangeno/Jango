@@ -4,18 +4,17 @@
 #include <glm/glm.hpp>
 
 namespace Crimson {
-	
 
-		struct FrameBufferSpecification {
-			glm::uvec2 viewport;
-			bool SwapChainTarget = false;
+    struct FrameBufferSpecification {
+        glm::uvec2 viewport;
+        bool SwapChainTarget = false;
 
-			FrameBufferSpecification() = default;
-			FrameBufferSpecification(uint32_t width, uint32_t height)
-				: viewport(width, height)
-			{
-			}
-		};
+        FrameBufferSpecification() = default;
+        FrameBufferSpecification(uint32_t width, uint32_t height)
+            : viewport(width, height)
+        {
+        }
+	};
 	class FrameBuffer
 	{
 	public:

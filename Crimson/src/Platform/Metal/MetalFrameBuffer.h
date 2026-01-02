@@ -23,4 +23,3 @@ namespace Crimson {
 		void invalidate(const FrameBufferSpecification& spec);
 	};
 }
-

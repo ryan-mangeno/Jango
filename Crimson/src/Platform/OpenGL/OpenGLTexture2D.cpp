@@ -3,6 +3,7 @@
 #include "glad/glad.h"
 #include "stb_image.h"
 #include "Crimson/Core/Log.h"
+#include "Crimson/Core/UUID.h"
 #include "stb_image_resize.h"
 
 namespace Crimson {
@@ -18,7 +19,7 @@ namespace Crimson {
 	}
 	
 	//data is defaulted to a color, can be used as a texture or base color also
-	OpenGLTexture2D::OpenGLTexture2D(const uint32_t Width, const uint32_t Height, uint32_t data)
+	OpenGLTexture2D::OpenGLTexture2D(const uint32_t Width, const uint32_t Height, const uint32_t data)
 		:m_Height(Height), m_Width(Width), channels(0)
 	{
 
@@ -162,7 +163,7 @@ namespace Crimson {
 	{
 		glDeleteTextures(1, &m_Renderid);
 	}
-	void OpenGLTexture2D::Bind(int slot = 0) const
+	void OpenGLTexture2D::Bind(uint32_t slot) const
 	{
 		glBindTextureUnit(slot, m_Renderid);
 	}
@@ -222,7 +223,52 @@ namespace Crimson {
 				m_Height = height;
 				m_Width = width;
 			}
-
 		}
 	}
+
+
+	OpenGLTextureCube::OpenGLTextureCube(uint32_t width, uint32_t height, ImageFormat format)
+        : m_Width(width), m_Height(height)
+    {
+        glGenTextures(1, &m_RendererID);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, m_RendererID);
+
+        m_InternalFormat = GL_RGB16F; // Default to HDR
+        m_DataFormat = GL_RGB;
+        
+        if (format == ImageFormat::RGB8)
+        {
+            m_InternalFormat = GL_RGB8;
+            m_DataFormat = GL_RGB;
+        }
+
+        for (uint32_t i = 0; i < 6; ++i)
+        {
+            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, m_InternalFormat, width, height, 0, m_DataFormat, GL_FLOAT, nullptr);
+        }
+
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    }
+
+    OpenGLTextureCube::~OpenGLTextureCube()
+    {
+        glDeleteTextures(1, &m_RendererID);
+    }
+
+    void OpenGLTextureCube::Bind(uint32_t slot) const
+    {
+        glBindTextureUnit(slot, m_RendererID);
+    }
+
+    void OpenGLTextureCube::GenerateMips()
+    {
+        glBindTexture(GL_TEXTURE_CUBE_MAP, m_RendererID);
+        glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
+        // Update filter for mipmaps
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    }
 }

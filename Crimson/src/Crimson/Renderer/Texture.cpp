@@ -41,7 +41,7 @@ namespace Crimson {
 					CN_CORE_INFO("Making Instance ...");
 					instance = Texture2D::Create(path, bUse16BitTexture);
 					CN_CORE_INFO("Made Instance ...");
-					ResourceManager::allTextures[instance->uuid] = instance;
+					//ResourceManager::allTextures[instance->uuid] = instance;
 				}
 				else {
 					instance = std::dynamic_pointer_cast<Texture2D>(ResourceManager::allTextures[ID]); //dynamic_pointer_cast helps to give a shared ptr of derived type casting from base
@@ -53,6 +53,7 @@ namespace Crimson {
 				return nullptr;
 		}
 	}
+
 	Ref<Texture2D> Texture2D::Create(const uint32_t Width, const uint32_t Height, const uint32_t data)
 	{
 		switch (RendererAPI::GetAPI()) 
@@ -67,6 +68,7 @@ namespace Crimson {
 				return nullptr;
 		}
 	}
+
 	Ref<Texture2DArray> Texture2DArray::Create(const std::vector<std::string>& paths, int numMaterials, int numChannels, bool bUse16BitTexture)
 	{
 		switch (RendererAPI::GetAPI()) 
@@ -81,4 +83,16 @@ namespace Crimson {
 				return nullptr;
 		}
 	}
+
+	Ref<TextureCube> TextureCube::Create(uint32_t width, uint32_t height, ImageFormat format)
+    {
+        switch (RendererAPI::GetAPI())
+        {
+            case GraphicsAPI::None:    CN_CORE_ASSERT(false, "RendererAPI::None is currently not supported"); return nullptr;
+            case GraphicsAPI::OpenGL:  return std::make_shared<OpenGLTextureCube>(width, height, format);
+            case GraphicsAPI::Metal:   return std::make_shared<MetalTextureCube>(width, height, format);
+        }
+        CN_CORE_ASSERT(false, "Unknown RendererAPI");
+        return nullptr;
+    }
 }

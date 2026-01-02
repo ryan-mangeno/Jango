@@ -3,6 +3,7 @@
 #include "glad/glad.h"
 #include "stb_image.h"
 #include "Crimson/Core/Log.h"
+#include "Crimson/Core/UUID.h"
 #include "stb_image_resize.h"
 
 namespace Crimson {
@@ -18,7 +19,7 @@ namespace Crimson {
 	}
 	
 	//data is defaulted to a color, can be used as a texture or base color also
-	MetalTexture2D::MetalTexture2D(const unsigned int Width, const unsigned int Height, unsigned int data)
+	MetalTexture2D::MetalTexture2D(const uint32_t Width, const uint32_t Height, const uint32_t data)
 		:m_Height(Height), m_Width(Width), channels(0)
 	{
 
@@ -162,7 +163,7 @@ namespace Crimson {
 	{
 		glDeleteTextures(1, &m_Renderid);
 	}
-	void MetalTexture2D::Bind(int slot = 0) const
+	void MetalTexture2D::Bind(uint32_t slot) const
 	{
 		glBindTextureUnit(slot, m_Renderid);
 	}

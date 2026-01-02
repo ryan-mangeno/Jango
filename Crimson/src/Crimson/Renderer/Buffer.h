@@ -16,35 +16,64 @@ namespace Crimson {
 		Int, Int2, Int3, Int4,
 		Bool
 	};
-	
+
+
+    static uint32_t GetComponentCount(ShaderDataType type)
+    {
+        switch (type)
+        {
+            case ShaderDataType::Float:   return 1;
+            case ShaderDataType::Float2:  return 2;
+            case ShaderDataType::Float3:  return 3;
+            case ShaderDataType::Float4:  return 4;
+            case ShaderDataType::Mat2:    return 2 * 2; 
+            case ShaderDataType::Mat3:    return 3 * 3; 
+            case ShaderDataType::Mat4:    return 4 * 4; 
+            case ShaderDataType::Int:     return 1;
+            case ShaderDataType::Int2:    return 2;
+            case ShaderDataType::Int3:    return 3;
+            case ShaderDataType::Int4:    return 4;
+            case ShaderDataType::Bool:    return 1;
+			case ShaderDataType::None:
+			default:
+				CN_CORE_ASSERT(false, "Unknown ShaderDataType!");
+        }
+        return 0;
+    }
+
+
 	static uint32_t ShaderDataTypeSize(ShaderDataType type)
-	{
+    {
+		uint32_t out_size = 0;
+        switch (type)
+        {
+            case ShaderDataType::Float:    
+            case ShaderDataType::Float2:   
+            case ShaderDataType::Float3:   
+            case ShaderDataType::Float4:   
+            case ShaderDataType::Mat2:     
+            case ShaderDataType::Mat3:     
+            case ShaderDataType::Mat4:  
+				out_size = sizeof(float);
+				break;  
+            case ShaderDataType::Int:    
+            case ShaderDataType::Int2:     
+            case ShaderDataType::Int3:     
+            case ShaderDataType::Int4: 
+				out_size = sizeof(int);
+				break;
+            case ShaderDataType::Bool:
+				out_size = sizeof(bool);
+				break;
+			case ShaderDataType::None:
+			default:
+				CN_CORE_ASSERT(false, "Unknown Shader Data Type!");
+        }
 
-		switch (type)
-		{
-		case ShaderDataType::Float:			return 4;
-		case ShaderDataType::Float2:		return 4 * 2;
-		case ShaderDataType::Float3:		return 4 * 3;
-		case ShaderDataType::Float4:		return 4 * 4;
-		case ShaderDataType::Mat2:			return 4 * 2 * 2;
-		case ShaderDataType::Mat3:			return 4 * 3 * 3;
-		case ShaderDataType::Mat4:			return 4 * 4 * 4;
-		case ShaderDataType::Int:			return 4;
-		case ShaderDataType::Int2:			return 4 * 2;
-		case ShaderDataType::Int3:			return 4 * 3;
-		case ShaderDataType::Int4:			return 4 * 4;
-		case ShaderDataType::Bool:			return 1;
-		
-		case ShaderDataType::None:			CN_CORE_ERROR("Shader Data Type: None"); return 0;
-		}
+        return out_size * GetComponentCount(type);
+    }
 
-		CN_CORE_ASSERT(false, "Unknown Shader Data Type!");
-		return 0;
-	}
-
-
-
-
+	/////////////////////
 	struct BufferElements {
 
 		std::string Name;
@@ -58,8 +87,7 @@ namespace Crimson {
 	};
 
 
-
-
+	/////////////////////
 	class BufferLayout {
 	public:
 		BufferLayout() = default;
@@ -69,12 +97,11 @@ namespace Crimson {
 		inline uint32_t GetStride() const { return Stride; }
 
 	private:
-		uint32_t GetSize(ShaderDataType t);
 		std::vector<BufferElements*> m_Elements;
 		uint32_t Stride = 0;
 	};
 
-
+	////////////////////
 	class VertexBuffer {
 	public:
 		virtual void Bind()const = 0;
@@ -86,15 +113,17 @@ namespace Crimson {
 		static Ref<VertexBuffer> Create(uint32_t size, BufferStorageType Storage_Type = BufferStorageType::MUTABLE);
 	};
 
-
+	////////////////////
 	class IndexBuffer {
 	public:
-		virtual void Bind()const = 0;
-		virtual void UnBind()const = 0;
-		virtual uint32_t GetCount() = 0;
+		virtual void Bind() const = 0;
+		virtual void UnBind() const = 0;
+		virtual uint32_t GetCount() const = 0;
+
 		static Ref<IndexBuffer> Create(const uint32_t* data, uint32_t size);
 	};
 
+	////////////////////
 	class VertexArray {
 	public:
 		virtual void Bind()const = 0;

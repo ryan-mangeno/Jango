@@ -1,6 +1,8 @@
 #include "cnpch.h"
 
 #include "MetalRendererAPI.h"
+#include "MetalBuffer.h"
+
 #include "Crimson/Core/Application.h" 
 #include "Crimson/Core/PrimCodes.h"
 
@@ -23,26 +25,47 @@ namespace Crimson {
     #define MTL_QUEUE ((__bridge id<MTLCommandQueue>)s_CommandQueue)
     #define MTL_ENC   ((__bridge id<MTLRenderCommandEncoder>)s_CurrentEncoder)
 
+
+    static void BindVertexBuffers(VertexArray& va, id<MTLRenderCommandEncoder> encoder) {
+        const auto& buffers = va.GetVertexBuffers();
+        for (uint32_t i = 0; i < buffers.size(); i++) {
+            auto metalVB = std::dynamic_pointer_cast<MetalVertexBuffer>(buffers[i]);
+            if (metalVB) {
+                // ith buffer corresponds to [[buffer(i)]] in shader
+                // might need an offset (i + 1) if buffer(0) becomes reserved for uniforms
+                [encoder setVertexBuffer:(__bridge id<MTLBuffer>)metalVB->GetNativeBuffer()
+                                  offset:0 
+                                 atIndex:i]; 
+            }
+        }
+    }
+
     MetalRendererAPI::MetalRendererAPI()
     {
     }
 
     MetalRendererAPI::~MetalRendererAPI()
     {
-        // cleanup metal objects (ARC usually handles this in Obj-C++ if member variables)
+        if (s_Device) CFRelease(s_Device);
+        s_Device = nullptr;
+
+        if (s_CommandQueue) CFRelease(s_CommandQueue);
+        s_CommandQueue = nullptr;
+
+        // Encoder/CommandBuffer are transient, released in EndEncoding
     }
 
     void MetalRendererAPI::Init()
     {
         // get default device
         id<MTLDevice> mtlDevice = MTLCreateSystemDefaultDevice();
-        s_Device = (__bridge_retained void*)mtlDevice;
+        s_Device = (void*)CFBridgingRetain(mtlDevice);
 
         id<MTLCommandQueue> cmdQ = [mtlDevice newCommandQueue];
-        s_CommandQueue = (__bridge_retained void*)cmdQ;
+        s_CommandQueue = (void*)CFBridgingRetain(cmdQ);
 
         id<MTLCommandBuffer> commandBuffer = [MTL_QUEUE commandBuffer];
-        s_CurrentCommandBuffer = (__bridge_retained void*)commandBuffer;
+        s_CurrentCommandBuffer = (void*)CFBridgingRetain(commandBuffer);
 
         CN_CORE_INFO("Metal Device: {0}", [[mtlDevice name] UTF8String]);
 
@@ -51,7 +74,7 @@ namespace Crimson {
         depthDesc.depthCompareFunction = MTLCompareFunctionLess; // GL_LESS
         depthDesc.depthWriteEnabled = YES;
         id<MTLDepthStencilState> depthSS = [mtlDevice newDepthStencilStateWithDescriptor:depthDesc];
-        m_DepthStencilState = (__bridge_retained void*)depthSS;
+        m_DepthStencilState = (void*)CFBridgingRetain(depthSS);
         
         // Note: Blending (glEnable(GL_BLEND)) is part of the PipelineState in Metal, 
         // not global state, configure blending in Shader/Material creation
@@ -60,43 +83,24 @@ namespace Crimson {
     void MetalRendererAPI::SetViewPort(unsigned int Width, unsigned int Height)
     {
         if (!s_CurrentEncoder) return;
-
-        MTLViewport viewport;
-        viewport.originX = 0.0;
-        viewport.originY = 0.0;
-        viewport.width = (double)Width;
-        viewport.height = (double)Height;
-        viewport.znear = 0.0;
-        viewport.zfar = 1.0;
-
+        MTLViewport viewport = { 0.0, 0.0, (double)Width, (double)Height, 0.0, 1.0 };
         [MTL_ENC setViewport:viewport];
     }
 
     glm::vec2 MetalRendererAPI::GetViewportSize()
     {
-        // Metal doesn't really store "current viewport" globally like GL
-        // should query Window/Swapchain logic instead
-        // For now returning cached application size or 0
         auto& win = Application::Get().GetWindow(); 
         return { (float)win.GetWidth(), (float)win.GetHeight() };
     }
 
     void MetalRendererAPI::ClearColor(const glm::vec4& color)
     {
-        // In Metal, clear color is part of the RenderPassDescriptor, 
-        // usually created at the start of a frame. We store it for the next Clear() call
         m_ClearColor = color;
     }
 
     void MetalRendererAPI::Clear()
     {
-        // NOTE: In Metal, "Clearing" usually happens implicitly when you create the RenderEncoder
-        // This function assumes we are starting a new render pass
-        
-        if (s_CurrentEncoder) {
-            [MTL_ENC endEncoding];
-            s_CurrentEncoder = nil;
-        }
+        if (s_CurrentEncoder) EndEncoding();
 
         void* window = Application::Get().GetWindow().GetNativeWindow();
         GLFWwindow* glfwWindow = static_cast<GLFWwindow*>(window);
@@ -108,17 +112,13 @@ namespace Crimson {
         }
 
         CAMetalLayer* metalLayer = (CAMetalLayer*)nswin.contentView.layer;
-        if (!metalLayer) {
-            CN_CORE_ERROR("Window does not have a Metal Layer!");
+        id<CAMetalDrawable> drawable = [metalLayer nextDrawable];
+        if (!drawable) {
+            CN_CORE_ERROR("Could not get drawable!");
             return;
         }
 
-        // ask for the next texture (The "Drawable")
-        // pauses the engine until a screen buffer is available (V-Sync logic)
-        id<CAMetalDrawable> drawable = [metalLayer nextDrawable];
-        if (!drawable) return;
-
-        // setup the Render Pass (Clear Color, etc.)
+        // setup the Render Pass (Clear Color, etc)
         MTLRenderPassDescriptor *passDescriptor = [MTLRenderPassDescriptor renderPassDescriptor];
         
         // color attach 0 is the screen
@@ -135,9 +135,10 @@ namespace Crimson {
              [drawable present];
         }];
 
-        s_CurrentEncoder = (__bridge_retained void*)[commandBuffer renderCommandEncoderWithDescriptor:passDescriptor];
+        s_CurrentCommandBuffer = (void*)CFBridgingRetain(commandBuffer);
+        s_CurrentEncoder = (void*)CFBridgingRetain([commandBuffer renderCommandEncoderWithDescriptor:passDescriptor]);
         
-        // 8. Re-apply global states (Metal forgets these between passes)
+        // reapply global states (Metal forgets these between passes)
         [MTL_ENC setDepthStencilState:(__bridge id<MTLDepthStencilState>)m_DepthStencilState];
         [MTL_ENC setFrontFacingWinding:MTLWindingCounterClockwise];
         [MTL_ENC setCullMode:MTLCullModeBack];
@@ -147,48 +148,42 @@ namespace Crimson {
     {
         if (s_CurrentEncoder) {
             [MTL_ENC endEncoding];
-            s_CurrentEncoder = nil;
+            CFRelease(s_CurrentEncoder);
+            s_CurrentEncoder = nullptr;
         }
         if (s_CurrentCommandBuffer) {
             id<MTLCommandBuffer> cmdBuf = (__bridge id<MTLCommandBuffer>)s_CurrentCommandBuffer;
             [cmdBuf commit];
-            
             CFRelease(s_CurrentCommandBuffer); // release bridge
             s_CurrentCommandBuffer = nullptr;
         }    
     }
 
-    // Helper to map GL Modes to Metal
-    MTLPrimitiveType GetMetalPrimitiveType(unsigned int mode) {
-        // In Metal, lines and triangles are separate logic usually, 
-        // but basic mapping:
-        // GL_TRIANGLES -> MTLPrimitiveTypeTriangle
-        // GL_LINES     -> MTLPrimitiveTypeLine
-        return MTLPrimitiveTypeTriangle; 
-    }
-
     void MetalRendererAPI::DrawIndex(VertexArray& vertexarray, unsigned int renderingMode)
     {
-        // Handle Polygon Mode (Wireframe vs Fill)
-        // CN_LINE -> MTLTriangleFillModeLines
-        MTLTriangleFillMode fillMode = (renderingMode == CN_LINE) ? 
-                                        MTLTriangleFillModeLines : MTLTriangleFillModeFill;
+       if (!s_CurrentEncoder) {
+            CN_CORE_ERROR("No current encoder during DrawIndex!");
+            return;
+       }
+        
+        BindVertexBuffers(vertexarray, MTL_ENC);
+
+        auto metalIB = std::dynamic_pointer_cast<MetalIndexBuffer>(vertexarray.GetIndexBuffer());
+        if (!metalIB) {
+            CN_CORE_ERROR("No index buffer during DrawIndex!");
+            return;
+        }
+
+        // set Fill Mode                                            wireframe
+        MTLTriangleFillMode fillMode = (renderingMode == CN_LINE) ? MTLTriangleFillModeLines : MTLTriangleFillModeFill;
         [MTL_ENC setTriangleFillMode:fillMode];
 
-        // Bind Buffers (VertexArray needs to implement Bind for Metal)
-        // In Metal, this means calling [encoder setVertexBuffer:...]
-
-
-        // TO FIX
-        /*vertexarray.Bind(s_CurrentEncoder);
-
-        auto& indexBuffer = vertexarray.GetIndexBuffer();
-        [MTL_ENC drawIndexedPrimitives:CN_TRIANGLES
-                                     indexCount:indexBuffer->GetCount()
-                                      indexType:MTLIndexTypeUInt32
-                                    indexBuffer:indexBuffer->GetMetalBuffer() // You need this accessor
-                              indexBufferOffset:0];
-        */
+        // draw
+        [MTL_ENC drawIndexedPrimitives:MTLPrimitiveTypeTriangle
+                            indexCount:metalIB->GetCount()
+                             indexType:MTLIndexTypeUInt32
+                           indexBuffer:(__bridge id<MTLBuffer>)metalIB->GetNativeBuffer()
+                     indexBufferOffset:0];
     }
 
     void MetalRendererAPI::DrawArrays(VertexArray& vertexarray, size_t count, int first)
