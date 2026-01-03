@@ -29,8 +29,8 @@ namespace Crimson {
 		inline virtual PlatformGPUHandle GetDepthTextureRef() { return GetDepthTextureHandle().ToPlatform();}
 		virtual void Resize(uint32_t width, uint32_t height) = 0;
 		virtual void ClearFrameBuffer() = 0;
-		virtual void BindFramebufferTexture(int slot) = 0;
-		virtual void BindFramebufferDepthTexture(int slot) = 0;
+		virtual void BindFramebufferTexture(uint32_t slot) = 0;
+		virtual void BindFramebufferDepthTexture(uint32_t slot) = 0;
 
 	};
 }

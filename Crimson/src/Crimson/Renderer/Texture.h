@@ -10,11 +10,28 @@ namespace Crimson {
     enum class ImageFormat
     {
         None = 0,
+        
+        // Color (Standard)
         R8,
         RGB8,
         RGBA8,
+        
+        // Color (HDR / Floating Point)
+        R16F,
+        RG16F,   
+        RGB16F,
+        RGBA16F,
+        
+        R32F,
+        RG32F,
+        RGB32F,
         RGBA32F,
-        RGB16F
+        
+        R32I,     
+        
+        // Depth / Stencil 
+        DEPTH24STENCIL8, // Depth + Stencil
+        DEPTH32F         // High Precision Depth 
     };
 
     class Texture
@@ -37,6 +54,7 @@ namespace Crimson {
 		virtual uint32_t GetChannels() const = 0;
 		static Ref<Texture2D> Create(const std::string& path, bool bUse16BitTexture = false);
 		static Ref<Texture2D> Create(const uint32_t Width, const uint32_t Height, const uint32_t data);
+		static Ref<Texture2D> Create(const uint32_t Width, const uint32_t Height, ImageFormat format);
 
 	};
 	class Texture2DArray : public Texture {

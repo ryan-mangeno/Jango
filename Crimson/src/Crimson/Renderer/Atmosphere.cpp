@@ -38,10 +38,11 @@ namespace Crimson {
 		CN_PROFILE_FUNCTION()
 		CN_CORE_TRACE("Initializing Atmosphere");
 
-		atmosphere_shader = Shader::Create("Crimson_Editor/Assets/Shaders/GLSL/Atmosphere.glsl");
+		atmosphere_shader = Shader::Create("Crimson_Editor/Assets/Shaders/Metal/Atmosphere.Metal");
 
-		std::vector<std::string> gradientTex_paths = {"Assets/Textures/Sky_Gradient_Textures/SunZenith_Gradient.png",
-			"Assets/Textures/Sky_Gradient_Textures/ViewZenith_Gradient.png", "Assets/Textures/Sky_Gradient_Textures/SunView_Gradient.png"};
+		std::vector<std::string> gradientTex_paths = {"Crimson_Editor/Assets/Textures/Sky_Gradient_Textures/SunZenith_Gradient.png",
+													  "Crimson_Editor/Assets/Textures/Sky_Gradient_Textures/ViewZenith_Gradient.png", 
+													  "Crimson_Editor/Assets/Textures/Sky_Gradient_Textures/SunView_Gradient.png"};
 		skyGradients = Texture2DArray::Create(gradientTex_paths);
 
 		CN_CORE_INFO("--- Initialized Atmosphere ---");

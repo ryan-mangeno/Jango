@@ -9,6 +9,44 @@
 
 namespace Crimson {
 
+
+
+    static MTLPixelFormat ImgFmtToMtlFmt(ImageFormat format) {
+        switch (format)
+        {
+            case ImageFormat::R8:
+                return MTLPixelFormatR8Unorm;
+            case ImageFormat::RG16F: // BRDF LUT
+                return MTLPixelFormatRG16Float;
+
+            // 3 & 4 Channels (Must use RGBA on Metal)
+            case ImageFormat::RGB8:
+            case ImageFormat::RGBA8:
+                return MTLPixelFormatRGBA8Unorm; 
+            
+            case ImageFormat::RGB16F:
+            case ImageFormat::RGBA16F:
+                return MTLPixelFormatRGBA16Float; // HDR
+
+            case ImageFormat::RGB32F:
+            case ImageFormat::RGBA32F:
+                return MTLPixelFormatRGBA32Float;
+
+            case ImageFormat::R32I:
+                return MTLPixelFormatR32Sint; 
+
+            // Depth Formats
+            case ImageFormat::DEPTH32F:
+                return MTLPixelFormatDepth32Float;
+            case ImageFormat::DEPTH24STENCIL8:
+                return MTLPixelFormatDepth24Unorm_Stencil8;
+
+            default:
+                CN_CORE_WARN("MetalTexture: Unknown format, defaulting to RGBA8");
+                return MTLPixelFormatRGBA8Unorm;
+        }
+    }
+
     MetalTexture2D::MetalTexture2D(const std::string& path, bool bUse16BitTexture)
         : m_Height(0), m_Width(0), channels(0)
     {
@@ -37,6 +75,23 @@ namespace Crimson {
                    bytesPerRow:4 * m_Width];
 
         m_Texture = (__bridge_retained void*)texture;
+    }
+
+    MetalTexture2D::MetalTexture2D(uint32_t width, uint32_t height, ImageFormat format)
+        : m_Width(width), m_Height(height)
+    {
+        id<MTLDevice> device = (__bridge id<MTLDevice>)MetalRendererAPI::GetDevice();
+        
+        MTLTextureDescriptor* textureDescriptor = [MTLTextureDescriptor texture2DDescriptorWithPixelFormat:ImgFmtToMtlFmt(format) 
+                                                                                                     width:width 
+                                                                                                    height:height 
+                                                                                                    mipmapped:NO];
+        
+        // allow this texture to be written to by a shader (RenderTarget)
+        textureDescriptor.usage = MTLTextureUsageShaderRead | MTLTextureUsageRenderTarget;
+        textureDescriptor.storageMode = MTLStorageModePrivate;
+
+        m_Texture = (__bridge_retained void*)[device newTextureWithDescriptor:textureDescriptor];
     }
 
     MetalTexture2D::~MetalTexture2D()
@@ -210,5 +265,69 @@ namespace Crimson {
                 m_Width = width;
             }
         }
+    }
+
+
+
+    //////////// cube
+
+
+    MetalTextureCube::MetalTextureCube(uint32_t width, uint32_t height, ImageFormat format)
+        : m_Width(width), m_Height(height)
+    {
+        id<MTLDevice> device = (__bridge id<MTLDevice>)MetalRendererAPI::GetDevice();
+
+        // Note Metal does NOT support RGB (3-channel) We must use RGBA
+        MTLPixelFormat mtlFormat = ImgFmtToMtlFmt(format);
+        
+        // Cube Descriptor
+        MTLTextureDescriptor* desc = [MTLTextureDescriptor textureCubeDescriptorWithPixelFormat:mtlFormat 
+                                                                                           size:width 
+                                                                                      mipmapped:YES];
+        
+        // We allow RenderTarget usage so we can render Equirectangular-to-Cubemap later
+        desc.usage = MTLTextureUsageShaderRead | MTLTextureUsageRenderTarget;
+        desc.storageMode = MTLStorageModePrivate;
+
+        // Create Texture
+        m_Texture = (__bridge_retained void*)[device newTextureWithDescriptor:desc];
+    }
+
+    void MetalTextureCube::Bind(uint32_t slot) const
+    {
+        id<MTLRenderCommandEncoder> encoder = (__bridge id<MTLRenderCommandEncoder>)MetalRendererAPI::GetCurrentEncoder();
+        
+        if (encoder && m_Texture)
+        {
+            // Bind as a fragment shader texture
+            [encoder setFragmentTexture:(__bridge id<MTLTexture>)m_Texture atIndex:slot];
+        }
+    }
+
+    void MetalTextureCube::UnBind() const
+    {
+        // Metal doesn't require explicit unbinding, but we can set nil 
+        // Usually mostly redundant in modern APIs
+    }
+
+
+    void MetalTextureCube::GenerateMips()
+    {
+        if (!m_Texture) return;
+
+        // temporary Blit Encoder to generate mipmaps
+        id<MTLCommandQueue> queue = (__bridge id<MTLCommandQueue>)MetalRendererAPI::GetCommandQueue();
+        id<MTLCommandBuffer> cmdBuffer = [queue commandBuffer];
+        cmdBuffer.label = @"Generate Cube Mips";
+
+        id<MTLBlitCommandEncoder> blitEncoder = [cmdBuffer blitCommandEncoder];
+        
+        [blitEncoder generateMipmapsForTexture:(__bridge id<MTLTexture>)m_Texture];
+        
+        [blitEncoder endEncoding];
+        [cmdBuffer commit];
+        
+        // wait for it to finish so the texture is ready for use immediately
+        [cmdBuffer waitUntilCompleted];
     }
 }

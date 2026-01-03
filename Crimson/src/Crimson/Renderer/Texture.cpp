@@ -93,8 +93,20 @@ namespace Crimson {
         switch (RendererAPI::GetAPI())
         {
             case GraphicsAPI::None:    CN_CORE_ASSERT(false, "RendererAPI::None is currently not supported"); return nullptr;
-            case GraphicsAPI::OpenGL:  return std::make_shared<OpenGLTextureCube>(width, height, format);
-            case GraphicsAPI::Metal:   return std::make_shared<MetalTextureCube>(width, height, format);
+            case GraphicsAPI::OpenGL:  return MakeRef<OpenGLTextureCube>(width, height, format);
+            case GraphicsAPI::Metal:   return MakeRef<MetalTextureCube>(width, height, format);
+        }
+        CN_CORE_ASSERT(false, "Unknown RendererAPI");
+        return nullptr;
+    }
+
+	Ref<Texture2D> Texture2D::Create(uint32_t width, uint32_t height, ImageFormat format)
+    {
+        switch (RendererAPI::GetAPI())
+        {
+            case GraphicsAPI::None:    CN_CORE_ASSERT(false, "RendererAPI::None is currently not supported"); return nullptr;
+            case GraphicsAPI::OpenGL:  return MakeRef<OpenGLTexture2D>(width, height, format);
+            case GraphicsAPI::Metal:   return MakeRef<MetalTexture2D>(width, height, format);
         }
         CN_CORE_ASSERT(false, "Unknown RendererAPI");
         return nullptr;

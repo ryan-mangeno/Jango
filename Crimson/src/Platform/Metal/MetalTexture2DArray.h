@@ -11,13 +11,15 @@ namespace Crimson {
 		virtual uint32_t GetHeight() const override { return m_Height; }
 		virtual void Bind(uint32_t slot) const override;
 		virtual void UnBind() const override;
-		virtual GPUHandle GetHandle() const override { return GPUHandle(m_RendererID); }
-	
+		virtual GPUHandle GetHandle() const override { return GPUHandle(m_Textures); }
+		virtual void GenerateMipmaps();
 	private:
 		int m_Width;
 		int m_Height;
 		int channels;
-		uint32_t m_RendererID;
+
+		void* m_Textures; // id<MTLTexture>
+
 		unsigned short* resized_image_16 = nullptr;
 		unsigned short* pixel_data_16 = nullptr;
 		unsigned char* resized_image_8 = nullptr;

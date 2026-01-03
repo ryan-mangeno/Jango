@@ -7,6 +7,7 @@ namespace Crimson {
     {
     public:
         MetalTexture2D(const std::string& path, bool bUse16BitTexture);
+        MetalTexture2D(uint32_t width, uint32_t height, ImageFormat format);
         MetalTexture2D(const uint32_t Width = 1, const uint32_t Height = 1, const uint32_t data = 0xffffffff);
 
         virtual ~MetalTexture2D();
@@ -54,7 +55,7 @@ namespace Crimson {
 	class MetalTextureCube : public TextureCube
     {
     public:
-        MetalTextureCube(uint32_t width, uint32_t height, ImageFormat format) {}
+        MetalTextureCube(uint32_t width, uint32_t height, ImageFormat format);
         virtual ~MetalTextureCube() { /* need to release texture maybe todo / to fix */ }
 
         virtual uint32_t GetWidth() const override { return m_Width; }
@@ -63,10 +64,10 @@ namespace Crimson {
 
         void* GetMetalTexture() const { return m_Texture; }
 
-        virtual void Bind(uint32_t slot) const override {}
-        virtual void UnBind() const override {}
+        virtual void Bind(uint32_t slot) const override;
+        virtual void UnBind() const override;
 
-        virtual void GenerateMips() override {}
+        virtual void GenerateMips() override;
 
     private:
         uint32_t m_Width, m_Height;

@@ -4,8 +4,7 @@
 
 namespace Crimson {
 
-    //                          Vertex Buffer
-
+    // ---------------------- Vertex Buffer ----------------------
     class MetalVertexBuffer : public VertexBuffer {
     public:
         MetalVertexBuffer(const float* data, uint32_t size);
@@ -26,7 +25,7 @@ namespace Crimson {
         virtual const BufferLayout& GetLayout() const { return m_Layout; }
         virtual void SetLayout(const BufferLayout& layout) { m_Layout = layout; }
 
-        // METAL SPECIFIC: The Renderer needs this to call [encoder setVertexBuffer:]
+        // renderer needs this to call [encoder setVertexBuffer:]
         void* GetNativeBuffer() const { return m_Buffer; }
 
     private:
@@ -34,7 +33,7 @@ namespace Crimson {
         BufferLayout m_Layout;
     };
 
-    //                          Index Buffer
+    // ---------------------- Index Buffer ----------------------
     class MetalIndexBuffer : public IndexBuffer {
     public:
         MetalIndexBuffer(const uint32_t* data, uint32_t count);

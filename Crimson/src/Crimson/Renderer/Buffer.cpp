@@ -3,8 +3,11 @@
 
 #include "Renderer.h"
 #include "RendererAPI.h"
+
 #include "Platform/OpenGL/OpenGLBuffer.h"
 #include "Platform/OpenGL/OpenGLVertexArray.h"
+#include "Platform/Metal/MetalBuffer.h"
+#include "Platform/Metal/MetalVertexArray.h"
 
 #include "Crimson/Core/Core.h"
 
@@ -16,7 +19,7 @@ namespace Crimson {
 		switch (RendererAPI::GetAPI())
 		{
 		case GraphicsAPI::None:				CN_CORE_ASSERT(false, "RendererAPI: None not supported currently!"); return nullptr;
-		case GraphicsAPI::Metal:			return nullptr;
+		case GraphicsAPI::Metal:			return MakeRef<MetalVertexBuffer>(vertices, size);
 		case GraphicsAPI::OpenGL:			return MakeRef<OpenGLVertexBuffer>(vertices, size);
 		}
 
@@ -30,7 +33,7 @@ namespace Crimson {
 		switch (RendererAPI::GetAPI())
 		{
 		case GraphicsAPI::None:				CN_CORE_ASSERT(false, "RendererAPI: None not supported currently!"); return nullptr;
-		case GraphicsAPI::Metal:			return nullptr;
+		case GraphicsAPI::Metal:			return MakeRef<MetalVertexBuffer>(size, type);
 		case GraphicsAPI::OpenGL:			return MakeRef<OpenGLVertexBuffer>(size, type);
 		}
 
@@ -48,7 +51,7 @@ namespace Crimson {
 		{
 		case GraphicsAPI::None:			CN_CORE_ASSERT(false, "RendererAPI: None not supported currently!"); return nullptr;
 		case GraphicsAPI::OpenGL:		return MakeRef<OpenGLIndexBuffer>(indices, size);
-		case GraphicsAPI::Metal:		return nullptr;
+		case GraphicsAPI::Metal:		return MakeRef<MetalIndexBuffer>(indices, size);
 		}
 
 		CN_CORE_ASSERT(false, "Unknown RendererAPI!");
@@ -72,7 +75,7 @@ namespace Crimson {
 		case GraphicsAPI::OpenGL:
 			return MakeRef<OpenGLVertexArray>();
 		case GraphicsAPI::Metal:
-			return nullptr;
+			return MakeRef<MetalVertexArray>();
 		case GraphicsAPI::None:
 			CN_CORE_ERROR("Graphics API is of type None");
 			break;

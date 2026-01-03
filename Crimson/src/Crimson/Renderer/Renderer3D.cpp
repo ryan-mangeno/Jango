@@ -59,11 +59,11 @@ namespace Crimson {
 		m_data = new Renderer3DStorage;
 		DefferedRenderer::Init(width, height);//Initilize the Deferred Renderer
 
-		m_data->shader = (Shader::Create("Crimson_Editor/Assets/Shaders/GLSL/Composite3D.glsl"));//texture shader
+		m_data->shader = (Shader::Create("Crimson_Editor/Assets/Shaders/Metal/Composite3D.metal"));//texture shader
 		m_data->shader->SetInt("SSAO", SSAO_BLUR_SLOT);
-		m_data->foliage_shader = Shader::Create("Crimson_Editor/Assets/Shaders/GLSL/Foliage.glsl");//foliage shader
+		m_data->foliage_shader = Shader::Create("Crimson_Editor/Assets/Shaders/Metal/Foliage.metal");//foliage shader
 		m_data->foliage_shader->SetInt("SSAO", SSAO_BLUR_SLOT);
-		m_data->foliageShader_instanced = Shader::Create("Crimson_Editor/Assets/Shaders/GLSL/FoliageInstanced.glsl");//this is not ideal!! I just cannot handle shaders like this in a long run
+		m_data->foliageShader_instanced = Shader::Create("Crimson_Editor/Assets/Shaders/Metal/FoliageInstanced.metal"); //this is not ideal!!
 		m_data->foliageShader_instanced->SetInt("SSAO", SSAO_BLUR_SLOT);
 
 		DefferedRenderer::GetDeferredPassShader()->Bind();

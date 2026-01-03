@@ -145,7 +145,6 @@ namespace Crimson {
 
         m_CaptureFramebuffer->Bind();
         RenderCommand::SetViewport(captureRes, captureRes);
-
         for (int i = 0; i < 6; i++)
         {
             // need to add this method to FrameBuffer class
@@ -161,8 +160,14 @@ namespace Crimson {
         m_EnvironmentMap->GenerateMips();
         m_EnvironmentMap->Bind(ENV_SLOT);
 
+
+        CN_CORE_TRACE("Creating Irradiance Map ...");
         ConstructIrradianceMap(camera.GetProjectionMatrix());
+        CN_CORE_INFO("--- Created Irradiance Map ---");
+        CN_CORE_TRACE("Creating Specular Map ...");
         CreateSpecularMap(camera.GetProjectionMatrix(), &captureViews[0]);
+        CN_CORE_INFO("--- Created Specular Map ---");
+
     }
 
     void CubeMapEnvironment::RenderCubeMap(const glm::mat4& view, const glm::mat4& proj, const glm::vec3& view_dir)
@@ -250,7 +255,7 @@ namespace Crimson {
         }
         m_CaptureFramebuffer->UnBind();
 
-        m_BRDFLUT = Texture2D::Create(captureRes, captureRes, 0); // to fix
+        m_BRDFLUT = Texture2D::Create(captureRes, captureRes, ImageFormat::RG16F); // to fix
 
         m_CaptureFramebuffer->Bind();
         m_CaptureFramebuffer->Resize(captureRes, captureRes);
@@ -261,7 +266,6 @@ namespace Crimson {
         RenderCommand::Clear();
         
         RenderQuad();
-        
         m_CaptureFramebuffer->UnBind();
     }
 

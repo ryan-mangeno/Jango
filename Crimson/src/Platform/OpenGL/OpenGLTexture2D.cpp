@@ -17,6 +17,89 @@ namespace Crimson {
 		else
 			Create8BitsTexture(path);
 	}
+
+	OpenGLTexture2D::OpenGLTexture2D(uint32_t width, uint32_t height, ImageFormat format)
+        : m_Width(width), m_Height(height)
+    {
+        GLenum internalFormat = 0;
+        GLenum dataFormat = 0;
+
+        switch (format)
+        {
+            case ImageFormat::R8:
+                internalFormat = GL_R8;
+                dataFormat = GL_RED;
+                break;
+            case ImageFormat::RGB8:
+                internalFormat = GL_RGB8;
+                dataFormat = GL_RGB;
+                break;
+            case ImageFormat::RGBA8:
+                internalFormat = GL_RGBA8;
+                dataFormat = GL_RGBA;
+                break;
+
+            case ImageFormat::RG16F:
+                internalFormat = GL_RG16F;
+                dataFormat = GL_RG;
+                break;
+            case ImageFormat::RGB16F:
+                internalFormat = GL_RGB16F;
+                dataFormat = GL_RGB;
+                break;
+            case ImageFormat::RGBA16F:
+                internalFormat = GL_RGBA16F;
+                dataFormat = GL_RGBA;
+                break;
+
+            case ImageFormat::R32F:
+                internalFormat = GL_R32F;
+                dataFormat = GL_RED;
+                break;
+            case ImageFormat::RGB32F:
+                internalFormat = GL_RGB32F;
+                dataFormat = GL_RGB;
+                break;
+            case ImageFormat::RGBA32F:
+                internalFormat = GL_RGBA32F;
+                dataFormat = GL_RGBA;
+                break;
+
+            case ImageFormat::R32I:
+                internalFormat = GL_R32I;
+                dataFormat = GL_RED_INTEGER;
+                break;
+            
+            case ImageFormat::DEPTH24STENCIL8:
+                internalFormat = GL_DEPTH24_STENCIL8;
+                dataFormat = GL_DEPTH_STENCIL;
+                break;
+            case ImageFormat::DEPTH32F:
+                internalFormat = GL_DEPTH_COMPONENT32F;
+                dataFormat = GL_DEPTH_COMPONENT;
+                break;
+
+            default:
+                CN_CORE_ASSERT(false, "OpenGLTexture2D: Unknown ImageFormat!");
+        }
+
+        glCreateTextures(GL_TEXTURE_2D, 1, &m_Renderid);
+        glTextureStorage2D(m_Renderid, 1, internalFormat, m_Width, m_Height);
+
+        if (format == ImageFormat::R32I)
+        {
+            glTextureParameteri(m_Renderid, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+            glTextureParameteri(m_Renderid, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        }
+        else
+        {
+            glTextureParameteri(m_Renderid, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTextureParameteri(m_Renderid, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        }
+
+        glTextureParameteri(m_Renderid, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTextureParameteri(m_Renderid, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    }
 	
 	//data is defaulted to a color, can be used as a texture or base color also
 	OpenGLTexture2D::OpenGLTexture2D(const uint32_t Width, const uint32_t Height, const uint32_t data)

@@ -15,8 +15,8 @@ namespace Crimson {
 		virtual void UnBind() override;
 		virtual void Resize(uint32_t width, uint32_t height) override;
 		virtual void ClearFrameBuffer()override;
-		virtual void BindFramebufferTexture(int slot) override;
-		virtual void BindFramebufferDepthTexture(int slot) override;
+		virtual void BindFramebufferTexture(uint32_t slot) override;
+		virtual void BindFramebufferDepthTexture(uint32_t slot) override;
 	private:
 		uint32_t m_RenderID=0,m_SceneTexture=0,m_DepthTexture=0;
 		FrameBufferSpecification Specification;

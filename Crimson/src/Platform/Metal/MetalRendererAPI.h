@@ -29,23 +29,25 @@ namespace Crimson {
 
         virtual void DrawLine(VertexArray& vertexArray, uint32_t count) override;
 
-        // Metal Accessors, 
+        // Metal Accessors
         inline static void* GetDevice() { return s_Device; }                             // id<MTLDevice>
         inline static void* GetCurrentEncoder() { return s_CurrentEncoder; }             // id<MTLRenderCommandEncoder> 
         inline static void* GetCurrentCommandBuffer() { return s_CurrentCommandBuffer; } // id<MTLCommandBuffer>
         inline static void* GetCommandQueue() { return s_CommandQueue; }                 // id<MTLCommandQueue>
         
-        // This usually needs to be called by Window/Swapchain system to end the frame
-        void EndEncoding(); 
+        inline static void SetCurrentEncoder(void* enc) { s_CurrentEncoder = enc; }
+        inline static void SetCurrentDrawable(void* draw) { s_CurrentDrawable = draw; }
+        
+        static void EndEncoding(); 
+        static void FlushEncoder();
 
     private:
         static void* s_Device; // id<MTLDevice>
         static void* s_CommandQueue; // id<MTLCommandQueue>
         static void* s_CurrentEncoder; // id<MTLRenderCommandEncoder>
         static void* s_CurrentCommandBuffer; // id<MTLCommandBuffer>
-        
-        // Metal requires explicit depth state creation
-        void* m_DepthStencilState; // id<MTLDepthStencilState>
+        static void* s_DepthStencilState; // id<MTLDepthStencilState>
+        static void* s_CurrentDrawable; // id<CAMetalDrawable>
         
         glm::vec4 m_ClearColor = {0.0f, 0.0f, 0.0f, 1.0f};
     };
