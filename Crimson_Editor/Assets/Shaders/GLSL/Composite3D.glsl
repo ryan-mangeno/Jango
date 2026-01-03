@@ -36,14 +36,6 @@ void main()
 }
 
 
-
-
-
-
-
-
-
-
 #shader fragment
 #version 410 core
 

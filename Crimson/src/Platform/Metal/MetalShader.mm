@@ -27,9 +27,15 @@ namespace Crimson {
             case MTLDataTypeFloat4x4:   return ShaderDataType::Mat4;
             
             case MTLDataTypeBool:   return ShaderDataType::Bool;
-            
+
+            case MTLDataTypeArray:  
+                CN_CORE_WARN("Array Type Not Implemented For Metal ...");
+                return ShaderDataType::None; 
+            case MTLDataTypeStruct: 
+                CN_CORE_WARN("Struct Type Not Implemented For Metal ...");
+                return ShaderDataType::None;
             default: 
-                CN_CORE_ERROR("MTLDataType not supported!");
+                CN_CORE_WARN("MTLDataType not supported! ({0})", (int)type);
                 return ShaderDataType::None;
         }
     }
@@ -47,7 +53,7 @@ namespace Crimson {
             case ShaderDataType::Int4:    return MTLVertexFormatInt4;
             
             // MATRICES (Must be Invalid)
-            // you cannot set a "Matrix" format on a single vertex attribute slot
+            // you cannot set a matrix format on a single vertex attribute slot
             // If you need instancing, you technically have to use 4 separate Float4 attributes
             case ShaderDataType::Mat2:    return MTLVertexFormatInvalid; 
             case ShaderDataType::Mat3:    return MTLVertexFormatInvalid; 
@@ -138,9 +144,9 @@ namespace Crimson {
 
     void MetalShader::Compile(const std::string& vertexSrc, const std::string& fragmentSrc) {
         NSError* error = nil;
-
         id<MTLDevice> mtlDevice = (__bridge id<MTLDevice>)MetalRendererAPI::GetDevice();
         
+        // --- 1. Compile Vertex Shader ---
         NSString* nsVertSrc = [NSString stringWithUTF8String:vertexSrc.c_str()];
         id<MTLLibrary> vertLib = [mtlDevice newLibraryWithSource:nsVertSrc options:nil error:&error];
         if (error) {
@@ -148,6 +154,7 @@ namespace Crimson {
             return;
         }
 
+        // --- 2. Compile Fragment Shader ---
         NSString* nsFragSrc = [NSString stringWithUTF8String:fragmentSrc.c_str()];
         id<MTLLibrary> fragLib = [mtlDevice newLibraryWithSource:nsFragSrc options:nil error:&error];
         if (error) {
@@ -163,47 +170,39 @@ namespace Crimson {
             return;
         }
 
+        // --- 3. Configure Pipeline Descriptor ---
         MTLRenderPipelineDescriptor* pipelineDesc = [[MTLRenderPipelineDescriptor alloc] init];
         pipelineDesc.vertexFunction = vertFunc;
         pipelineDesc.fragmentFunction = fragFunc;
 
+        // Auto-configure Vertex Descriptor based on Shader Inputs
         if (vertFunc.vertexAttributes.count > 0) {
             MTLVertexDescriptor* vertDesc = [[MTLVertexDescriptor alloc] init];
-            
             uint32_t currentOffset = 0;
             
             for (MTLVertexAttribute* attr in vertFunc.vertexAttributes) {
                 if (attr.active) {
-                    // get the idx ([[attribute(0)]])
-                    uint32_t index = attr.attributeIndex;
-
-                    // determine fmt dynamically
+                    uint32_t index = (uint32_t)attr.attributeIndex;
                     MTLVertexFormat format = GetMetalFormatFromAttributeType(attr.attributeType);
-                    vertDesc.attributes[index].format = format;
                     
-                    // set Offset & Buffer
-                    // pack them tightly for the Reflection PSO.
-                    // (Actual rendering might use a different layout, but this lets us compile)
+                    vertDesc.attributes[index].format = format;
                     vertDesc.attributes[index].offset = currentOffset;
                     vertDesc.attributes[index].bufferIndex = 0; 
                     
-                    // advance Offset
                     currentOffset += GetMetalFormatSize(format);
                 }
             }
-            // set total stride
             vertDesc.layouts[0].stride = currentOffset;
             vertDesc.layouts[0].stepRate = 1;
             vertDesc.layouts[0].stepFunction = MTLVertexStepFunctionPerVertex;
-            
             pipelineDesc.vertexDescriptor = vertDesc;
         }
         
-        // must match FrameBuffer
+        // Must match your RenderPass (Swapchain is BGRA8, Depth is Depth32Float)
         pipelineDesc.colorAttachments[0].pixelFormat = MTLPixelFormatBGRA8Unorm; 
         pipelineDesc.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
 
-        // create state with Reflection
+        // --- 4. Create Pipeline State Object (PSO) with Reflection ---
         MTLRenderPipelineReflection* reflection = nil;
         id<MTLRenderPipelineState> pso = [mtlDevice newRenderPipelineStateWithDescriptor:pipelineDesc 
                                                                                     options:MTLPipelineOptionBufferTypeInfo 
@@ -213,64 +212,84 @@ namespace Crimson {
             CN_CORE_ERROR("Metal PSO Creation Error: {0}", [[error localizedDescription] UTF8String]);
         }
         
-        m_PipelineState = (void*)CFBridgingRetain(pso); // transfer ownership to C++
+        m_PipelineState = (void*)CFBridgingRetain(pso); 
 
-        // Process reflection to build our uniform map
-        // we look at the arguments to find our uniforms struct
+        // processing reflection        
+        std::function<void(NSArray<MTLStructMember*>*, std::vector<uint8_t>&, uint32_t, bool, std::string)> ProcessMembers;
+        
+        ProcessMembers = [&](NSArray<MTLStructMember*>* members, std::vector<uint8_t>& buffer, uint32_t bufferIndex, bool isVertex, std::string prefix) 
+        {
+            for (MTLStructMember* member in members) 
+            {
+                std::string memberName = [member.name UTF8String];
+                std::string fullName = prefix + memberName;
+
+                // ARRAYS
+                if (member.dataType == MTLDataTypeArray) 
+                {
+                    uint32_t arraySize = (uint32_t)(member.arrayType.arrayLength * member.arrayType.stride);
+                    uint32_t endOffset = (uint32_t)member.offset + arraySize;
+                    
+                    // resize buffer to include the array memory
+                    if (buffer.size() < endOffset) buffer.resize(endOffset);
+                    
+                    // for support for "Lights[0].Color", need another loop here
+                    // For now, handling the memory size is the critical part.
+                    continue; 
+                }
+
+                // NESTED STRUCTS 
+                if (member.dataType == MTLDataTypeStruct)
+                {
+                    // RECURSE
+                    // Pass the nested members and the new prefix "StructName."
+                    ProcessMembers(member.structType.members, buffer, bufferIndex, isVertex, fullName + ".");
+                    continue;
+                }
+
+                // STANDARD TYPES
+                ShaderDataType crimsonType = MetalToCrimsonDataType(member.dataType);
+                if (crimsonType == ShaderDataType::None) continue;
+
+                uint32_t memb_size = ShaderDataTypeSize(crimsonType);
+
+                UniformInfo info;
+                info.Name = fullName; 
+                info.Offset = (uint32_t)member.offset;
+                info.Size = memb_size;
+                info.BufferIndex = bufferIndex;
+                info.IsVertex = isVertex;
+
+                m_UniformMap[info.Name] = info;
+                
+                // Resize buffer
+                if (buffer.size() < info.Offset + memb_size) {
+                    buffer.resize(info.Offset + memb_size);
+                }
+            }
+        };
+
+        // Vertex 
         for (MTLArgument* arg in reflection.vertexArguments) {
-            if (arg.type == MTLArgumentTypeBuffer) {
-                // if this is the uniform buffer
-                // we iterate its members
-                if (arg.bufferDataType == MTLDataTypeStruct) {
-                    for (MTLStructMember* member in arg.bufferStructType.members) {
-                        
-                        uint32_t memb_size = ShaderDataTypeSize(MetalToCrimsonDataType(member.dataType));
-
-                        UniformInfo info;
-                        info.Name = [member.name UTF8String];
-                        info.Offset = (uint32_t)member.offset;
-                        info.Size = memb_size;
-                        info.BufferIndex = (uint32_t)arg.index;
-
-                        info.IsVertex = true;
-                        m_UniformMap[info.Name] = info;
-                        
-                        // resize buffer if needed
-                        if (m_VertexUniformBuffer.size() < info.Offset + memb_size)
-                            m_VertexUniformBuffer.resize(info.Offset + memb_size);
-                    }
+            if (arg.type == MTLArgumentTypeBuffer && arg.bufferDataType == MTLDataTypeStruct) {
+                if (arg.index >= 1) {
+                    // Pass empty string as initial prefix
+                    ProcessMembers(arg.bufferStructType.members, m_VertexUniformBuffer, (uint32_t)arg.index, true, "");
                 }
             }
         }
 
+        // Frag
         for (MTLArgument* arg in reflection.fragmentArguments) {
-            if (arg.type == MTLArgumentTypeBuffer) {
-                if (arg.bufferDataType == MTLDataTypeStruct) {
-                    for (MTLStructMember* member in arg.bufferStructType.members) {
-
-                        uint32_t memb_size = ShaderDataTypeSize(MetalToCrimsonDataType(member.dataType));
-
-                        UniformInfo info;
-                        info.Name = [member.name UTF8String];
-                        info.Offset = (uint32_t)member.offset;
-                        info.Size = memb_size;
-                        info.BufferIndex = (uint32_t)arg.index;
-
-                        info.IsVertex = false;
-                        m_UniformMap[info.Name] = info;
-                        
-                        // resize buffer if needed
-                        if (m_FragmentUniformBuffer.size() < info.Offset + memb_size) {
-                            m_FragmentUniformBuffer.resize(info.Offset + memb_size);
-                        }
-                    }
+            if (arg.type == MTLArgumentTypeBuffer && arg.bufferDataType == MTLDataTypeStruct) {
+                if (arg.index >= 1) {
+                    ProcessMembers(arg.bufferStructType.members, m_FragmentUniformBuffer, (uint32_t)arg.index, false, "");
                 }
             }
         }
     }
 
     void MetalShader::Bind() const {
-        // The encoder is needed to actually bind
         // assume the Renderer calls [encoder setRenderPipelineState:m_PipelineState]
     }
 

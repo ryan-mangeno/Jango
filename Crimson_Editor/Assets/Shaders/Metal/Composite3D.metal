@@ -240,17 +240,17 @@ fragment float4 fragment_main(VertexOutput in [[stage_in]],
     float4 vert_pos_view = u.view * in.worldPos;
     float depthVal = abs(vert_pos_view.z);
     
-    int level = 3;
+    int cascadeIndex = 3;
     for(int i = 0; i < 4; i++) {
         if(depthVal < u.ShadowRanges[i]) {
-            level = i;
+            cascadeIndex = i;
             break;
         }
     }
 
     // Shadow Calculation
-    float4 lightSpacePos = u.ShadowMatrices[level] * in.worldPos;
-    float shadow = CalculateShadow(level, lightSpacePos, shadowMap0, shadowMap1, shadowMap2, shadowMap3, sam);
+    float4 lightSpacePos = u.ShadowMatrices[cascadeIndex] * in.worldPos;
+    float shadow = CalculateShadow(cascadeIndex, lightSpacePos, shadowMap0, shadowMap1, shadowMap2, shadowMap3, sam);
 
     // Lighting Vectors
     float3 EyeDirection = normalize(u.EyePosition - in.worldPos.xyz);
@@ -265,7 +265,7 @@ fragment float4 fragment_main(VertexOutput in [[stage_in]],
     
     float3 IBL_diffuse = diffuse_env.sample(sam, Modified_Normal).rgb * kd;
     
-    // Note: BRDF integration term usually requires a LUT, here simplified as per your GLSL
+    // BRDF integration term usually requires a LUT, here simplified as per GLSL counterpart
     float BRDFintegration = ks.r * currentRoughness + max(dot(Modified_Normal, LightDirection), 0.001); 
     
     // LOD sampling for specular cube
