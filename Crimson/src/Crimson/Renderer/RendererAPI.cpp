@@ -1,7 +1,6 @@
 #include "cnpch.h"
 #include "RendererAPI.h"
 
-
 namespace Crimson {
 
 #ifdef CN_PLATFORM_WINDOWS

@@ -31,8 +31,8 @@ namespace Crimson {
         // Color Attachment
         // GL_RGB16F equivalent in Metal is RGBA16Float (Metal prefers 4-component render targets)
         MTLTextureDescriptor* colorDesc = [MTLTextureDescriptor texture2DDescriptorWithPixelFormat:MTLPixelFormatRGBA16Float 
-                                                                                             width:spec.viewport.x
-                                                                                            height:spec.viewport.y 
+                                                                                             width:spec.Width
+                                                                                            height:spec.Height 
                                                                                             mipmapped:NO];
         colorDesc.usage = MTLTextureUsageRenderTarget | MTLTextureUsageShaderRead;
         colorDesc.storageMode = MTLStorageModePrivate; // GPU only
@@ -42,8 +42,8 @@ namespace Crimson {
         // Depth Attachment
         // GL_DEPTH_COMPONENT32 equivalent
         MTLTextureDescriptor* depthDesc = [MTLTextureDescriptor texture2DDescriptorWithPixelFormat:MTLPixelFormatDepth32Float 
-                                                                                             width:spec.viewport.x 
-                                                                                            height:spec.viewport.y 
+                                                                                             width:spec.Width 
+                                                                                            height:spec.Height 
                                                                                             mipmapped:NO];
         depthDesc.usage = MTLTextureUsageRenderTarget | MTLTextureUsageShaderRead;
         depthDesc.storageMode = MTLStorageModePrivate;
@@ -78,7 +78,7 @@ namespace Crimson {
 
         // Set this as the active encoder so Renderer::Draw() uses it
         MetalRendererAPI::SetCurrentEncoder((__bridge void*)encoder);
-        MTLViewport vp = { 0.0, 0.0, (double)m_Specification.viewport.x, (double)m_Specification.viewport.y, 0.0, 1.0 };
+        MTLViewport vp = { 0.0, 0.0, (double)m_Specification.Width, (double)m_Specification.Height, 0.0, 1.0 };
         [encoder setViewport:vp];
     }
 
@@ -96,8 +96,8 @@ namespace Crimson {
             return;
         }
 
-        m_Specification.viewport.x = width;
-        m_Specification.viewport.y = height;
+        m_Specification.Width = width;
+        m_Specification.Height = height;
         invalidate(m_Specification);
     }
 

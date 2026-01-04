@@ -15,8 +15,13 @@ namespace Crimson
 
 		static void RenderEntities(Scene* scene);
 
-		static uint32_t m_framebufferID, m_RenderBufferID, m_AlbedoBufferID,
-			m_NormalBufferID , m_RoughnessMetallicBufferID, m_VelocityBufferID;
+		static uint32_t m_FramebufferID;
+		static uint32_t m_RenderBufferID;
+		static uint32_t m_AlbedoBufferID;
+		static uint32_t m_NormalBufferID;
+		static uint32_t m_RoughnessMetallicBufferID;
+		static uint32_t m_VelocityBufferID;
+
 		static Ref<Shader> m_ForwardPassShader;
 		static Ref<Shader> m_DefferedPassShader;
 	};

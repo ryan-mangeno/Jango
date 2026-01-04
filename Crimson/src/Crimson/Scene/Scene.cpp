@@ -21,9 +21,6 @@
 #include "Crimson/RayTracer/RayTracer.h"
 
 namespace Crimson {
-
-
-	
 	bool Scene::TOGGLE_SHADOWS = true;
 	bool Scene::TOGGLE_SSAO = true;
 	float Scene::foliage_dist = 3000.f;
@@ -50,26 +47,26 @@ namespace Crimson {
 	{
 		CN_CORE_TRACE("Creating Scene Frame Buffer");
 		framebuffer = FrameBuffer::Create({ 2048,2048 });
-		CN_CORE_INFO("----Scene Frame Buffer Created!----");
+		CN_CORE_INFO("--- Scene Frame Buffer Created ---");
 
 		CN_CORE_TRACE("Initializing Physx");
 		Physics3D::Initialize();
-		CN_CORE_INFO("----Phsyx Initialized!----");
+		CN_CORE_INFO("--- Phsyx Initialized ---");
 
 		SkyRenderer::SetSkyType(SkyType::PROCEDURAL_SKY);
 
 		CN_CORE_TRACE("Initializng SkyRenderer");
 		SkyRenderer::Initilize("Crimson_Editor/Assets/Textures/HDR/dusk.hdr");
-		CN_CORE_INFO("----SkyRender Initialized!----");
+		CN_CORE_INFO("--- SkyRender Initialized ---");
 
 		CN_CORE_TRACE("Initializng 2D and 3D Renderer");
 		Renderer3D::Init(1920,1080);
 		Renderer2D::Init();
-		CN_CORE_INFO("----Renderers Initialized!----");
+		CN_CORE_INFO("--- Renderers Initialized ---");
 
-		CN_CORE_TRACE("< Loading Materials...>");
+		CN_CORE_TRACE("Loading Materials...");
 		Material::DeserializeMaterial();// load all materials from the disc
-		CN_CORE_TRACE("---- Materials Loaded! ----");
+		CN_CORE_INFO("--- Materials Loaded ---");
 
 
 		// intializing default camera to editor camera

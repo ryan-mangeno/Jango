@@ -29,6 +29,9 @@ namespace Crimson {
 
         virtual void DrawLine(VertexArray& vertexArray, uint32_t count) override;
 
+        virtual void SetDepthTest(bool val) override;
+		virtual void SetCullFace(bool val) override;
+
         // Metal Accessors
         inline static void* GetDevice() { return s_Device; }                             // id<MTLDevice>
         inline static void* GetCurrentEncoder() { return s_CurrentEncoder; }             // id<MTLRenderCommandEncoder> 
@@ -46,7 +49,8 @@ namespace Crimson {
         static void* s_CommandQueue; // id<MTLCommandQueue>
         static void* s_CurrentEncoder; // id<MTLRenderCommandEncoder>
         static void* s_CurrentCommandBuffer; // id<MTLCommandBuffer>
-        static void* s_DepthStencilState; // id<MTLDepthStencilState>
+        static void* s_DepthDisabled; // id<MTLDepthStencilState>
+        static void* s_DepthEnabled; // id<MTLDepthStencilState>
         static void* s_CurrentDrawable; // id<CAMetalDrawable>
         
         glm::vec4 m_ClearColor = {0.0f, 0.0f, 0.0f, 1.0f};

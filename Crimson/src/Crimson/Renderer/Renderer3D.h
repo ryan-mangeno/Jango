@@ -48,7 +48,7 @@ namespace Crimson {
 	public:
 		static uint32_t depth_id[4];
 		static int index;
-		static void* ssao_id;
+		static GPUHandle ssao_id;
 		static glm::vec3 m_SunLightDir;
 		static glm::vec3 m_SunColor;
 		static float m_SunIntensity;

@@ -7,7 +7,7 @@
 
 namespace Crimson
 {
-	uint32_t OpenGLDeferredRenderer::m_framebufferID, OpenGLDeferredRenderer::m_RenderBufferID,
+	uint32_t OpenGLDeferredRenderer::m_FramebufferID, OpenGLDeferredRenderer::m_RenderBufferID,
 		OpenGLDeferredRenderer::m_NormalBufferID, OpenGLDeferredRenderer::m_AlbedoBufferID,
 		OpenGLDeferredRenderer::m_RoughnessMetallicBufferID, OpenGLDeferredRenderer::m_VelocityBufferID;
 
@@ -26,8 +26,8 @@ namespace Crimson
 		m_DefferedPassShader = Shader::Create("Crimson_Editor/Assets/Shaders/GLSL/DeferredPass.glsl");
 		m_ForwardPassShader = Shader::Create("Crimson_Editor/Assets/Shaders/GLSL/ForwardPass.glsl");
 
-		glCreateFramebuffers(1, &m_framebufferID);		
-		glBindFramebuffer(GL_FRAMEBUFFER, m_framebufferID);		
+		glCreateFramebuffers(1, &m_FramebufferID);		
+		glBindFramebuffer(GL_FRAMEBUFFER, m_FramebufferID);		
 
 		glGenTextures(1, &m_NormalBufferID);
 		glBindTexture(GL_TEXTURE_2D, m_NormalBufferID);
@@ -121,7 +121,7 @@ namespace Crimson
 
 		glm::vec2 viewport_size = RenderCommand::GetViewportSize();
 
-		glBindFramebuffer(GL_FRAMEBUFFER, m_framebufferID);
+		glBindFramebuffer(GL_FRAMEBUFFER, m_FramebufferID);
 		glViewport(0, 0, m_width, m_height); //set the viewport resolution same as gbuffer texture resolution
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 

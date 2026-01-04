@@ -1,27 +1,58 @@
 #include "cnpch.h"
 #include "Platform/OpenGL/OpenGLDeferredRenderer.h"
+#include "Platform/Metal/MetalDeferredRenderer.h"
 #include "DeferredRenderer.h"
 
 namespace Crimson
 {
 	void DefferedRenderer::Init(int width, int height)
 	{
-		OpenGLDeferredRenderer::Init(width,height);
+		switch(RendererAPI::GetAPI()) 
+		{
+			case GraphicsAPI::OpenGL: 	OpenGLDeferredRenderer::Init(width,height); break;
+			case GraphicsAPI::Metal:  	MetalDeferredRenderer::Init(width,height); 	break;
+			case GraphicsAPI::None:
+			default: 					CN_CORE_ERROR("Invalid Graphics API (Defferred Renderer Initialization Failed)");
+		}
 	}
 	void DefferedRenderer::GenerateGBuffers(Scene* scene, bool withWater)
 	{
-		OpenGLDeferredRenderer::CreateBuffers(scene, withWater);
+		switch(RendererAPI::GetAPI()) 
+		{
+			case GraphicsAPI::OpenGL:	OpenGLDeferredRenderer::CreateBuffers(scene, withWater); break;
+			case GraphicsAPI::Metal:	MetalDeferredRenderer::CreateBuffers(scene, withWater);  break;
+			case GraphicsAPI::None:
+			default: 					CN_CORE_ERROR("Invalid Graphics API (GBuffer Creation Failed)");
+		}
 	}
 	void DefferedRenderer::DeferredRenderPass()
 	{
-		OpenGLDeferredRenderer::DeferredPass();
+		switch(RendererAPI::GetAPI()) 
+		{
+			case GraphicsAPI::OpenGL:	OpenGLDeferredRenderer::DeferredPass(); break;
+			case GraphicsAPI::Metal:	MetalDeferredRenderer::DeferredPass(); break;
+			case GraphicsAPI::None:
+			default: 					CN_CORE_ERROR("Invalid Graphics API (Defferred Renderer Pass Failed)");
+		}
 	}
 	Ref<Shader> DefferedRenderer::GetDeferredPassShader()
 	{
-		return OpenGLDeferredRenderer::GetDeferredShader();
+		switch(RendererAPI::GetAPI()) 
+		{
+			case GraphicsAPI::OpenGL:	return OpenGLDeferredRenderer::GetDeferredShader();
+			case GraphicsAPI::Metal:	return MetalDeferredRenderer::GetDeferredShader();
+			case GraphicsAPI::None:
+			default: 					CN_CORE_ERROR("Invalid Graphics API (Defferred Shader Retrieval Failed)");
+		}
 	}
 	uint32_t DefferedRenderer::GetBuffers(int bufferInd)
 	{
-		return OpenGLDeferredRenderer::GetBuffers(bufferInd);
+		switch(RendererAPI::GetAPI()) 
+		{
+			case GraphicsAPI::OpenGL: 	return OpenGLDeferredRenderer::GetBuffers(bufferInd);
+			case GraphicsAPI::Metal: 	return MetalDeferredRenderer::GetBuffers(bufferInd);
+			case GraphicsAPI::None:
+			default: 					CN_CORE_ERROR("Invalid Graphics API (Buffer Retrieval Failed)");
+		}
 	}
 }

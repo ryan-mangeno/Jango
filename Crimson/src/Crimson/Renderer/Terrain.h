@@ -1,6 +1,7 @@
 #include "Crimson.h"
 #include "Water.h"
 #include "Bloom.h"
+#include "FrameBuffer.h"
 
 namespace Crimson
 {
@@ -47,10 +48,10 @@ namespace Crimson
 		inline void UnBindWaterRefractionFBO() const { m_Water->UnbindRefractionFBO(); }
 
 		inline PlatformGPUHandle GetWaterReflectionTexture() const { return m_Water->GetReflectionTextureHandle().ToPlatform(); }
-		inline const glm::uvec2& GetWaterReflectionViewport() const { return m_Water->GetReflectionViewport(); }
+		inline const FrameBufferSpecification& GetWaterReflectionSpec() const { return m_Water->GetReflectionSpec(); }
 		
 		inline PlatformGPUHandle GetWaterRefractionTexture() const { return m_Water->GetRefractionTextureHandle().ToPlatform(); }
-		inline const glm::uvec2& GetWaterRefractionViewport() const { return m_Water->GetRefractionViewport(); }
+		inline const FrameBufferSpecification& GetWaterRefractionSpec() const { return m_Water->GetRefractionSpec(); }
 
 		void RenderTerrain(Camera& cam, bool withWater);
 		void RenderWater(Camera& cam);

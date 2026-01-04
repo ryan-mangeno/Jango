@@ -120,8 +120,8 @@ namespace Crimson {
         camera.SetCameraPosition({ 0,0,0 });
 
         FrameBufferSpecification fbSpec;
-        fbSpec.viewport.x = captureRes;
-        fbSpec.viewport.y = captureRes;
+        fbSpec.Width = captureRes;
+        fbSpec.Height = captureRes;
         // Ensure specification supports format definition
         // fbSpec.Attachments = { FrameBufferTextureFormat::RGBA16F, FrameBufferTextureFormat::Depth }; 
         

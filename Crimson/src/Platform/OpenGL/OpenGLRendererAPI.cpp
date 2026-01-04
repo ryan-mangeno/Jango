@@ -125,4 +125,23 @@ namespace Crimson {
 		glGetFloatv(GL_VIEWPORT, arr);
 		return { arr[2],arr[3] };//the index 2 and 3 gives the width and height of the viewport
 	}
+
+	void OpenGLRendererAPI::SetDepthTest(bool val) {
+		if (val) {
+			glDepthMask(GL_TRUE);
+		} else {
+			glDepthMask(GL_FALSE);
+		}
+	}
+	
+	void OpenGLRendererAPI::SetCullFace(bool val) {
+		if (val) {
+			glEnable(GL_CULL_FACE);
+			glCullFace(GL_BACK);
+		} else {
+			glDisable(GL_CULL_FACE);
+		}
+	} 
+
+
 }

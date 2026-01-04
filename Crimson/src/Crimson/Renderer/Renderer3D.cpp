@@ -29,7 +29,7 @@ namespace Crimson {
 
 	uint32_t Renderer3D::depth_id[4];
 	int Renderer3D::index = 0;
-	void* Renderer3D::ssao_id = nullptr;
+	GPUHandle Renderer3D::ssao_id;
 	
 	struct VertexAttributes {
 		//glm::vec3 Position;
@@ -63,13 +63,11 @@ namespace Crimson {
 		m_data->shader->SetInt("SSAO", SSAO_BLUR_SLOT);
 		m_data->foliage_shader = Shader::Create("Crimson_Editor/Assets/Shaders/Metal/Foliage.metal");//foliage shader
 		m_data->foliage_shader->SetInt("SSAO", SSAO_BLUR_SLOT);
-		m_data->foliageShader_instanced = Shader::Create("Crimson_Editor/Assets/Shaders/Metal/FoliageInstanced.metal"); //this is not ideal!!
+		m_data->foliageShader_instanced = Shader::Create("Crimson_Editor/Assets/Shaders/Metal/FoliageInstanced.metal");  // non ideal, foliage and foliage instanced very similar
 		m_data->foliageShader_instanced->SetInt("SSAO", SSAO_BLUR_SLOT);
 
 		DefferedRenderer::GetDeferredPassShader()->Bind();
 		DefferedRenderer::GetDeferredPassShader()->SetInt("SSAO", SSAO_BLUR_SLOT);
-
-		
 		
 		//Loading cube map so that it can act as an environment light
 		m_data->reflection = CubeMapReflection::Create();

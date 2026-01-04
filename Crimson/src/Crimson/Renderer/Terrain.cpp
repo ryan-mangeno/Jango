@@ -6,6 +6,7 @@
 #include "stb_image.h"
 #include "Crimson/Physics/Physics3D.h"
 #include "Crimson/Renderer/Antialiasing.h"
+#include "Crimson/Renderer/FrameBuffer.h"
 
 
 //temporary
@@ -345,8 +346,8 @@ namespace Crimson
 		GLint previousViewport[4];
 		glGetIntegerv(GL_VIEWPORT, previousViewport);
 
-		const glm::uvec2& water_viewport = GetWaterReflectionViewport();
-		glViewport(0, 0, water_viewport.x, water_viewport.y);
+		const FrameBufferSpecification& water_spec = GetWaterReflectionSpec();
+		glViewport(0, 0, water_spec.Width, water_spec.Height);
 
 		BindWaterReflectionFBO();
 

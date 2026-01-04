@@ -32,7 +32,10 @@ namespace Crimson {
 	class RendererAPI {
 	public:
 		
-		virtual ~RendererAPI() = default;
+		virtual ~RendererAPI() = default;	
+		virtual void Init() = 0;
+	
+		inline static GraphicsAPI GetAPI() { return m_API; }
 
 		virtual void ClearColor(const glm::vec4&) = 0;
 		virtual void Clear() = 0;
@@ -46,10 +49,12 @@ namespace Crimson {
 		virtual void DrawElementsIndirect(VertexArray& vertexarray, DrawElementsIndirectCommand& indirectCommand) = 0;
 		virtual void DrawElementsIndirect(VertexArray& vertexarray, uint32_t indirectBufferID) = 0;	
 
-		inline static GraphicsAPI GetAPI() { return m_API; }
-		virtual void Init() = 0;
 		virtual void SetViewPort(uint32_t, uint32_t) = 0;
 		virtual glm::vec2 GetViewportSize() = 0;
+
+		virtual void SetDepthTest(bool val) = 0;
+		virtual void SetCullFace(bool val) = 0;
+
 	private:
 		static GraphicsAPI m_API;
 	};

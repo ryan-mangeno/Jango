@@ -7,12 +7,12 @@
 namespace Crimson {
 
     struct FrameBufferSpecification {
-        glm::uvec2 viewport;
+        uint32_t Width, Height;
         bool SwapChainTarget = false;
 
         FrameBufferSpecification() = default;
         FrameBufferSpecification(uint32_t width, uint32_t height)
-            : viewport(width, height)
+            : Width(width), Height(height)
         {
         }
 	};

@@ -42,9 +42,6 @@ namespace Crimson {
         nswin.contentView.wantsLayer = YES;
 
         CN_CORE_INFO("Metal Context Initialized");
-        
-        const char* gpuName = device.name ? [device.name UTF8String] : "Unknown GPU";
-        CN_CORE_INFO("  GPU: {0}", gpuName);
     }
 
     void MetalContext::SwapBuffers()

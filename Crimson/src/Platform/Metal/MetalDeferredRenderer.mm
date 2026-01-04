@@ -1,208 +1,218 @@
 #include "cnpch.h"
-#include "glad/glad.h"
-#include "Crimson/Physics/Physics3D.h"
 #include "MetalDeferredRenderer.h"
+#include "Crimson/Renderer/RenderCommand.h"
+#include "Crimson/Renderer/Renderer3D.h"
 #include "Crimson/Renderer/Terrain.h"
 #include "Crimson/Renderer/Antialiasing.h"
+#include "Crimson/Physics/Physics3D.h"
+#include "MetalRendererAPI.h"
+#include "MetalTexture2D.h" // Reuse your existing texture class
 
-namespace Crimson
-{
-	uint32_t MetalDeferredRenderer::m_framebufferID, MetalDeferredRenderer::m_RenderBufferID,
-		MetalDeferredRenderer::m_NormalBufferID, MetalDeferredRenderer::m_AlbedoBufferID,
-		MetalDeferredRenderer::m_RoughnessMetallicBufferID, MetalDeferredRenderer::m_VelocityBufferID;
+#import <Metal/Metal.h>
 
-	Ref<Shader> MetalDeferredRenderer::m_ForwardPassShader;
-	Ref<Shader> MetalDeferredRenderer::m_DefferedPassShader;
-	static int m_width, m_height;
+namespace Crimson {
 
-	void MetalDeferredRenderer::Init(int width, int height)
-	{
+    // --- G-Buffer Attachments ---
+    // We store these locally in the renderer, just like the OpenGL version stores GLuints
+    Ref<MetalTexture2D> MetalDeferredRenderer::m_NormalTexture;
+    Ref<MetalTexture2D> MetalDeferredRenderer::m_VelocityTexture;
+    Ref<MetalTexture2D> MetalDeferredRenderer::m_AlbedoTexture;
+    Ref<MetalTexture2D> MetalDeferredRenderer::m_RoughnessTexture;
+    Ref<MetalTexture2D> MetalDeferredRenderer::m_DepthTexture;
 
-		CN_PROFILE_FUNCTION()
+    Ref<Shader> MetalDeferredRenderer::m_ForwardPassShader;
+    Ref<Shader> MetalDeferredRenderer::m_DefferedPassShader;
+    
+    int MetalDeferredRenderer::m_Width = 0;
+    int MetalDeferredRenderer::m_Height = 0;
 
-		m_width = width;
-		m_height = height;
-
-		m_DefferedPassShader = Shader::Create("Crimson_Editor/Assets/Shaders/GLSL/DeferredPass.glsl");
-		m_ForwardPassShader = Shader::Create("Crimson_Editor/Assets/Shaders/GLSL/ForwardPass.glsl");
-
-		glCreateFramebuffers(1, &m_framebufferID);		
-		glBindFramebuffer(GL_FRAMEBUFFER, m_framebufferID);		
-
-		glGenTextures(1, &m_NormalBufferID);
-		glBindTexture(GL_TEXTURE_2D, m_NormalBufferID);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width, height, 0, GL_RGB, GL_FLOAT, nullptr);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_NormalBufferID, 0);
-
-		glGenTextures(1, &m_VelocityBufferID);
-		glBindTexture(GL_TEXTURE_2D, m_VelocityBufferID);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RG16F, width, height, 0, GL_RG, GL_FLOAT, nullptr);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, m_VelocityBufferID, 0);
-
-		glGenTextures(1, &m_AlbedoBufferID);
-		glBindTexture(GL_TEXTURE_2D, m_AlbedoBufferID);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY, 16.0f);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, m_AlbedoBufferID, 0);
-
-		glGenTextures(1, &m_RoughnessMetallicBufferID);
-		glBindTexture(GL_TEXTURE_2D, m_RoughnessMetallicBufferID);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, GL_TEXTURE_2D, m_RoughnessMetallicBufferID, 0);
-
-
-		GLenum buffers[4] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3 };
-		glDrawBuffers(4, buffers);
-
-		//capture the depth of the scene on to a texture this will later be used for render the sky
-		glGenTextures(1, &m_RenderBufferID);
-		glBindTexture(GL_TEXTURE_2D, m_RenderBufferID);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32F, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, m_RenderBufferID, 0);
-
-		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE)
-			CN_CORE_INFO("G-Buffer Framebuffer complete")
-
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-		glBindTextureUnit(G_NORMAL_TEXTURE_SLOT, m_NormalBufferID);
-		glBindTextureUnit(G_VELOCITY_BUFFER_SLOT, m_VelocityBufferID);
-		glBindTextureUnit(G_COLOR_TEXTURE_SLOT, m_AlbedoBufferID);
-		glBindTextureUnit(G_ROUGHNESS_METALLIC_TEXTURE_SLOT, m_RoughnessMetallicBufferID);
-		glBindTextureUnit(SCENE_DEPTH_SLOT, m_RenderBufferID);
+	static id<MTLTexture> GetMTL(Ref<MetalTexture2D> tex){
+		if(!tex) CN_CORE_ERROR("Error: Input Texture DNE");
+		return (__bridge id<MTLTexture>)(tex->GetTexturePointer());
 	}
 
-	void MetalDeferredRenderer::RenderEntities(Scene* scene)
-	{
-		scene->getRegistry().each([&](auto m_entity)
-			{
-				Entity Entity(scene, m_entity);
-				if (Entity.GetComponent<StaticMeshComponent>().isFoliage == false)
-				{
-					const auto& transform = Entity.GetComponent<TransformComponent>().GetTransform();
+    void MetalDeferredRenderer::Init(int width, int height)
+    {
+        CN_PROFILE_FUNCTION();
 
-					auto& mesh = Entity.GetComponent<StaticMeshComponent>();
-					if (Entity.HasComponent<PhysicsComponent>())
-					{
-						auto& physics_cmp = Entity.GetComponent<PhysicsComponent>();
-						Physics3D::UpdateTransform(Entity.GetComponent<TransformComponent>(), physics_cmp);
-					}
+        m_Width = width;
+        m_Height = height;
 
-					if (Entity.HasComponent<SpriteRenderer>()) {
-						auto& SpriteRendererComponent = Entity.GetComponent<SpriteRenderer>();
-						Renderer3D::SetTransperancy(SpriteRendererComponent.Transperancy);
-						Renderer3D::DrawMesh(*mesh, transform, SpriteRendererComponent.Color * SpriteRendererComponent.Emission_Scale, SpriteRendererComponent.m_WireFrame, SpriteRendererComponent.m_Roughness, SpriteRendererComponent.m_Metallic, m_ForwardPassShader);
-					}
-					else
-					{
-						Renderer3D::SetTransperancy(1.0f);
-						Renderer3D::DrawMesh(*mesh, transform, Entity.m_DefaultColor, false, 1.0f, 0.0f, m_ForwardPassShader); // default color, roughness, metallic value
-					}
-				}
-			});
-	}
-	
-	
-	void MetalDeferredRenderer::CreateBuffers(Scene* scene, bool withWater)
-	{
+        m_DefferedPassShader = Shader::Create("Crimson_Editor/Assets/Shaders/Metal/DeferredPass.metal");
+        m_ForwardPassShader  = Shader::Create("Crimson_Editor/Assets/Shaders/Metal/ForwardPass.metal");
 
-		CN_PROFILE_FUNCTION()
+        // Create G-Buffer Textures
+        // Normal: RGBA16F
+        m_NormalTexture = MakeRef<MetalTexture2D>(width, height, ImageFormat::RGBA16F);
+        
+        // Velocity: RG16F
+        m_VelocityTexture = MakeRef<MetalTexture2D>(width, height, ImageFormat::RG16F);
+        
+        // Albedo: RGBA8
+        m_AlbedoTexture = MakeRef<MetalTexture2D>(width, height, ImageFormat::RGBA8);
+        
+        // Roughness/Metallic: RGBA8
+        m_RoughnessTexture = MakeRef<MetalTexture2D>(width, height, ImageFormat::RGBA8);
+        
+        // Depth: Depth32F
+        m_DepthTexture = MakeRef<MetalTexture2D>(width, height, ImageFormat::DEPTH32F);
+        
+        CN_CORE_INFO("Metal G-Buffer Initialized");
+    }
 
+    void MetalDeferredRenderer::RenderEntities(Scene* scene)
+    {
+        scene->getRegistry().each([&](auto m_entity)
+        {
+            Entity Entity(scene, m_entity);
+            if (!Entity.GetComponent<StaticMeshComponent>().isFoliage)
+            {
+                const auto& transform = Entity.GetComponent<TransformComponent>().GetTransform();
+                auto& mesh = Entity.GetComponent<StaticMeshComponent>();
 
-		glm::vec2 viewport_size = RenderCommand::GetViewportSize();
+                if (Entity.HasComponent<PhysicsComponent>()) {
+                    auto& physics_cmp = Entity.GetComponent<PhysicsComponent>();
+                    Physics3D::UpdateTransform(Entity.GetComponent<TransformComponent>(), physics_cmp);
+                }
 
-		glBindFramebuffer(GL_FRAMEBUFFER, m_framebufferID);
-		glViewport(0, 0, m_width, m_height); //set the viewport resolution same as gbuffer texture resolution
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+                if (Entity.HasComponent<SpriteRenderer>()) {
+                    auto& sprite = Entity.GetComponent<SpriteRenderer>();
+                    Renderer3D::SetTransperancy(sprite.Transperancy);
+                    Renderer3D::DrawMesh(*mesh, transform, sprite.Color * sprite.Emission_Scale, 
+                                       sprite.m_WireFrame, sprite.m_Roughness, sprite.m_Metallic, 
+                                       m_ForwardPassShader);
+                }
+                else {
+                    Renderer3D::SetTransperancy(1.0f);
+                    Renderer3D::DrawMesh(*mesh, transform, Entity.m_DefaultColor, false, 
+                                       1.0f, 0.0f, m_ForwardPassShader); 
+                }
+            }
+        });
+    }
+    
+    void MetalDeferredRenderer::CreateBuffers(Scene* scene, bool withWater)
+    {
+        CN_PROFILE_FUNCTION();
 
+        // Build the G-Buffer Pass manually
+        MTLRenderPassDescriptor* passDesc = [MTLRenderPassDescriptor renderPassDescriptor];
+        
+        // Attachment 0: Normal
+        passDesc.colorAttachments[0].texture = GetMTL(m_NormalTexture);
+        passDesc.colorAttachments[0].loadAction = MTLLoadActionClear;
+        passDesc.colorAttachments[0].storeAction = MTLStoreActionStore;
+        passDesc.colorAttachments[0].clearColor = MTLClearColorMake(0, 0, 0, 1);
 
-		scene->m_Terrain->RenderTerrain(*scene->GetCamera(), withWater);
-		Renderer3D::BeginScene(*scene->GetCamera(), m_ForwardPassShader);
-		RenderEntities(scene);
-		Renderer3D::EndScene();
+        // Attachment 1: Velocity
+        passDesc.colorAttachments[1].texture = GetMTL(m_VelocityTexture);
+        passDesc.colorAttachments[1].loadAction = MTLLoadActionClear;
+        passDesc.colorAttachments[1].storeAction = MTLStoreActionStore;
+        passDesc.colorAttachments[1].clearColor = MTLClearColorMake(0, 0, 0, 0);
 
-		glViewport(0, 0, viewport_size.x, viewport_size.y);
+        // Attachment 2: Albedo
+        passDesc.colorAttachments[2].texture = GetMTL(m_AlbedoTexture);
+        passDesc.colorAttachments[2].loadAction = MTLLoadActionClear;
+        passDesc.colorAttachments[2].storeAction = MTLStoreActionStore;
+        passDesc.colorAttachments[2].clearColor = MTLClearColorMake(0, 0, 0, 1);
 
-		m_DefferedPassShader->Bind();
-		m_DefferedPassShader->SetFloat3("EyePosition", scene->GetCamera()->GetCameraPosition());
+        // Attachment 3: Roughness/Metallic
+        passDesc.colorAttachments[3].texture = GetMTL(m_RoughnessTexture);
+        passDesc.colorAttachments[3].loadAction = MTLLoadActionClear;
+        passDesc.colorAttachments[3].storeAction = MTLStoreActionStore;
+        passDesc.colorAttachments[3].clearColor = MTLClearColorMake(0, 0, 0, 1);
 
-	}
-	void MetalDeferredRenderer::DeferredPass()
-	{
+        // Depth Attachment
+        passDesc.depthAttachment.texture = GetMTL(m_DepthTexture);
+        passDesc.depthAttachment.loadAction = MTLLoadActionClear;
+        passDesc.depthAttachment.storeAction = MTLStoreActionStore;
+        passDesc.depthAttachment.clearDepth = 1.0;
 
-		CN_PROFILE_FUNCTION()
+        // start pass
+        id<MTLCommandBuffer> cmdBuf = (__bridge id<MTLCommandBuffer>)MetalRendererAPI::GetCurrentCommandBuffer();
+        id<MTLRenderCommandEncoder> encoder = [cmdBuf renderCommandEncoderWithDescriptor:passDesc];
+        // Store encoder globally so Renderer3D::DrawMesh can use it
+        MetalRendererAPI::SetCurrentEncoder((void*)CFBridgingRetain(encoder));
+        RenderCommand::SetViewport(m_Width, m_Height);
 
-		glm::vec2 jitter = Antialiasing::GetJitterOffset();
+        // Render Scene
+        scene->m_Terrain->RenderTerrain(*scene->GetCamera(), withWater);
+        Renderer3D::BeginScene(*scene->GetCamera(), m_ForwardPassShader);
+        RenderEntities(scene);
 
-		m_DefferedPassShader->Bind();
-		m_DefferedPassShader->SetFloat("jitterX", jitter.x);
-		m_DefferedPassShader->SetFloat("jitterY", jitter.y);
-	
-		m_DefferedPassShader->SetInt("depthBuffer", SCENE_DEPTH_SLOT);
-		m_DefferedPassShader->SetInt("gNormal", G_NORMAL_TEXTURE_SLOT);
-		m_DefferedPassShader->SetInt("gColor", G_COLOR_TEXTURE_SLOT);
-		m_DefferedPassShader->SetInt("gRoughnessMetallic", G_ROUGHNESS_METALLIC_TEXTURE_SLOT);
-		m_DefferedPassShader->SetInt("gVelocity", G_VELOCITY_BUFFER_SLOT);		
-		m_DefferedPassShader->SetInt("History_Buffer", ORIGINAL_SCENE_TEXTURE_SLOT);
-		//other uniforms are passed in the Renderer3D.cpp class
+		// end
+        Renderer3D::EndScene();
+        [encoder endEncoding]; // todo, put this logic into end scene, end scene is empty rn
+        CFRelease((__bridge CFTypeRef)encoder);
+        MetalRendererAPI::SetCurrentEncoder(nullptr);
 
-		//this function renders a quad infront of the camera
-		glDisable(GL_CULL_FACE);
-		glDepthMask(GL_FALSE);//disable writing to depth buffer
+        // Update Deferred Shader for next pass
+        m_DefferedPassShader->Bind();
+        m_DefferedPassShader->SetFloat3("EyePosition", scene->GetCamera()->GetCameraPosition());
+    }
 
-		const std::array<glm::vec4, 8> vb_data = 
-		{
-			{
-			glm::vec4(-1,-1,0,1),
-			glm::vec4(0,0,0,0),
-			glm::vec4(1,-1,0,1),
-			glm::vec4(1,0,0,0),
-			glm::vec4(1,1,0,1),
-			glm::vec4(1,1,0,0),
-			glm::vec4(-1,1,0,1),
-			glm::vec4(0,1,0,0)
-			}
-		};
+    void MetalDeferredRenderer::DeferredPass()
+    {
+        CN_PROFILE_FUNCTION();
 
-		Ref<VertexArray> vao = VertexArray::Create();
-		Ref<VertexBuffer> vb = VertexBuffer::Create(&vb_data[0].x, sizeof(vb_data));
+        glm::vec2 viewport = RenderCommand::GetViewportSize();
+        RenderCommand::SetViewport(viewport.x, viewport.y);
 
-		const std::array<uint32_t, 6> ib_data = { 0,1,2,0,2,3 };
-		Ref<IndexBuffer> ib = IndexBuffer::Create(&ib_data[0], sizeof(ib_data));
+        glm::vec2 jitter = Antialiasing::GetJitterOffset();
 
-		Ref<BufferLayout> bl = std::make_shared<BufferLayout>(); //buffer layout
+        m_DefferedPassShader->Bind();
+        m_DefferedPassShader->SetFloat("jitterX", jitter.x);
+        m_DefferedPassShader->SetFloat("jitterY", jitter.y);
 
-		bl->push("position", ShaderDataType::Float4);
-		bl->push("coordinate", ShaderDataType::Float4);
+        // Bind G-Buffer Textures to Shader Slots
+        // SCENE_DEPTH_SLOT etc must match DeferredPass.metal [[texture(N)]] indices
+        m_DepthTexture->Bind(SCENE_DEPTH_SLOT);
+        m_NormalTexture->Bind(G_NORMAL_TEXTURE_SLOT);
+        m_VelocityTexture->Bind(G_VELOCITY_BUFFER_SLOT);
+        m_AlbedoTexture->Bind(G_COLOR_TEXTURE_SLOT);
+        m_RoughnessTexture->Bind(G_ROUGHNESS_METALLIC_TEXTURE_SLOT);
+        
+        // Render Full Screen Quad
+        RenderCommand::SetDepthTest(false);
+        RenderCommand::SetCullFace(false);
 
-		vao->AddBuffer(bl, vb);
-		vao->SetIndexBuffer(ib);
+        static float quadVertices[] = {
+            -1, -1, 0, 1,   0, 0, 0, 0,
+             1, -1, 0, 1,   1, 0, 0, 0,
+             1,  1, 0, 1,   1, 1, 0, 0,
+            -1,  1, 0, 1,   0, 1, 0, 0
+        };
+        static uint32_t quadIndices[] = { 0, 1, 2, 2, 3, 0 };
 
-		RenderCommand::DrawIndex(*vao, GL_TRIANGLES);
+        id<MTLDevice> device = (__bridge id<MTLDevice>)MetalRendererAPI::GetDevice();
+        id<MTLBuffer> vb = [device newBufferWithBytes:quadVertices length:sizeof(quadVertices) options:MTLResourceStorageModeShared];
+        id<MTLBuffer> ib = [device newBufferWithBytes:quadIndices length:sizeof(quadIndices) options:MTLResourceStorageModeShared];
 
-		glDepthMask(GL_TRUE);//again enable writing to depth buffer
-		glEnable(GL_CULL_FACE);
-		glCullFace(GL_BACK);
-	}
+        id<MTLRenderCommandEncoder> encoder = (__bridge id<MTLRenderCommandEncoder>)MetalRendererAPI::GetCurrentEncoder();
+        
+        if (encoder) {
+            [encoder setVertexBuffer:vb offset:0 atIndex:0]; 
+            [encoder drawIndexedPrimitives:MTLPrimitiveTypeTriangle 
+                                indexCount:6 
+                                 indexType:MTLIndexTypeUInt32 
+                               indexBuffer:ib 
+                         indexBufferOffset:0];
+        }
 
-	uint32_t MetalDeferredRenderer::GetBuffers(uint32_t bufferInd)
-	{
-		switch (bufferInd)
-		{
-			case  0:	return m_NormalBufferID;
-			case  1:	return m_VelocityBufferID;
-			case  2:	return m_AlbedoBufferID;
-			case  3:	return m_RoughnessMetallicBufferID;
-		}
-	}
+        RenderCommand::SetDepthTest(true);
+        RenderCommand::SetCullFace(true);
+    }
+
+	// not rlly needed, only for imgui which you can cast void* to ImTexture, and this is lossly on some os
+    uint32_t MetalDeferredRenderer::GetBuffers(uint32_t bufferInd)
+    {
+        switch (bufferInd)
+        {
+            case  0:    return (uint32_t)(uintptr_t)m_NormalTexture->GetTexturePointer();
+            case  1:    return (uint32_t)(uintptr_t)m_VelocityTexture->GetTexturePointer();
+            case  2:    return (uint32_t)(uintptr_t)m_AlbedoTexture->GetTexturePointer();
+            case  3:    return (uint32_t)(uintptr_t)m_RoughnessTexture->GetTexturePointer();
+        }
+        return 0;
+    }
 }
