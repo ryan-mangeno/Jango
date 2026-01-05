@@ -63,8 +63,8 @@ namespace Crimson
 		//glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 5, ssbo_arrMaterials);
 		//glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
-		cs_RayTracingShader = Shader::Create("Crimson_Editor/Assets/Shaders/GLSL/CS_RayTracing.glsl");
-		RayTracing_CopyShader = Shader::Create("Crimson_Editor/Assets/Shaders/GLSL/CS_RayTracingCopy.glsl");
+		cs_RayTracingShader = Shader::Create("Crimson_Editor/Assets/Shaders/{API}/CS_RayTracing{EXT}");
+		RayTracing_CopyShader = Shader::Create("Crimson_Editor/Assets/Shaders/{API}/CS_RayTracingCopy{EXT}");
 	}
 
 	RayTracer::RayTracer(int image_w, int image_h, int viewport_w, int viewport_h, int samples)

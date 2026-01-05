@@ -31,15 +31,15 @@ namespace Crimson {
 		camera = new EditorCamera(16, 9);
 		camera->SetCameraPosition(Showcase_camPosition);
 		
-		cs_FrustumCull = Shader::Create("Crimson_Editor/Assets/Shaders/GLSL/CS_FrustumCull.glsl");
-		cs_FoliageSpawn = Shader::Create("Crimson_Editor/Assets/Shaders/GLSL/CS_ProceduralFoliagePlacement.glsl");
-		cs_GrassPlacement = Shader::Create("Crimson_Editor/Assets/Shaders/GLSL/CS_GrassPlacement.glsl");
-		cs_createLod = Shader::Create("Crimson_Editor/Assets/Shaders/GLSL/CS_CreateLODs.glsl");
-		//cs_CopyIndirectBufferData = Shader::Create("Crimson_Editor/Assets/Shaders/GLSL/CS_CopyIndirectBufferDataArrays.glsl");
-		cs_CopyIndirectBufferData = Shader::Create("Crimson_Editor/Assets/Shaders/GLSL/CS_CopyIndirectBufferDataElements.glsl");
-		cs_ResetDensityMap = Shader::Create("Crimson_Editor/Assets/Shaders/GLSL/CS_ResetDensityMap.glsl");
+		cs_FrustumCull = Shader::Create("Crimson_Editor/Assets/Shaders/{API}/CS_FrustumCull{EXT}");
+		cs_FoliageSpawn = Shader::Create("Crimson_Editor/Assets/Shaders/{API}/CS_ProceduralFoliagePlacement{EXT}");
+		cs_GrassPlacement = Shader::Create("Crimson_Editor/Assets/Shaders/{API}/CS_GrassPlacement{EXT}");
+		cs_createLod = Shader::Create("Crimson_Editor/Assets/Shaders/{API}/CS_CreateLODs{EXT}");
+		//cs_CopyIndirectBufferData = Shader::Create("Crimson_Editor/Assets/Shaders/{API}/CS_CopyIndirectBufferDataArrays{EXT}");
+		cs_CopyIndirectBufferData = Shader::Create("Crimson_Editor/Assets/Shaders/{API}/CS_CopyIndirectBufferDataElements{EXT}");
+		cs_ResetDensityMap = Shader::Create("Crimson_Editor/Assets/Shaders/{API}/CS_ResetDensityMap{EXT}");
 
-		blueNoiseTexture = Texture2D::Create("Assets/Textures/Blue_Noise.png");
+		blueNoiseTexture = Texture2D::Create("Crimson_Editor/Assets/Textures/Blue_Noise.png");
 		blueNoiseTexture->Bind(BLUE_NOISE_TEXTURE_SLOT);
 
 		glGenTextures(1, &m_DensityMapID);
@@ -94,31 +94,8 @@ namespace Crimson {
 		for (const auto& sub_mesh : m_foliageMesh->GetLOD(0)->GetSubMeshes())
 		{
 			cs_CopyIndirectBufferData->Bind();
-
-			//cs_CopyIndirectBufferData->SetInt("VertexBufferSize", sub_mesh.NumVertices);
 			cs_CopyIndirectBufferData->SetInt("IndexBufferSize", sub_mesh.NumIndices);
 
-			// for draw arrays
-			/*	
-			if (ssbo_indirectBuffer_LOD0 == -1)
-			{
-				glGenBuffers(1, &ssbo_indirectBuffer_LOD0);
-				glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo_indirectBuffer_LOD0);
-				glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(DrawArraysIndirectCommand), &indirectBuffer_LOD0, GL_DYNAMIC_DRAW);
-				glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, ssbo_indirectBuffer_LOD0);
-				glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
-			}
-			else
-			{
-				glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo_indirectBuffer_LOD0);
-				glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, ssbo_indirectBuffer_LOD0);
-				glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
-			}
-			*/
-
-
-			// need to work on drawing elements
-			
 			if (ssbo_indirectBuffer_LOD0 == -1)
 			{
 				glGenBuffers(1, &ssbo_indirectBuffer_LOD0);
@@ -142,9 +119,6 @@ namespace Crimson {
 			glDispatchCompute(1, 1, 1);
 			glMemoryBarrier(GL_ALL_BARRIER_BITS);
 
-			// temporary
-			//glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo_indirectBuffer_LOD0);
-
 			Renderer3D::DrawFoliageInstanced(sub_mesh, Terrain::m_terrainModelMat, ssbo_indirectBuffer_LOD0, Terrain::time, applyGradientMask, enableWind);
 		}
 		//LOD 1
@@ -152,28 +126,8 @@ namespace Crimson {
 		for (const auto& sub_mesh : m_foliageMesh->GetLOD(1)->GetSubMeshes())
 		{
 			cs_CopyIndirectBufferData->Bind();
-			//cs_CopyIndirectBufferData->SetInt("VertexBufferSize", sub_mesh.NumVertices);
 			cs_CopyIndirectBufferData->SetInt("IndexBufferSize", sub_mesh.NumIndices);
-			
-
-			// old stuff from drawing vertex array
-			/*
-			if (ssbo_indirectBuffer_LOD1 == -1)
-			{
-				glGenBuffers(1, &ssbo_indirectBuffer_LOD1);
-				glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo_indirectBuffer_LOD1);
-				glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(DrawArraysIndirectCommand), &indirectBuffer_LOD1, GL_DYNAMIC_DRAW);
-				glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, ssbo_indirectBuffer_LOD1);
-				glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
-			}
-			else
-			{
-				glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo_indirectBuffer_LOD1);
-				glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, ssbo_indirectBuffer_LOD1);
-				glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
-			}
-			*/
-
+		
 
             if (ssbo_indirectBuffer_LOD1 == -1)
             {
@@ -200,86 +154,6 @@ namespace Crimson {
 			Renderer3D::DrawFoliageInstanced(sub_mesh, Terrain::m_terrainModelMat, ssbo_indirectBuffer_LOD1, Terrain::time, applyGradientMask, enableWind);
 		}
 	}
-
-	//void Foliage::RenderFoliage(Camera& cam)
-	//{
-	//	float fov = cam.GetVerticalFOV();
-	//	cam.SetVerticalFOV(fov * 2);
-	//	//choose LOD here;		
-	//	SpawnFoliage(cam.GetCameraPosition());
-	//
-	//	//Frustum cull and distance cull 
-	//	for (int i = 0; i < m_instanceCount; i += 1024)
-	//	{
-	//		Vote(cam, i);
-	//		Scan(i);
-	//		Compact(i);
-	//	}
-	//	CreateLODs(cam);
-	//	cam.SetVerticalFOV(fov);
-	//
-	//	Renderer3D::BeginSceneFoliage(cam);
-	//	//LOD 0
-	//	Renderer3D::InstancedFoliageData(*m_foliageMesh->GetLOD(0), ssbo_outTransformsLOD0);//render lod0 elements
-	//	for (auto sub_mesh : m_foliageMesh->GetLOD(0)->m_subMeshes)
-	//	{
-	//		cs_CopyIndirectBufferData->Bind();
-	//		cs_CopyIndirectBufferData->SetInt("VertexBufferSize", sub_mesh.numVertices);
-	//
-	//		if (ssbo_indirectBuffer_LOD0 == -1)
-	//		{
-	//			glGenBuffers(1, &ssbo_indirectBuffer_LOD0);
-	//			glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo_indirectBuffer_LOD0);
-	//			glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(DrawArraysIndirectCommand), &indirectBuffer_LOD0, GL_DYNAMIC_DRAW);
-	//			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, ssbo_indirectBuffer_LOD0);
-	//			glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
-	//		}
-	//		else
-	//		{
-	//			glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo_indirectBuffer_LOD0);
-	//			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, ssbo_indirectBuffer_LOD0);
-	//			glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
-	//		}
-	//
-	//		glBindBuffer(GL_SHADER_STORAGE_BUFFER, atomicCounter_lod0);
-	//		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, atomicCounter_lod0);
-	//		glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
-	//
-	//		glDispatchCompute(1, 1, 1);
-	//		glMemoryBarrier(GL_ALL_BARRIER_BITS);
-	//		Renderer3D::DrawFoliageInstanced(sub_mesh, Terrain::m_terrainModelMat, ssbo_indirectBuffer_LOD0, Terrain::time, applyGradientMask, enableWind);
-	//	}
-	//	//LOD 1
-	//	Renderer3D::InstancedFoliageData(*m_foliageMesh->GetLOD(1), ssbo_outTransformsLOD1);	//render lod1 elements
-	//	for (auto sub_mesh : m_foliageMesh->GetLOD(1)->m_SubMeshes)
-	//	{
-	//		cs_CopyIndirectBufferData->Bind();
-	//		cs_CopyIndirectBufferData->SetInt("VertexBufferSize", sub_mesh.numVertices);
-	//
-	//		if (ssbo_indirectBuffer_LOD1 == -1)
-	//		{
-	//			glGenBuffers(1, &ssbo_indirectBuffer_LOD1);
-	//			glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo_indirectBuffer_LOD1);
-	//			glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(DrawArraysIndirectCommand), &indirectBuffer_LOD1, GL_DYNAMIC_DRAW);
-	//			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, ssbo_indirectBuffer_LOD1);
-	//			glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
-	//		}
-	//		else
-	//		{
-	//			glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo_indirectBuffer_LOD1);
-	//			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, ssbo_indirectBuffer_LOD1);
-	//			glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
-	//		}
-	//
-	//		glBindBuffer(GL_SHADER_STORAGE_BUFFER, atomicCounter_lod1);
-	//		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, atomicCounter_lod1);
-	//		glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
-	//
-	//		glDispatchCompute(1, 1, 1);
-	//		glMemoryBarrier(GL_ALL_BARRIER_BITS);
-	//		Renderer3D::DrawFoliageInstanced(sub_mesh, Terrain::m_terrainModelMat, ssbo_indirectBuffer_LOD1, Terrain::time, applyGradientMask, enableWind);
-	//	}
-	//}
 	void Foliage::RenderFoliage(Ref<Shader>& shadow_shader)
 	{
 		//LOD 0

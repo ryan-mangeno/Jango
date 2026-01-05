@@ -7,17 +7,20 @@
 
 namespace Crimson {
 
-
 	Ref<Shader> Shader::Create(const std::string& path)
 	{
+		// temporary
+		std::string tmp(path);
+		ShaderPathParse::ParseShader(tmp);
+		
 		switch (RendererAPI::GetAPI())
 		{
 		case GraphicsAPI::None:
 			return nullptr;
 		case GraphicsAPI::OpenGL:
-			return MakeRef<OpenGLShader>(path);
+			return MakeRef<OpenGLShader>(tmp);
 		case GraphicsAPI::Metal:
-			return MakeRef<MetalShader>(path);
+			return MakeRef<MetalShader>(tmp);
 		default:
 			return nullptr;
 		}

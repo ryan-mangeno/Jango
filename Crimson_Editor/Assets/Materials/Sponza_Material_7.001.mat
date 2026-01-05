@@ -1,10 +1,10 @@
-Material ID: 3967627923486300023
+Material ID: 4349962587430834949
 Color: [1, 1, 1, 1]
 Roughness: 1
 Metallic: 0
 Normal Strength: 1
 Emission: 0
-Albedo Map: Assets/Textures/MeshTextures/15295713303328085182.jpg
-Normal Map: Assets/Textures/MeshTextures/10388182081421875623.jpg
-Roughness Map: Assets/Textures/MeshTextures/9916269861720640319.jpg
+Albedo Map: Crimson_Editor/Assets/Textures/MeshTextures/15295713303328085182.jpg
+Normal Map: Crimson_Editor/Assets/Textures/MeshTextures/10388182081421875623.jpg
+Roughness Map: Crimson_Editor/Assets/Textures/MeshTextures/9916269861720640319.jpg
 Shader Path: TODO

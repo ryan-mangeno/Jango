@@ -17,7 +17,7 @@ namespace Crimson
 		CN_PROFILE_FUNCTION()
 
 		m_Width = width; m_Height = height;
-		m_TAA_shader = Shader::Create("Crimson_Editor/Assets/Shaders/GLSL/TAA.glsl");
+		m_TAA_shader = Shader::Create("Crimson_Editor/Assets/Shaders/{API}/TAA{EXT}");
 
 		glGenFramebuffers(1, &m_fbo);
 		glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);

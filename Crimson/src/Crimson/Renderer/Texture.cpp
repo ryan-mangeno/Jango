@@ -29,7 +29,7 @@ namespace Crimson {
 		Ref<Texture2D> instance;
 		uint64_t ID = 0;
 
-		CN_CORE_TRACE("Creating texture: {}", path);
+		CN_CORE_TRACE("Creating texture: {0}", path.c_str());
 		
 		switch (RendererAPI::GetAPI()) 
 		{

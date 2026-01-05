@@ -221,7 +221,7 @@ namespace Crimson
 		const uint32_t NumMaterials = scene->mNumMaterials;
 		m_SubMeshes.resize(NumMaterials);
 
-		const std::string relative_path = "Assets/Textures/MeshTextures/";
+		const std::string relative_path = "Crimson_Editor/Assets/Textures/MeshTextures/";
 		auto GetTexturePath = [&](const aiMaterial* material, aiTextureType type) -> const std::string
 		{
 			uint32_t x = material->GetTextureCount(type);

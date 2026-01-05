@@ -46,7 +46,7 @@ namespace Crimson
 
 		if (storage_path == "")
 		{
-			std::filesystem::path materialpath("Assets/Materials");
+			std::filesystem::path materialpath("Crimson_Editor/Assets/Materials");
 			std::filesystem::create_directory(materialpath);
 			std::string MatPath = (materialpath / std::filesystem::path(m_MaterialName + extension)).string();
 			UUID uuid(MatPath); //create UUID based on material path
@@ -84,7 +84,7 @@ namespace Crimson
 			if(ResourceManager::allMaterials.find(materialID) == ResourceManager::allMaterials.end())
 				ResourceManager::allMaterials[materialID] = m_material; //can change but for now only enlist the material in resource manager in material serialization and deserialization
 			
-			std::filesystem::path materialpath("Assets/Materials");
+			std::filesystem::path materialpath("Crimson_Editor/Assets/Materials");
 			std::filesystem::create_directory(materialpath);
 			m_MaterialName = materialName; //copy without extension
 			std::string MatPath = (materialpath / std::filesystem::path(m_MaterialName + extension)).string();
@@ -99,7 +99,7 @@ namespace Crimson
 	void Material::DeserializeMaterial()
 	{
 		//iterate through the directory and load the .mat files
-		std::filesystem::path materialpath("Assets/Materials"); //needs to be changed as we should have the ability to iterate the entire solution
+		std::filesystem::path materialpath("Crimson_Editor/Assets/Materials"); //needs to be changed as we should have the ability to iterate the entire solution
 		for (auto& p : std::filesystem::directory_iterator(materialpath))
 		{
 			if (p.path().extension().string() == extension)

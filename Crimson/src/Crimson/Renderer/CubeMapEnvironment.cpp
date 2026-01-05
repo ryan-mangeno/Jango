@@ -98,11 +98,11 @@ namespace Crimson {
     {
         CN_PROFILE_FUNCTION()
 
-        Cube_Shader = Shader::Create("Crimson_Editor/Assets/Shaders/Metal/CubeMap.metal");
-        equirectangularToCube_shader = Shader::Create("Crimson_Editor/Assets/Shaders/Metal/EquirectangularToCube.metal");
-        irradiance_shader = Shader::Create("Crimson_Editor/Assets/Shaders/Metal/IBL_Irradiance.metal");
-        prefilterShader = Shader::Create("Crimson_Editor/Assets/Shaders/Metal/IBL_Prefilter.metal");
-        BRDFSumShader = Shader::Create("Crimson_Editor/Assets/Shaders/Metal/IBL_BRDFSum.metal");
+        Cube_Shader = Shader::Create("Crimson_Editor/Assets/Shaders/{API}/CubeMap{EXT}");
+        equirectangularToCube_shader = Shader::Create("Crimson_Editor/Assets/Shaders/{API}/EquirectangularToCube{EXT}");
+        irradiance_shader = Shader::Create("Crimson_Editor/Assets/Shaders/{API}/IBL_Irradiance{EXT}");
+        prefilterShader = Shader::Create("Crimson_Editor/Assets/Shaders/{API}/IBL_Prefilter{EXT}");
+        BRDFSumShader = Shader::Create("Crimson_Editor/Assets/Shaders/{API}/IBL_BRDFSum{EXT}");
         
         CN_CORE_INFO("--- CubeMapEnv Shaders Created ---");
 

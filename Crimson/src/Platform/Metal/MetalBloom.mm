@@ -23,10 +23,10 @@ namespace Crimson {
 
 		m_ScreenDimension = m_Dimension;
 
-		m_DownSampleShader = Shader::Create("Crimson_Editor/Assets/Shaders/Metal/BloomDownsample.metal");
-		m_UpSampleShader = Shader::Create("Crimson_Editor/Assets/Shaders/Metal/BloomUpsample.metal");
-		BloomToneMapShader = Shader::Create("Crimson_Editor/Assets/Shaders/Metal/BloomToneMapping.metal");
-		ExtractBrightParts = Shader::Create("Crimson_Editor/Assets/Shaders/Metal/BloomHighPass.metal");
+		m_DownSampleShader = Shader::Create("Crimson_Editor/Assets/Shaders/{API}/BloomDownsample{EXT}");
+		m_UpSampleShader = Shader::Create("Crimson_Editor/Assets/Shaders/{API}/BloomUpsample{EXT}");
+		BloomToneMapShader = Shader::Create("Crimson_Editor/Assets/Shaders/{API}/BloomToneMapping{EXT}");
+		ExtractBrightParts = Shader::Create("Crimson_Editor/Assets/Shaders/{API}/BloomHighPass{EXT}");
 
 		glGenTextures(1, &m_InputImage);
 		glBindTexture(GL_TEXTURE_2D, m_InputImage);

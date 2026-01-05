@@ -32,25 +32,25 @@ namespace Crimson
 
 	Terrain::Terrain(float width, float height)
 	{
-		grass = MakeRef<Foliage>(Scene::Grass, 1024 * 80, 100, false, 50, false, true, true, 2,3, "Assets/Textures/ForestMask.png");
-		grass2 = MakeRef<Foliage>(Scene::Grass2, 1024 * 70, 300, true, 80, false, true, true, 1, 3, "Assets/Textures/ValleyMask.png");
-		grass3 = MakeRef<Foliage>(Scene::Grass3, 1024 * 70, 300, false, 200, false, true, true, 2, 3, "Assets/Textures/ValleyMask.png");
-		flower1 = MakeRef<Foliage>(Scene::Flower1, 1024 * 70, 300, false, 100, false, true, true, 1, 3, "Assets/Textures/FlowerMask.png");
-		flower2 = MakeRef<Foliage>(Scene::Flower2, 1024 * 70, 300, false, 100, false, true, true, 1, 3, "Assets/Textures/FlowerMask.png");
+		grass = MakeRef<Foliage>(Scene::Grass, 1024 * 80, 100, false, 50, false, true, true, 2,3, "Crimson_Editor/Assets/Textures/ForestMask.png");
+		grass2 = MakeRef<Foliage>(Scene::Grass2, 1024 * 70, 300, true, 80, false, true, true, 1, 3, "Crimson_Editor/Assets/Textures/ValleyMask.png");
+		grass3 = MakeRef<Foliage>(Scene::Grass3, 1024 * 70, 300, false, 200, false, true, true, 2, 3, "Crimson_Editor/Assets/Textures/ValleyMask.png");
+		flower1 = MakeRef<Foliage>(Scene::Flower1, 1024 * 70, 300, false, 100, false, true, true, 1, 3, "Crimson_Editor/Assets/Textures/FlowerMask.png");
+		flower2 = MakeRef<Foliage>(Scene::Flower2, 1024 * 70, 300, false, 100, false, true, true, 1, 3, "Crimson_Editor/Assets/Textures/FlowerMask.png");
 
-		Tree1 = MakeRef<Foliage>(Scene::Tree1, 1024 * 5, 800, true, 450, false, true, false, 2,3, "Assets/Textures/ForestMask.png");
-		Tree2 = MakeRef<Foliage>(Scene::Tree2, 1024 * 5, 800, true, 450, false, true, false, 2,3, "Assets/Textures/Fern_Mask.png");
-		Tree3 = MakeRef<Foliage>(Scene::Tree3, 1024 * 5, 800, true, 350, false, false, true, 2,3, "Assets/Textures/ValleyMask.png"); //dead tree
-		Tree4 = MakeRef<Foliage>(Scene::Tree4, 1024 * 5, 800, true, 100, false, true, false, 2,3, "Assets/Textures/ForestMask.png");
-		Tree5 = MakeRef<Foliage>(Scene::Tree5, 1024 * 5, 800, true, 400, false, true, false, 2,3, "Assets/Textures/FlowerMask.png");
+		Tree1 = MakeRef<Foliage>(Scene::Tree1, 1024 * 5, 800, true, 450, false, true, false, 2,3, "Crimson_Editor/Assets/Textures/ForestMask.png");
+		Tree2 = MakeRef<Foliage>(Scene::Tree2, 1024 * 5, 800, true, 450, false, true, false, 2,3, "Crimson_Editor/Assets/Textures/Fern_Mask.png");
+		Tree3 = MakeRef<Foliage>(Scene::Tree3, 1024 * 5, 800, true, 350, false, false, true, 2,3, "Crimson_Editor/Assets/Textures/ValleyMask.png"); //dead tree
+		Tree4 = MakeRef<Foliage>(Scene::Tree4, 1024 * 5, 800, true, 100, false, true, false, 2,3, "Crimson_Editor/Assets/Textures/ForestMask.png");
+		Tree5 = MakeRef<Foliage>(Scene::Tree5, 1024 * 5, 800, true, 400, false, true, false, 2,3, "Crimson_Editor/Assets/Textures/FlowerMask.png");
 
-		Bush1 = MakeRef<Foliage>(Scene::Bush1, 1024 * 15, 500, true, 30, false, true, false, 1,3, "Assets/Textures/ForestMask.png");
-		Bush2 = MakeRef<Foliage>(Scene::Bush2, 1024 * 15, 500, true, 30, false, true, false, 1,3, "Assets/Textures/ForestMask.png");
-		rock1 = MakeRef<Foliage>(Scene::Rock1, 1024 * 15, 800, true, 100, false, false, true, 2,3, "Assets/Textures/ForestMask.png");
-		rock2 = MakeRef<Foliage>(Scene::Rock2, 1024 * 20, 800, true, 400, false, false, true, 2,3, "Assets/Textures/ValleyMask.png");
+		Bush1 = MakeRef<Foliage>(Scene::Bush1, 1024 * 15, 500, true, 30, false, true, false, 1,3, "Crimson_Editor/Assets/Textures/ForestMask.png");
+		Bush2 = MakeRef<Foliage>(Scene::Bush2, 1024 * 15, 500, true, 30, false, true, false, 1,3, "Crimson_Editor/Assets/Textures/ForestMask.png");
+		rock1 = MakeRef<Foliage>(Scene::Rock1, 1024 * 15, 800, true, 100, false, false, true, 2,3, "Crimson_Editor/Assets/Textures/ForestMask.png");
+		rock2 = MakeRef<Foliage>(Scene::Rock2, 1024 * 20, 800, true, 400, false, false, true, 2,3, "Crimson_Editor/Assets/Textures/ValleyMask.png");
 
-		GroundPlant = MakeRef<Foliage>(Scene::GroundPlant, 1024 * 80, 150, true, 100, false, true, true, 2, 3, "Assets/Textures/ForestMask.png");
-		Fern = MakeRef<Foliage>(Scene::Fern, 1024 * 30, 200, true, 150, false, true, true, 1, 3, "Assets/Textures/Fern_Mask.png");
+		GroundPlant = MakeRef<Foliage>(Scene::GroundPlant, 1024 * 80, 150, true, 100, false, true, true, 2, 3, "Crimson_Editor/Assets/Textures/ForestMask.png");
+		Fern = MakeRef<Foliage>(Scene::Fern, 1024 * 30, 200, true, 150, false, true, true, 1, 3, "Crimson_Editor/Assets/Textures/Fern_Mask.png");
 
 		//set distribution parameters on foliage
 		Tree1->SetFoliageDistributionParam(30.0, 2, 1, 0.6);
@@ -100,8 +100,8 @@ namespace Crimson
 		m_Dimension.x = width;
 		m_Dimension.y = height;
 		m_maxTerrainHeight = std::numeric_limits<float>::min();
-		m_terrainShader = Shader::Create("Crimson_Editor/Assets/Shaders/GLSL/Terrain.glsl");
-		m_terrainWireframeShader = Shader::Create("Crimson_Editor/Assets/Shaders/GLSL/TerrainWireframe.glsl");
+		m_terrainShader = Shader::Create("Crimson_Editor/Assets/Shaders/{API}/Terrain.{EXT}");
+		m_terrainWireframeShader = Shader::Create("Crimson_Editor/Assets/Shaders/{API}/TerrainWireframe.{EXT}");
 
 
 		m_Water = Water::Create({ width, 20.0f, width }, { 0.0f, 0.0f, 1.0f, 1.0f }, { 512, 512 });

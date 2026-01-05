@@ -10,7 +10,6 @@ struct VertexOutput {
     float3 localPosition;             // Passed to fragment
 };
 
-//    Your reflection code looks for a struct in a buffer.
 struct UniformData {
     float4x4 projectionView;
 };
@@ -56,7 +55,7 @@ fragment float4 fragment_main(VertexOutput in [[stage_in]],
     float3 envColor = hdrTexture.sample(textureSampler, uv).rgb;
 
     // Tone Mapping (Exposure Correction)
-    // "1.0" exposure is hardcoded here, matching your GLSL
+    // "1.0" exposure is hardcoded here, matching GLSL
     float3 mapped = float3(1.0) - exp(-envColor * 1.0);
 
     return float4(mapped, 1.0);

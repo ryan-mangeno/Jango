@@ -47,7 +47,7 @@ namespace Crimson
         data->currentTexture = [data->device newTextureWithDescriptor:desc];
         data->historyTexture = [data->device newTextureWithDescriptor:desc];
 
-        // need to create 'TAA.metal' in Assets/Shaders/GLSL/ with "vertex_taa" and "fragment_taa"
+        // need to create 'TAA.metal' in Assets/Shaders/{API}/ with "vertex_taa" and "fragment_taa"
         id<MTLLibrary> library = [data->device newDefaultLibrary];
         if (!library) {
             CN_CORE_ERROR("Metal: Failed to load default library. Missing .metal files?");

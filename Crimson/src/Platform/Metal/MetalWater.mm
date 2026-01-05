@@ -10,7 +10,7 @@ namespace Crimson {
 	{
 		CN_PROFILE_FUNCTION()
 
-		m_waterShader = Shader::Create("Crimson_Editor/Assets/Shaders/GLSL/Water.glsl");
+		m_waterShader = Shader::Create("Crimson_Editor/Assets/Shaders/{API}/Water{EXT}");
 
 		m_Fbo1 = FrameBuffer::Create({ 512, 512 });
 		m_Fbo2 = FrameBuffer::Create({ 512, 512 });

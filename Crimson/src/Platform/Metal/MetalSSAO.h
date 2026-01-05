@@ -3,6 +3,8 @@
 #include "Crimson/Renderer/SSAO.h"
 #include "Crimson/Renderer/Shader.h"
 #include "Crimson/Renderer/GPUHandle.h"
+#include "MetalFrameBuffer.h" // Added
+
 #include <vector>
 
 #define RANDOM_SAMPLES_SIZE 64
@@ -19,7 +21,9 @@ namespace Crimson {
         virtual void CreateSSAOTexture(int width, int height) override;
         virtual void CaptureScene(Scene& scene, Camera& cam) override;
         
-        virtual GPUHandle GetSSAOTextureHandle() override { return GPUHandle(m_SSAOBlurTexture); }
+        virtual GPUHandle GetSSAOTextureHandle() override { 
+            return m_Blur_FBO->GetSceneTextureHandle(); 
+        }
 
     private:
         void GenerateKernel();
@@ -27,15 +31,14 @@ namespace Crimson {
         void RenderQuad();
 
         void RenderScene(Scene& scene , Ref<Shader>& current_shader);
-		void RenderTerrain(Scene& scene, Ref<Shader>& current_shader1, Ref<Shader>& current_shader2);
+        void RenderTerrain(Scene& scene, Ref<Shader>& current_shader1, Ref<Shader>& current_shader2);
 
         int m_width, m_height;
 
-        void* m_GBufferPosTexture = nullptr;   // Type: id<MTLTexture> (RGBA16Float - World Positions)
-        void* m_GBufferDepthTexture = nullptr; // Type: id<MTLTexture> (Depth32Float - Depth Buffer)
-        void* m_SSAORawTexture = nullptr;      // Type: id<MTLTexture> (R8Unorm - Noisy Occlusion)
-        void* m_SSAOBlurTexture = nullptr;     // Type: id<MTLTexture> (R8Unorm - Final Blurred Result)
-        void* m_NoiseTexture = nullptr;        // Type: id<MTLTexture> (RGBA32Float - 4x4 Rotation Noise)
+        Ref<MetalFrameBuffer> m_SSAO_FBO;
+        Ref<MetalFrameBuffer> m_Blur_FBO;
+        
+        void* m_NoiseTexture = nullptr; 
 
         Ref<Shader> m_SSAOShader;
         Ref<Shader> m_SSAOBlurShader;

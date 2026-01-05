@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Crimson/Core/Core.h"
+#include "RendererAPI.h"
 
 #include <string>
 #include <unordered_map>
@@ -9,6 +10,7 @@
 #include <glm/glm.hpp>
 
 namespace Crimson {
+
 
 
 	class Shader {
@@ -52,4 +54,32 @@ namespace Crimson {
 	private:
 		std::unordered_map<std::string, Ref<Shader>> m_Shaders;
 	};
+
+	class ShaderPathParse
+	{
+		public:
+			static void ParseShader(std::string& path) {
+				std::string shader_platform = "None";
+				std::string fsuffix = "None";
+				
+				switch (RendererAPI::GetAPI()) 
+				{
+					case GraphicsAPI::Metal:  shader_platform = "Metal"; fsuffix = ".metal"; break;
+					case GraphicsAPI::OpenGL: shader_platform = "GLSL"; fsuffix =  ".glsl";	 break;
+					case GraphicsAPI::None:	  CN_CORE_ERROR("Unknown Graphics API (Error When Parsing Shader Path)");
+				}
+
+				ReplaceToken(path, "{API}", shader_platform);
+				ReplaceToken(path, "{EXT}", fsuffix);
+			}
+
+		private:
+			static void ReplaceToken(std::string& src, const std::string& tok, const std::string& val) {
+				size_t pos = 0;
+				while((pos = src.find(tok, pos)) != std::string::npos) {
+					src.replace(pos, tok.length(), val);
+					pos += val.length();
+				}
+			}
+		};
 }

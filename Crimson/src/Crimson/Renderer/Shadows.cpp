@@ -2,6 +2,7 @@
 #include "Crimson.h"
 #include "Shadows.h"
 #include "Platform/OpenGL/OpenGLShadows.h"
+#include "Platform/Metal/MetalShadows.h"
 
 namespace Crimson
 {
@@ -23,7 +24,7 @@ namespace Crimson
 		case GraphicsAPI::OpenGL:
 			return MakeRef<OpenGLShadows>(width,height);
 		case GraphicsAPI::Metal:
-			return nullptr;
+			return MakeRef<MetalShadows>(width,height);
 		}
 	}
 	Ref<Shadows> Shadows::Create()
@@ -35,7 +36,7 @@ namespace Crimson
 		case GraphicsAPI::OpenGL:
 			return MakeRef<OpenGLShadows>(2048.f, 2048.f);
 		case GraphicsAPI::Metal:
-			return nullptr;
+			return MakeRef<MetalShadows>(2048.f, 2048.f);;
 		}
 	}
 }

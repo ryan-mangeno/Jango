@@ -38,8 +38,8 @@ namespace Crimson {
         m_Width = width;
         m_Height = height;
 
-        m_DefferedPassShader = Shader::Create("Crimson_Editor/Assets/Shaders/Metal/DeferredPass.metal");
-        m_ForwardPassShader  = Shader::Create("Crimson_Editor/Assets/Shaders/Metal/ForwardPass.metal");
+        m_DefferedPassShader = Shader::Create("Crimson_Editor/Assets/Shaders/{API}/DeferredPass{EXT}");
+        m_ForwardPassShader  = Shader::Create("Crimson_Editor/Assets/Shaders/{API}/ForwardPass{EXT}");
 
         // Create G-Buffer Textures
         // Normal: RGBA16F

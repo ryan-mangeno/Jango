@@ -42,7 +42,7 @@ namespace Crimson
 			case GraphicsAPI::OpenGL:	return OpenGLDeferredRenderer::GetDeferredShader();
 			case GraphicsAPI::Metal:	return MetalDeferredRenderer::GetDeferredShader();
 			case GraphicsAPI::None:
-			default: 					CN_CORE_ERROR("Invalid Graphics API (Defferred Shader Retrieval Failed)");
+			default: 					CN_CORE_ERROR("Invalid Graphics API (Defferred Shader Retrieval Failed)"); return nullptr;
 		}
 	}
 	uintptr_t DefferedRenderer::GetBuffers(uint32_t bufferInd)
@@ -52,7 +52,7 @@ namespace Crimson
 			case GraphicsAPI::OpenGL: 	return OpenGLDeferredRenderer::GetBuffers(bufferInd);
 			case GraphicsAPI::Metal: 	return MetalDeferredRenderer::GetBuffers(bufferInd);
 			case GraphicsAPI::None:
-			default: 					CN_CORE_ERROR("Invalid Graphics API (Buffer Retrieval Failed)");
+			default: 					CN_CORE_ERROR("Invalid Graphics API (Buffer Retrieval Failed)"); return 0;
 		}
 	}
 }

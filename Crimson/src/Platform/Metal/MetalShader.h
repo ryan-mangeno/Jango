@@ -39,19 +39,25 @@ namespace Crimson {
         std::string ParseFile(const std::string& filepath);
         void Compile(const std::string& vertexSrc, const std::string& fragmentSrc);
 
+        enum class ShaderType {
+            Vertex = 0,
+            Fragment,
+            Compute,
+        };
+
         struct UniformInfo {
             std::string Name;
             uint32_t Offset;
             uint32_t Size;
             uint32_t BufferIndex; 
-            bool IsVertex;        // true = vertex, false = fragment
+            ShaderType Type;
         };
 
         template<typename T>
         void SetUniform(const std::string& name, const T& value) {
             if (m_UniformMap.find(name) != m_UniformMap.end()) {
                 const UniformInfo& info = m_UniformMap.at(name);
-                std::vector<uint8_t>& buffer = info.IsVertex ? m_VertexUniformBuffer : m_FragmentUniformBuffer;
+                std::vector<uint8_t>& buffer = (info.Type == ShaderType::Fragment) ? m_FragmentUniformBuffer : m_VertexUniformBuffer;
                 if (buffer.size() < info.Offset + sizeof(T)) buffer.resize(info.Offset + sizeof(T));
                 memcpy(buffer.data() + info.Offset, &value, sizeof(T));
             }
@@ -60,7 +66,10 @@ namespace Crimson {
     private:
         std::string m_Name;
         
+        bool m_IsCompute;
+        
         void* m_PipelineState; // id<MTLRenderPipelineState>
+        void* m_ComputePipelineState; // id<MTLComputePipelineState>
         
         // We use mutable so Set* methods can remain const to match the interface
         mutable std::vector<uint8_t> m_VertexUniformBuffer;

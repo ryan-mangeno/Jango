@@ -11,7 +11,7 @@ namespace Crimson {
 		:cubemap_width(2048.0f),cubemap_height(2048.0f)
 	{
 		RenderCommand::Init();
-		shader = Shader::Create("Crimson_Editor/Assets/Shaders/GLSL/CubeMapReflection.glsl");//texture shader
+		shader = Shader::Create("Crimson_Editor/Assets/Shaders/{API}/CubeMapReflection{EXT}");//texture shader
 		CreateCubeMapTexture();
 	}
 
