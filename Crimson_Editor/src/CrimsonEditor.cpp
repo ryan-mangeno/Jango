@@ -282,7 +282,7 @@ void CrimsonEditor::OnImGuiRender()
 	ImGui::DragInt("Cascade Level", &Shadows::Cascade_level, 1, 0, 100);
 	ImGui::DragFloat("lamda", &Shadows::m_lamda, 0.00001, 0, 1,"%8f");
 	ImGui::Text("SSAO MAP");
-	ImGui::Image((ImTextureID)Renderer3D::ssao_id, ImVec2(512, 512), { 0,1 }, {1,0});	
+	ImGui::Image((ImTextureID)Renderer3D::ssao_id.ToPlatform(), ImVec2(512, 512), { 0,1 }, {1,0});	
 	ImGui::Text("Normal map");
 	ImGui::Image(DefferedRenderer::GetBuffers(0), ImVec2(512, 512), { 0, 1 }, { 1,0 });
 	ImGui::Text("Velocity Buffer For TAA");

@@ -13,7 +13,7 @@ namespace Crimson {
 		~OpenGLSSAO();
 
 		inline void SetSSAO_TextureDimension(int width, int height) override { m_width = width, m_height = height; }
-		inline void* GetSSAOTextureID() override { return reinterpret_cast<void*>(static_cast<uintptr_t>(SSAOtexture_id)); }
+		inline GPUHandle GetSSAOTextureHandle() override { return GPUHandle(SSAOtexture_id); }
 
 		void CaptureScene(Scene& scene , Camera& cam) override;
 		void CreateSSAOTexture(int width, int height) override;

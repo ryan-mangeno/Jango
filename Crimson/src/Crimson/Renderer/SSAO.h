@@ -3,6 +3,7 @@
 #include "Crimson/Core/Core.h"
 #include "Crimson/Scene/Scene.h"
 #include "Cameras/Camera.h"
+#include "GPUHandle.h"
 
 namespace Crimson {
 
@@ -18,7 +19,6 @@ namespace Crimson {
         
         virtual void CaptureScene(Scene& scene, Camera& cam) = 0;
 
-        // returns the final texture ID (void* to support both GL int and Metal id<MTLTexture>)
-        virtual void* GetSSAOTextureID() = 0; 
+        virtual GPUHandle GetSSAOTextureHandle() = 0; 
     };
 }

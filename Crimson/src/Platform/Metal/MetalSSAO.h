@@ -2,6 +2,7 @@
 
 #include "Crimson/Renderer/SSAO.h"
 #include "Crimson/Renderer/Shader.h"
+#include "Crimson/Renderer/GPUHandle.h"
 #include <vector>
 
 #define RANDOM_SAMPLES_SIZE 64
@@ -18,7 +19,7 @@ namespace Crimson {
         virtual void CreateSSAOTexture(int width, int height) override;
         virtual void CaptureScene(Scene& scene, Camera& cam) override;
         
-        virtual void* GetSSAOTextureID() override { return m_SSAOBlurTexture; }
+        virtual GPUHandle GetSSAOTextureHandle() override { return GPUHandle(m_SSAOBlurTexture); }
 
     private:
         void GenerateKernel();

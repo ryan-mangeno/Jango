@@ -203,15 +203,15 @@ namespace Crimson {
         RenderCommand::SetCullFace(true);
     }
 
-	// not rlly needed, only for imgui which you can cast void* to ImTexture, and this is lossly on some os
-    uint32_t MetalDeferredRenderer::GetBuffers(uint32_t bufferInd)
+    uintptr_t MetalDeferredRenderer::GetBuffers(uint32_t bufferInd)
     {
         switch (bufferInd)
         {
-            case  0:    return (uint32_t)(uintptr_t)m_NormalTexture->GetTexturePointer();
-            case  1:    return (uint32_t)(uintptr_t)m_VelocityTexture->GetTexturePointer();
-            case  2:    return (uint32_t)(uintptr_t)m_AlbedoTexture->GetTexturePointer();
-            case  3:    return (uint32_t)(uintptr_t)m_RoughnessTexture->GetTexturePointer();
+            case  0:    return (uintptr_t)m_NormalTexture->GetTexturePointer();
+            case  1:    return (uintptr_t)m_VelocityTexture->GetTexturePointer();
+            case  2:    return (uintptr_t)m_AlbedoTexture->GetTexturePointer();
+            case  3:    return (uintptr_t)m_RoughnessTexture->GetTexturePointer();
+            case  4:    return (uintptr_t)m_DepthTexture->GetTexturePointer();
         }
         return 0;
     }

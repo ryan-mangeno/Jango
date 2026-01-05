@@ -19,7 +19,7 @@ namespace Crimson {
 
         explicit GPUHandle(void* metal)
             :   m_Data(reinterpret_cast<uintptr_t>(metal)) {}
-
+        
         inline PlatformGPUHandle ToPlatform() const {
         #ifdef __APPLE__
             return ToMetal();

@@ -195,14 +195,14 @@ namespace Crimson
 		glCullFace(GL_BACK);
 	}
 
-	uint32_t OpenGLDeferredRenderer::GetBuffers(uint32_t bufferInd)
+	uintptr_t OpenGLDeferredRenderer::GetBuffers(uint32_t bufferInd)
 	{
 		switch (bufferInd)
 		{
-			case  0:	return m_NormalBufferID;
-			case  1:	return m_VelocityBufferID;
-			case  2:	return m_AlbedoBufferID;
-			case  3:	return m_RoughnessMetallicBufferID;
+			case  0:	return (uintptr_t)m_NormalBufferID;
+			case  1:	return (uintptr_t)m_VelocityBufferID;
+			case  2:	return (uintptr_t)m_AlbedoBufferID;
+			case  3:	return (uintptr_t)m_RoughnessMetallicBufferID;
 		}
 	}
 }

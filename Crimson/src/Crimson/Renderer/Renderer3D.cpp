@@ -78,7 +78,7 @@ namespace Crimson {
 		{
 			depth_id[i] = m_data->shadow_map->GetDepth_ID(i);
 		}
-		ssao_id = m_data->ssao->GetSSAOTextureID();
+		ssao_id = m_data->ssao->GetSSAOTextureHandle();
 
 		SetSunLightDirection({ 3,5,2 });
 	}

@@ -45,7 +45,7 @@ namespace Crimson
 			default: 					CN_CORE_ERROR("Invalid Graphics API (Defferred Shader Retrieval Failed)");
 		}
 	}
-	uint32_t DefferedRenderer::GetBuffers(int bufferInd)
+	uintptr_t DefferedRenderer::GetBuffers(uint32_t bufferInd)
 	{
 		switch(RendererAPI::GetAPI()) 
 		{
