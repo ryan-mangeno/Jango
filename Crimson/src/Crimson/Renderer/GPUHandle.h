@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Crimson/Core/Log.h"
+
 namespace Crimson {
 
 #ifdef CN_PLATFORM_MACOS
@@ -21,10 +23,13 @@ namespace Crimson {
             :   m_Data(reinterpret_cast<uintptr_t>(metal)) {}
         
         inline PlatformGPUHandle ToPlatform() const {
-        #ifdef __APPLE__
+        #ifdef CN_PLATFORM_MACOS
             return ToMetal();
-        #else
+        #elif CN_PLATFORM_WINDOWS
             return ToGL();
+        #else 
+            CN_CORE_ERROR("Error: GPU Handle not Supported!")
+            return 0;
         #endif
         }
 
