@@ -5,7 +5,6 @@
 - **Full 3D Renderer** 
 - **2D Renderer**
 - **Physics Libraries Integration**:
-  - [Box2D](https://box2d.org/)
   - [PhysX](https://github.com/NVIDIAGameWorks/PhysX)
 - **Multiplayer Networking Support** (planned after)
 
@@ -15,7 +14,7 @@
 ---
 
 ## 📢 Stay Tuned
-Follow the repository for updates —  
+Follow the repository for updates 
 
 Jango is an open-source game engine currently under development including 2D and 3D environments
 imported tools used are found in the Crimson/vendor directory
@@ -29,11 +28,11 @@ imported tools used are found in the Crimson/vendor directory
 - **ImGui**: UI for runtime testing
 - **GLFW**: Used to create windows, contexts, receiving input, and call-backs
 - **Glad**: loading OpenGL functions into Jango
-- **Math Library**: Developed my own math library, [Chroma](https://github.com/ryan-mangeno/Chroma)
+- **Math Library**: Developed my own math library, [Chroma](https://github.com/ryan-mangeno/Chroma), Currently migrating from glm
   relevant snipets and inspiration accredited to the YouTube channel GetIntoGameDev
   - **Compiler Support (Work in Progress)**: 
-  - GCC, Cmake, MSVC support SIMD operations
-  - working on including more
+  - Cmake, Msvc
+  - Windows (Supported), MacOS (In Progress)
 - **Physx**: Physx Library with optional nvidia gpu acceleration
 - **yaml-cpp**: config files and assets managment
 - **assimp**: model loader
@@ -97,3 +96,4 @@ I welcome contributions to Jango! To contribute:
 2. Create a new branch for your feature or fix
 3. Commit your changes with detailed messages
 4. Submit a pull request  
+
