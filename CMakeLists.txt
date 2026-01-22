@@ -166,10 +166,13 @@ if(WIN32)
         opengl32.lib Normaliz.lib Ws2_32.lib Wldap32.lib Crypt32.lib advapi32.lib
     )
 
+    find_package(assimp CONFIG REQUIRED)
+    target_include_directories(Crimson PUBLIC ${assimp_INCLUDE_DIRS})
+    target_link_libraries(Crimson PRIVATE assimp::assimp)
+
     file(GLOB PHYSX_LIBS "Crimson/vendor/PhysX/lib/*.lib")
     target_link_libraries(Crimson PRIVATE
         "${CMAKE_SOURCE_DIR}/Crimson/vendor/Curl/lib/libcurl_a_debug.lib"
-        "${CMAKE_SOURCE_DIR}/Crimson/vendor/assimp/lib/x64/assimp-vc143-mt.lib"
         "${CMAKE_SOURCE_DIR}/Crimson/vendor/oidn/lib/OpenImageDenoise.lib"
         "${CMAKE_SOURCE_DIR}/Crimson/vendor/oidn/lib/OpenImageDenoise_core.lib"
         ${PHYSX_LIBS}
@@ -219,12 +222,6 @@ endif()
 
 # Linked CMake Targets
 target_link_libraries(Crimson PUBLIC GLFW Glad ImGui Chroma yaml-cpp)
-
-if(CMAKE_BUILD_TYPE MATCHES "Debug")
-    target_compile_definitions(Crimson PRIVATE _DEBUG)
-else()
-    target_compile_definitions(Crimson PRIVATE NDEBUG)
-endif()
 
 # sandbox disabled for now
 #add_executable(Sandbox)
