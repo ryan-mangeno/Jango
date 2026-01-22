@@ -20,10 +20,6 @@
 	path = Crimson/vendor/ImGuizmo
 	url = https://github.com/CedricGuillemet/ImGuizmo
 	branch = master
-[submodule "Crimson/vendor/yaml-cpp"]
-	path = Crimson/vendor/yaml-cpp
-	url = https://github.com/ryan-mangeno/yaml-cpp
-	branch = master
 [submodule "Crimson/vendor/assimp"]
 	path = Crimson/vendor/assimp
 	url = https://github.com/assimp/assimp
@@ -34,3 +30,6 @@
 	path = Crimson/vendor/PhysX
 	url = https://github.com/dpogue/PhysX.git
 	branch = macos-aarch64
+[submodule "Crimson/vendor/yaml-cpp"]
+	path = Crimson/vendor/yaml-cpp
+	url = https://github.com/ryan-mangeno/yaml-cpp.git
