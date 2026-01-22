@@ -31,7 +31,6 @@ namespace Crimson {
 	    }
 	}
 
-    // Move your SetDarkThemeColors here since it's shared C++ code
     void ImGuiLayer::SetDarkThemeColors()
     {
 		auto& colors = ImGui::GetStyle().Colors;
@@ -59,4 +58,5 @@ namespace Crimson {
 		colors[ImGuiCol_TitleBgActive] = { 0.15f,0.1505f,0.15f,1.0f };
 		colors[ImGuiCol_TitleBgCollapsed] = { 0.95f,0.1505f,0.951f,1.0f };    
 	}
+
 }
