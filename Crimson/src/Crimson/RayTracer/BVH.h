@@ -14,8 +14,6 @@ namespace Crimson
 			MEAN
         };
 
-
-
 		struct RTTriangle
 		{
 			glm::vec3 v0, v1, v2;
@@ -38,9 +36,6 @@ namespace Crimson
 			glm::vec3 GetCentroid() const { return (v0 + v1 + v2) * 0.3333333333333f; };
 			Bounds GetBounds() { return Bounds(v0, v1, v2); };
 		};
-
-
-
 
 		struct BVHNode
 		{
@@ -91,7 +86,6 @@ namespace Crimson
 		void UpdateMaterials();
 
 	private:
-
 		void DestroyBVH(BVHNode*&);
 		void BuildBVH(BVHNode*& node, uint32_t triStartID, uint32_t triCount);
 		void CreateTriangles(const glm::mat4& transform = glm::mat4(1.0f)); //create triangles from mesh vertex positions
@@ -100,23 +94,20 @@ namespace Crimson
 		int FlattenBVH(BVHNode* node, uint32_t* offset);
 		void CleanBVH(BVHNode*& node);//removes count of triangles from child nodes
 
-
 	public:
-
 		std::vector<Material>& GetMaterials() { return m_Materials; }
 		std::vector<LinearBVHNode>& GetLinearBVHNodes() { return m_LinearBVHNodes; }
 		std::vector<RTTriangle>& GetRTTriangles() { return m_RTTriangles; }
 		std::vector<uint32_t>& GetTriangleIndices() { return m_TriIndices; }
 		
-		// will make these private
-
+		// need make these private - todo . to fix
 		std::vector<Material> m_Materials;
 		std::vector<Ref<Texture2D>> m_AlbedoTextures;
 		std::vector<Ref<Texture2D>> m_RoughnessTextures;
 
-		std::vector<LinearBVHNode> m_LinearBVHNodes;//to be sent on to the gpu
-		std::vector<RTTriangle> m_RTTriangles;//to be sent on to the gpu
-		std::vector<uint32_t> m_TriIndices;//to be sent on to the gpu
+		std::vector<LinearBVHNode> m_LinearBVHNodes; //to be sent on to the gpu
+		std::vector<RTTriangle> m_RTTriangles; //to be sent on to the gpu
+		std::vector<uint32_t> m_TriIndices; //to be sent on to the gpu
 		
 		uint32_t m_NumNodes = 0;
 
@@ -131,3 +122,4 @@ namespace Crimson
 		BVHNode* m_Head = nullptr;
 	};
 }
+
