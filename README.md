@@ -1,3 +1,7 @@
+# ANNOUNCEMENT:
+## I'm super excited to announce a brand new game engine I am going to start working on, I have decided that rather than going through full metal support I am going to simply make a game engine using Vulkan, this way I can focus on the graphics end of things which I enjoy a lot, rather than rewriting multiple components for compatability. If your reading this I have likely started already, follow along!
+
+### note - this branch current supports windows out of the box, if you would like to fork this and continue metal support, by all means do so! Reach out to me if you have questions on the architecture, regarding the event system, stub generation, layered architecture, etc.
 
 # Jango Engine 
 
@@ -96,4 +100,5 @@ I welcome contributions to Jango! To contribute:
 2. Create a new branch for your feature or fix
 3. Commit your changes with detailed messages
 4. Submit a pull request  
+
 
