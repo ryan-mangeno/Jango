@@ -29,3 +29,6 @@
 [submodule "Crimson/vendor/yaml-cpp"]
 	path = Crimson/vendor/yaml-cpp
 	url = https://github.com/ryan-mangeno/yaml-cpp.git
+[submodule "Crimson/vendor/PhysX"]
+	path = Crimson/vendor/PhysX
+	url = https://github.com/ryan-mangeno/PhysX.git
