@@ -4,7 +4,7 @@ https://github.com/user-attachments/assets/f6f3b5bd-5687-4843-b6ec-6f0be10e0b51
 
 ## 📢 Announcement
 
-I'm excited to announce this new game engine! After careful consideration, I've decided to focus on Vulkan rather than pursuing full Metal support. 
+I'm excited to announce a new game engine I will begin developing ! After careful consideration, I've decided to focus on Vulkan rather than pursuing full Metal support. 
 
 > **Important:** The `windows-dev` branch currently provides out-of-the-box Windows support. If you'd like to fork this project and continue Metal support, please feel free! Reach out if you have questions about the architecture, event system, stub generation, or layered design.
 
@@ -109,3 +109,4 @@ All imported tools can be found in the `Crimson/vendor` directory. Special thank
 ---
 
 Follow the repository for updates and stay tuned for new features!
+
