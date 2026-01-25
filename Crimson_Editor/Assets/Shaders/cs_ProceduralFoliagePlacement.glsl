@@ -153,16 +153,24 @@ void main()
 		float rotationAngle = 0;
 		if(random() < P)
 		{
-			uint index = atomicCounterIncrement(Count_Instances); //count the total instances that are spawnning
+			uint index = atomicCounterIncrement(Count_Instances); 
+			
 			if(u_alignToTerrainNormal==1)
 			{
-				rotationAxis = -cross(vec3(0,1.0,0),terrainNormal); //get in which axis to rotate
-				rotationAngle = acos(dot(vec3(0,1.0,0),terrainNormal)); //get rotation amount
+				// Notice we removed the negative sign from cross() to simplify the math
+				rotationAxis = cross(vec3(0,1.0,0), terrainNormal); 
+				rotationAngle = acos(dot(vec3(0,1.0,0), terrainNormal)); 
 			}
 
-			inBuffer.trans[index] = CreateTranslationMatrix(jitter_pos)	* CreateRotationMatrix(rotationAngle* rotationAxis)
-			* CreateRotationMatrix(vec3(0,randomInRange(-80,70),0)) * CreateScaleMatrix(randomInRange(max(u_minScale,1.0),max(u_maxScale,2.0)));
-			CreateDensity(ivec2( jitter_pos.xz));
+			mat4 correction = CreateRotationMatrix(vec3(3.14159265, 0, 0)); 
+
+			inBuffer.trans[index] = CreateTranslationMatrix(jitter_pos) 
+				* correction  // Apply the 180-degree flip here
+				* CreateRotationMatrix(rotationAngle * rotationAxis)
+				* CreateRotationMatrix(vec3(0, randomInRange(-80, 70), 0)) 
+				* CreateScaleMatrix(randomInRange(max(u_minScale, 1.0), max(u_maxScale, 2.0)));
+				
+			CreateDensity(ivec2(jitter_pos.xz));
 		}
 	}	
 }

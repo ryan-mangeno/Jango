@@ -37,14 +37,14 @@ namespace Crimson
 		flower1 = MakeRef<Foliage>(Scene::Flower1, 1024 * 70, 300, false, 100, false, true, true, 1, 3, "Assets/Textures/FlowerMask.png");
 		flower2 = MakeRef<Foliage>(Scene::Flower2, 1024 * 70, 300, false, 100, false, true, true, 1, 3, "Assets/Textures/FlowerMask.png");
 
-		Tree1 = MakeRef<Foliage>(Scene::Tree1, 1024 * 5, 800, true, 450, false, true, false, 2,3, "Assets/Textures/ForestMask.png");
-		Tree2 = MakeRef<Foliage>(Scene::Tree2, 1024 * 5, 800, true, 450, false, true, false, 2,3, "Assets/Textures/Fern_Mask.png");
+		Tree1 = MakeRef<Foliage>(Scene::Tree1, 1024 * 5, 800, true, 450, false, true, true, 2,3, "Assets/Textures/ForestMask.png");
+		Tree2 = MakeRef<Foliage>(Scene::Tree2, 1024 * 5, 800, true, 450, false, true, true, 2,3, "Assets/Textures/Fern_Mask.png");
 		Tree3 = MakeRef<Foliage>(Scene::Tree3, 1024 * 5, 800, true, 350, false, false, true, 2,3, "Assets/Textures/ValleyMask.png"); //dead tree
-		Tree4 = MakeRef<Foliage>(Scene::Tree4, 1024 * 5, 800, true, 100, false, true, false, 2,3, "Assets/Textures/ForestMask.png");
-		Tree5 = MakeRef<Foliage>(Scene::Tree5, 1024 * 5, 800, true, 400, false, true, false, 2,3, "Assets/Textures/FlowerMask.png");
+		Tree4 = MakeRef<Foliage>(Scene::Tree4, 1024 * 5, 800, true, 100, false, true, true, 2,3, "Assets/Textures/ForestMask.png");
+		Tree5 = MakeRef<Foliage>(Scene::Tree5, 1024 * 5, 800, true, 400, false, true, true, 2,3, "Assets/Textures/FlowerMask.png");
 
-		Bush1 = MakeRef<Foliage>(Scene::Bush1, 1024 * 15, 500, true, 30, false, true, false, 1,3, "Assets/Textures/ForestMask.png");
-		Bush2 = MakeRef<Foliage>(Scene::Bush2, 1024 * 15, 500, true, 30, false, true, false, 1,3, "Assets/Textures/ForestMask.png");
+		Bush1 = MakeRef<Foliage>(Scene::Bush1, 1024 * 15, 500, true, 30, false, true, true, 1,3, "Assets/Textures/ForestMask.png");
+		Bush2 = MakeRef<Foliage>(Scene::Bush2, 1024 * 15, 500, true, 30, false, true, true, 1,3, "Assets/Textures/ForestMask.png");
 		rock1 = MakeRef<Foliage>(Scene::Rock1, 1024 * 15, 800, true, 100, false, false, true, 2,3, "Assets/Textures/ForestMask.png");
 		rock2 = MakeRef<Foliage>(Scene::Rock2, 1024 * 20, 800, true, 400, false, false, true, 2,3, "Assets/Textures/ValleyMask.png");
 

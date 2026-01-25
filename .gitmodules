@@ -3,15 +3,15 @@
 	url = https://github.com/gabime/spdlog
 [submodule "Crimson/vendor/GLFW"]
 	path = Crimson/vendor/GLFW
-	url = https://github.com/anakin004/glfw
+	url = https://github.com/ryan-mangeno/glfw
 	branch = master
 [submodule "Crimson/vendor/imgui"]
 	path = Crimson/vendor/imgui
-	url = https://github.com/anakin004/imgui
+	url = https://github.com/ryan-mangeno/imgui
 	branch = docking
 [submodule "Crimson/vendor/Chroma"]
 	path = Crimson/vendor/Chroma
-	url = https://github.com/anakin004/Chroma
+	url = https://github.com/ryan-mangeno/Chroma
 	branch = main
 [submodule "Crimson/vendor/glm"]
 	path = Crimson/vendor/glm
@@ -19,12 +19,16 @@
 [submodule "Crimson/vendor/ImGuizmo"]
 	path = Crimson/vendor/ImGuizmo
 	url = https://github.com/CedricGuillemet/ImGuizmo
-[submodule "Crimson/vendor/yaml_cpp"]
-	path = Crimson/vendor/yaml_cpp
-	url = https://github.com/jbeder/yaml-cpp
+	branch = master
 [submodule "Crimson/vendor/assimp"]
 	path = Crimson/vendor/assimp
 	url = https://github.com/assimp/assimp
 [submodule "Crimson/vendor/mimalloc"]
 	path = Crimson/vendor/mimalloc
-	url = https://github.com/anakin004/mimalloc
+	url = https://github.com/ryan-mangeno/mimalloc
+[submodule "Crimson/vendor/yaml-cpp"]
+	path = Crimson/vendor/yaml-cpp
+	url = https://github.com/ryan-mangeno/yaml-cpp.git
+[submodule "Crimson/vendor/PhysX"]
+	path = Crimson/vendor/PhysX
+	url = https://github.com/ryan-mangeno/PhysX.git
