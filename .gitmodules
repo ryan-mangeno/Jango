@@ -7,7 +7,7 @@
 	branch = master
 [submodule "Crimson/vendor/imgui"]
 	path = Crimson/vendor/imgui
-	url = https://github.com/ryan-mangeno/imgui
+	url = https://github.com/ryan-mangeno/imgui.git
 	branch = docking
 [submodule "Crimson/vendor/Chroma"]
 	path = Crimson/vendor/Chroma

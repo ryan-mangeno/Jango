@@ -71,9 +71,14 @@ set(CMAKE_CXX_FLAGS_DIST "${CMAKE_CXX_FLAGS_RELEASE}" CACHE STRING "" FORCE)
 set(CMAKE_EXE_LINKER_FLAGS_DIST "${CMAKE_EXE_LINKER_FLAGS_RELEASE}" CACHE STRING "" FORCE)
 
 add_subdirectory(Crimson/vendor/GLFW)
+
+if(TARGET glfw)
+    add_library(GLFW ALIAS glfw)
+endif()
+
 add_subdirectory(Crimson/vendor/imgui)
 add_subdirectory(Crimson/vendor/Glad)
-add_subdirectory(Crimson/vendor/Chroma)
+#add_subdirectory(Crimson/vendor/Chroma)
 add_subdirectory(Crimson/vendor/yaml-cpp)
 add_subdirectory(Crimson/vendor/PhysX) 
 
@@ -192,7 +197,7 @@ target_compile_definitions(Crimson PUBLIC
 
 # Linking
 link_directories(${CMAKE_SOURCE_DIR}/bin/${OUTPUT_DIR_NAME})
-target_link_libraries(Crimson PUBLIC GLFW Glad ImGui Chroma yaml-cpp Assimp PhysX)
+target_link_libraries(Crimson PUBLIC GLFW Glad ImGui yaml-cpp Assimp PhysX)
 
 if(WIN32)
     target_compile_definitions(Crimson PUBLIC CN_PLATFORM_WINDOWS CN_BUILD_DLL GLFW_INCLUDE_NONE _CRT_SECURE_NO_WARNINGS)
